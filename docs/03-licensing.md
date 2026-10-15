@@ -39,7 +39,7 @@ service, without copyleft obligations beyond simple source offers.
 | Artifacts | Zot, distribution, Harbor, Spegel, Dragonfly, cosign, Notation, ORAS, SeaweedFS | Ceph (LGPL mix) | MinIO (AGPL, archived), Garage (AGPL) → SeaweedFS |
 | Ingestion | Kafka, Pulsar, NATS JetStream, Bento (MIT fork of Benthos), Vector (MPL-2.0), Telegraf, NiFi, Node-RED, Flink, RisingWave, ClickHouse, QuestDB, InfluxDB 3 Core, Apache IoTDB, DuckDB, Iceberg, PostgreSQL | – | Redpanda (BSL) → Kafka; Materialize (BSL); TimescaleDB extra features (Timescale License) → plain PostgreSQL / QuestDB / ClickHouse; TDengine (AGPL) |
 | Observability | OpenTelemetry, Fluent Bit, Grafana Alloy, Prometheus, VictoriaMetrics/VictoriaLogs single-node, Perses (dashboards) | – | Grafana, Loki, Tempo, Mimir (AGPL) → Perses + VictoriaMetrics/VictoriaLogs + Jaeger |
-| Remote access | Headscale, wireguard-go, OpenZiti, frp, rathole | WireGuard kernel module (GPL-2.0) | NetBird server ≥ 0.53 (AGPL; client stays BSD-3); Teleport (non-OSS community licence) |
+| Remote access / overlay | Headscale, Tailscale client (BSD-3), wireguard-go, boringtun (BSD-3), Nebula (MIT), innernet, OpenZiti, frp, rathole | WireGuard kernel module (GPL-2.0) | NetBird server ≥ 0.53 (AGPL; client stays BSD-3); Teleport (non-OSS community licence); ZeroTier (source-available core, verify) |
 | Platforms | ThingsBoard CE, Project EVE, Flight Control (verify), Mender server OSS (verify) | – | openBalena (AGPL, verify), OpenRemote (AGPL) |
 | Config / CRDT | Automerge, Yjs, CUE, Jsonnet, Salt | – | Ansible (GPLv3; fine as an external control-side tool, not embedded) |
 

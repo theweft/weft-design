@@ -199,7 +199,11 @@ This is an open gap to research.
 
 | Tool | Notes | Fit |
 |---|---|---|
-| **WireGuard** + **Headscale** (OSS Tailscale control plane), **NetBird** | Overlay networks with NAT traversal | ★ |
+| **WireGuard** (kernel, wireguard-go, boringtun) | Fast, simple, static config; ideal base for a fleetloom-managed overlay | ★ |
+| **Headscale** + Tailscale client | Self-hosted Tailscale control plane; NAT traversal with relays, subnet routers, exit nodes, ACLs | ★ |
+| **Nebula** (Slack, now Defined Networking) | Certificate-based mesh; "lighthouses" for discovery, relays; trust comes from a CA, not a live server | ★ fits the signed, decentralized model |
+| **innernet** | WireGuard mesh with CIDR-based access rules | ○ |
+| **NetBird** | WireGuard mesh; server is AGPL since 2025 | ✕ core |
 | **OpenZiti** | Zero-trust overlay, embeddable SDKs | ○ |
 | **Teleport**, **Mender remote terminal**, balena tunnels | Audited sessions | ○ |
 | **frp**, **rathole**, **Zenoh-based tunnel** | Tunnelling through existing links | ○ |

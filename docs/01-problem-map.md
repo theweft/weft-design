@@ -129,11 +129,33 @@ chosen per deployment and mixed within one fleet:
 - API-first (everything the UI does is in the API), CLI, Terraform/GitOps integration.
 - **Seam:** a public REST/gRPC API + webhooks/events.
 
-## P11. Remote access & debugging
+## P11. Overlay networking (mesh VPN) & remote access (first-class)
 
-- Secure shell/port forwarding to devices behind NAT/CGNAT, without inbound ports.
-- Session audit, just-in-time access.
-- **Seam:** WireGuard/overlay network or tunnel over the existing messaging link.
+An optional, first-class IP overlay so that devices, sites, operators and backend can reach each
+other regardless of NAT, CGNAT or segmented networks. Pub/sub (P4) does not depend on it, but it is
+needed for everything that speaks plain IP: SSH, web UIs, Modbus/TCP, OPC UA, legacy protocols,
+site-to-site links.
+
+**Roles a node can take:**
+
+```
+ device / peer      member of the overlay with its own overlay IP
+ relay              forwards encrypted traffic when direct NAT traversal fails
+ subnet router      a.k.a. site gateway: exposes a local subnet (PLCs, MCUs, cameras) that cannot join itself
+ exit node          routes a node's internet traffic through another node
+ coordinator        distributes keys, peer lists, ACLs (optional: can be replaced by signed desired state)
+```
+
+**Problems to solve:**
+- Key generation and distribution, rotation, revocation (ties into P2 identity).
+- Peer discovery and NAT traversal; relays as fallback.
+- ACLs: who may reach which device/port; least privilege by default.
+- Works offline / without a coordinator: peer configs are part of the signed desired state (P15),
+  so an air-gapped site can run its own overlay.
+- Just-in-time operator access with session audit.
+- Integration with an existing corporate VPN (IPsec, OpenVPN, existing WireGuard).
+- **Seam:** a "connectivity provider" plugin: native WireGuard managed by fleetloom, Headscale/Tailscale,
+  Nebula, OpenZiti, or the user's existing VPN.
 
 ## P12. Security & supply chain (cross-cutting)
 
