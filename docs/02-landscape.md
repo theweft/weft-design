@@ -231,6 +231,33 @@ are **Keycloak**, **Zitadel** and **Ory**, with **OpenFGA** or **SpiceDB** for f
 
 ---
 
+## 13b. Offline / air-gapped operation (P15)
+
+How well existing tools work with no cloud. Not verified in depth; check each before relying on it.
+
+| Tool | Offline capability | Fit |
+|---|---|---|
+| **Mender** | Standalone mode installs artifacts from local files or USB; server is self-hostable | ★ |
+| **RAUC**, **SWUpdate** | Install from local bundles; SWUpdate has a built-in local web UI for uploads | ★ |
+| **Torizon** | Offline updates via "Lockboxes" (signed, Uptane-based bundles on USB) | ○ good reference for bundle design |
+| **Foundries.io** | Offline updates with `aktualizr-lite` from local media | ○ reference |
+| **TUF / Uptane** | Designed to verify metadata without a live server; expiry needs a time strategy | ★ |
+| **OCI image layout / ORAS / Zot** | Artifacts copied to disk or a local registry mirror; `skopeo` and `oras` copy between them | ★ |
+| **hawkBit**, **Flight Control**, **openBalena** | Self-hostable control planes for on-prem sites | ○ |
+| **balena** | Local mode for development; production still assumes balenaCloud | ✕ |
+| **k3s** | Documented air-gapped install | ○ edge servers |
+| **Zenoh**, **NATS** | Run fully local; NATS leaf nodes and JetStream buffer for later sync | ★ |
+| **step-ca**, **OpenBao** | Local CA on a gateway or site server | ★ |
+| **Headscale**, **NetBird** | Self-hosted overlay networks for on-prem remote access | ○ |
+| **Fluent Bit**, **Vector**, OTel Collector | Disk buffering, later upload | ★ |
+| **Eclipse Ditto**, CRDT libraries (Automerge, Yjs) | Twin sync; CRDTs as one option for merging offline config changes | ○ |
+
+**Takeaway:** Device-side update tools handle offline installs well. Few control planes are designed to
+run at every level (cloud, site, device) and federate with each other. That hierarchical, relocatable
+control plane is a gap fleetloom could fill.
+
+---
+
 ## 14. Papers and reading list
 
 Citations are from memory and need checking before we rely on them.
@@ -257,6 +284,7 @@ Citations are from memory and need checking before we rely on them.
 
 ## 15. First impressions for fleetloom
 
+0. **Offline first:** one relocatable control plane (cloud, site, gateway, device) plus a signed offline bundle format carrying the same desired state and artifacts.
 1. **Messaging core:** Zenoh as the topology-flexible bus, with an MQTT 5 bridge for interop and NATS or Kafka at the backend.
 2. **Artifacts:** an OCI registry for everything (containers, bootc OS images, RAUC bundles, config), signed with cosign, with TUF metadata on top.
 3. **Device side:** our own small agent that drives existing tools (RAUC/SWUpdate/Mender for OS, Podman/Quadlet or Ankaios for workloads) through plugins.

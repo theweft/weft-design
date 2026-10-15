@@ -18,6 +18,20 @@ Each layer sits behind a *seam*: a well-defined contract, preferably an existing
 solution for a layer (e.g. their own MQTT broker, Mender, or a Kafka-based pipeline), they plug
 it in at the seam instead of adopting ours.
 
+## Core principle: offline by design, cloud optional
+
+Everything (provisioning, updates, config, workloads, messaging, data collection) must work with
+no cloud and no internet. The cloud is just one optional place to run the control plane:
+
+- The **same backend** can run in the cloud, on-prem, on a laptop, on a gateway, or on the device itself.
+- Updates and config can travel as **signed offline bundles** (USB stick, local file share, service laptop).
+- Devices keep working **autonomously** when disconnected, and reconcile when a control plane is reachable again.
+
+## Core principle: topology-flexible communication
+
+Pub/sub works peer-to-peer, via other peers or gateways, or directly to the cloud, with the same
+application API. The topology is configuration, not code.
+
 ## Name
 
 *Fleet* says what it manages. A *loom* weaves existing threads into one fabric, which is exactly

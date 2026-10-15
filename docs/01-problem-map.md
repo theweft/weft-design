@@ -5,7 +5,7 @@ problems are grouped by layer. Each layer lists the core problems, the hard part
 and the **seam**: the contract at which a user can swap in their own solution.
 
 ```
- ┌──────────────────────────────── CLOUD / BACKEND ────────────────────────────────┐
+ ┌──────────── CONTROL PLANE: cloud, on-prem, gateway or on-device (P15) ───────────┐
  │  P10 Fleet UI / API / inventory / RBAC / multi-tenancy                          │
  │  P9  Observability backend      P8 Ingestion, stream processing, storage        │
  │  P5  Rollout orchestration (OTA + workloads + config)    P3 Artifact registry   │
@@ -19,7 +19,7 @@ and the **seam**: the contract at which a user can swap in their own solution.
  │  P6a Update client (A/B, atomic, rollback)   P2a Device identity (TPM/SE)        │
  │  P1  Base OS / firmware build (Yocto, Buildroot, Zephyr, ...)                    │
  └──────────────────────────────────────────────────────────────────────────────────┘
- Cross-cutting: P12 security & supply chain · P13 device classes · P14 compliance
+ Cross-cutting: P12 security & supply chain · P13 device classes · P14 compliance · P15 offline-first
 ```
 
 ## P1. Base OS / firmware build
@@ -158,6 +158,41 @@ The same platform has to handle very different devices:
 - Radio Equipment Directive delegated act (EN 18031) for connected radio devices in the EU.
 - Audit trail of what software was on which device when.
 
+## P15. Offline-first / cloud-optional (cross-cutting, key requirement)
+
+Every function must work without a cloud, by design and not as a degraded mode.
+
+**Deployment shapes the same software must support:**
+
+```
+ (a) cloud-managed        devices ──► control plane in the cloud
+ (b) on-prem / site       devices ──► control plane on a local server or gateway (air-gapped site)
+ (c) standalone device    device runs its own mini control plane + local UI/CLI
+ (d) sneakernet           signed bundle on USB / service laptop ──► device(s)
+ (e) hierarchical         device ──► site control plane ──(sometimes)──► cloud
+```
+
+**What this means per layer:**
+
+- **Control plane (P5, P10):** relocatable and scalable down to one binary on a gateway. A site
+  instance can run alone or sync with a parent instance (hierarchical federation).
+- **Updates (P6) and artifacts (P3):** self-contained, signed bundles that can be installed from local
+  media. A local registry mirror or an OCI image layout on disk replaces the cloud registry.
+- **Config (P5b):** applied locally through a device UI/CLI or a bundle. Needs clear rules for who wins
+  when a local change and a later cloud desired state conflict (precedence, locking, or merge).
+- **Identity (P2):** onboarding and certificate renewal must work against a local CA. Revocation and
+  expiry need care when devices are offline for months.
+- **Messaging (P4):** local pub/sub must work with no uplink (fits P4a peer mode); store-and-forward
+  for data that should eventually reach the cloud.
+- **Ingestion (P8) and observability (P9):** local buffering and optional local storage/dashboards,
+  with later bulk upload or export to a USB stick.
+- **Security (P12):** signature verification without online checks. Time is unreliable offline, so
+  metadata expiry (TUF) and certificate validity need a strategy (trusted time source, monotonic counters).
+- **Audit:** local logs of what was installed and changed, synced upstream later.
+
+- **Seam:** the control-plane API is the same everywhere; a "bundle" format is the offline transport
+  for the same desired-state documents and artifacts.
+
 ## Open design questions
 
 1. **Single agent or orchestrated agents?** Write one fleetloom agent with plugins, or coordinate existing agents?
@@ -166,3 +201,7 @@ The same platform has to handle very different devices:
 4. **Kubernetes on the edge or not?** k3s/KubeEdge reuse a big ecosystem but are heavy for small devices.
 5. **Where does the "desired state" live?** Git (GitOps), a database behind an API, or both.
 6. **MCU support scope:** first-class from day one, or via a gateway pattern later.
+7. **Authority when offline:** if a technician changes config locally and the cloud later pushes a
+   different desired state, which wins? Per-field ownership, explicit local overrides, or a lock?
+8. **Bundle format:** one offline bundle format for OS + apps + config (e.g. an OCI image layout
+   with TUF metadata), or reuse an existing one (Torizon Lockbox, Mender artifact, RAUC bundle)?
