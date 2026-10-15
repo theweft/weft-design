@@ -12,6 +12,7 @@ direction, not frozen. Each item can be revisited with a short rationale.
 | D3 | **Decentralized by design**: authority comes from signing keys, not from a server location. Desired state is signed documents that any path can carry (cloud, peer, gateway, USB). Each device reconciles locally. Servers are optional caches, aggregators and UIs | Decided |
 | D4 | **Topology-flexible pub/sub**: peer↔peer, peer→peer→cloud, direct to cloud, mesh; topology is configuration, not code | Decided |
 | D5 | **Permissive licences**: no GPLv3/LGPLv3/AGPL/BSL/SSPL in the core; GPLv2/LGPL-2.1 for separate programs is OK. fleetloom itself: Apache-2.0 | Decided (see 03-licensing.md) |
+| D7 | **Certifiable by design**: make adopters' certification cheap (EU CRA, IEC 62443-4-1/4-2, EN 18031, automotive). Ship a compliance kit: threat models, requirement-to-feature-to-test mappings, hardening guide, security-level profiles. Documented secure development lifecycle, signed reproducible releases with SBOM/VEX/SLSA provenance, vulnerability handling policy, LTS releases with defined support periods. Keep fleetloom out of safety functions | Decided |
 | D6 | **Crypto agility and post-quantum readiness**: algorithm IDs in all signed data, multiple keys per role, hybrid key exchange where available, PQ/hybrid signatures for long-lived roots first | Decided |
 
 ## Mandatory core (the "narrow waist")
@@ -88,3 +89,4 @@ Margo and FLECS (workload layer only; FLECS is open-core, implements Margo); Via
    Mosquitto broker in "cloud" via the Zenoh MQTT plugin.
 2. Deep evaluation: SWUpdate, Flight Control, Mender, Eclipse Kanto/Ankaios, Zenoh security model, hawkBit, Margo PR spec.
 3. Draft the desired-state document format and trust model (first mandatory contract).
+4. Set up project hygiene for certifiability from day one: SECURITY.md + disclosure policy, OpenSSF Scorecard and Best Practices badge, SBOM/provenance in CI; evaluate hosting under a foundation (Eclipse ORC working group for CRA).
