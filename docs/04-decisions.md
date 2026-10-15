@@ -47,6 +47,7 @@ Each contract gets conformance tests. Margo is an adapter, not part of the core.
 | Layer | Default | Notes |
 |---|---|---|
 | Envelope & config | See [05-envelope-and-config.md](05-envelope-and-config.md) | Draft |
+| Access control | See [06-access-control.md](06-access-control.md) | Draft |
 | Pub/sub core | **Zenoh** | Peer, routed and client modes; zenoh-pico for MCUs |
 | MQTT compatibility | **Zenoh MQTT plugin / bridge** | Existing brokers attach via standard broker bridging. To test: QoS, retained messages, topic edge cases |
 | Push vs pull | Both | Signed documents can be pushed over pub/sub and pulled on reconnect; trust is in the signature |
