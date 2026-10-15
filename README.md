@@ -42,6 +42,7 @@ what this project does with existing tools.
 - [docs/01-problem-map.md](docs/01-problem-map.md): the problems we have to solve, and where the seams go.
 - [docs/02-landscape.md](docs/02-landscape.md): rough literature/tool survey per problem.
 - [docs/03-licensing.md](docs/03-licensing.md): licence policy and a permissive stack (no GPLv3/AGPL/BSL in the core).
+- [docs/04-decisions.md](docs/04-decisions.md): current design decisions, open questions and next steps.
 
 ## Status
 

@@ -292,7 +292,7 @@ Citations are from memory and need checking before we rely on them.
 0. **Offline first:** one relocatable control plane (cloud, site, gateway, device) plus a signed offline bundle format carrying the same desired state and artifacts.
 1. **Messaging core:** Zenoh as the topology-flexible bus, with an MQTT 5 bridge for interop and NATS or Kafka at the backend.
 2. **Artifacts:** an OCI registry for everything (containers, bootc OS images, RAUC bundles, config), signed with cosign, with TUF metadata on top.
-3. **Device side:** our own small agent that drives existing tools (RAUC/SWUpdate/Mender for OS, Podman/Quadlet or Ankaios for workloads) through plugins.
+3. **Device side:** our own small agent that drives existing tools (SWUpdate preferred, or RAUC/Mender, for OS, Podman/Quadlet or Ankaios for workloads) through plugins.
 4. **Backend:** a desired-state API modelled on the twin pattern and on Flight Control's fleet templates, with hawkBit-style rollout control and health gating from OpenTelemetry data.
 5. **Ingestion:** a Kafka-protocol bus, Bento or Vector pipelines, and TimescaleDB/ClickHouse plus Iceberg storage.
 6. **Evaluate in depth next:** Flight Control, Mender, Eclipse Kanto, Eclipse Ankaios, Zenoh (including zenoh-pico and its security model), hawkBit.
