@@ -162,6 +162,14 @@ site-to-site links.
 - Signed artifacts (Sigstore/cosign, Notation), SBOMs (SPDX/CycloneDX), provenance (SLSA, in-toto).
 - Compromise-resilient update metadata (TUF / Uptane).
 - Vulnerability tracking per deployed version across the fleet.
+- **Post-quantum readiness:**
+  - *Harvest now, decrypt later* threatens confidentiality today: use hybrid key exchange
+    (X25519 + ML-KEM) on every transport that supports it; WireGuard via a PQ pre-shared key (Rosenpass).
+  - *Future signature forgery* threatens long-lived trust anchors (secure boot, firmware/TUF roots) on
+    devices that live 10–20 years: use PQ or hybrid signatures there first (LMS/XMSS, ML-DSA, SLH-DSA).
+  - *Crypto agility* as a hard rule: algorithm IDs in every signed document, multiple keys per role
+    (TUF thresholds allow "Ed25519 AND ML-DSA"), rotatable roots, spare key slots in bootloaders.
+  - Inventory of cryptography per device (CycloneDX CBOM).
 
 ## P13. Device classes (cross-cutting)
 
