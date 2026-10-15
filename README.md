@@ -43,6 +43,7 @@ what this project does with existing tools.
 - [docs/02-landscape.md](docs/02-landscape.md): rough literature/tool survey per problem.
 - [docs/03-licensing.md](docs/03-licensing.md): licence policy and a permissive stack (no GPLv3/AGPL/BSL in the core).
 - [docs/04-decisions.md](docs/04-decisions.md): current design decisions, open questions and next steps.
+- [docs/05-envelope-and-config.md](docs/05-envelope-and-config.md): draft design of the message envelope, topic namespace and configuration model.
 
 ## Status
 

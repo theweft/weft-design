@@ -13,7 +13,7 @@ direction, not frozen. Each item can be revisited with a short rationale.
 | D4 | **Topology-flexible pub/sub**: peer↔peer, peer→peer→cloud, direct to cloud, mesh; topology is configuration, not code | Decided |
 | D5 | **Permissive licences**: no GPLv3/LGPLv3/AGPL/BSL/SSPL in the core; GPLv2/LGPL-2.1 for separate programs is OK. fleetloom itself: Apache-2.0 | Decided (see 03-licensing.md) |
 | D7 | **Certifiable by design**: make adopters' certification cheap (EU CRA, IEC 62443-4-1/4-2, EN 18031, automotive). Ship a compliance kit: threat models, requirement-to-feature-to-test mappings, hardening guide, security-level profiles. Documented secure development lifecycle, signed reproducible releases with SBOM/VEX/SLSA provenance, vulnerability handling policy, LTS releases with defined support periods. Keep fleetloom out of safety functions | Decided |
-| D8 | **Languages**: memory-safe languages for all new code. Device agent in **Rust** (no GC, small static binaries, matches Zenoh/bootc), backend in **Go or Rust** (Go has the strongest OCI/TUF/Sigstore ecosystem), MCU code in C (Zephyr, zenoh-pico) with Rust as an option. Plugins talk over process boundaries (local IPC), so any language works and isolation helps certification and licence separation. Pinned toolchains, minimal dependencies, cargo-deny/cargo-vet, govulncheck | Proposed |
+| D8 | **Rust everywhere**: device agent, backend, CLI and tooling in Rust (matches Zenoh, bootc, Ferrocene for safety-adjacent work). MCUs: Rust (Embassy, or Rust on Zephyr) where possible, C only where an existing C stack is required (zenoh-pico, Zephyr subsystems). Plugins talk over process boundaries (local IPC), so third-party plugins can use any language. Pinned toolchains, minimal dependencies, cargo-deny/cargo-vet/cargo-audit | Decided |
 | D6 | **Crypto agility and post-quantum readiness**: algorithm IDs in all signed data, multiple keys per role, hybrid key exchange where available, PQ/hybrid signatures for long-lived roots first | Decided |
 
 ## Mandatory core (the "narrow waist")
@@ -46,6 +46,7 @@ Each contract gets conformance tests. Margo is an adapter, not part of the core.
 
 | Layer | Default | Notes |
 |---|---|---|
+| Envelope & config | See [05-envelope-and-config.md](05-envelope-and-config.md) | Draft |
 | Pub/sub core | **Zenoh** | Peer, routed and client modes; zenoh-pico for MCUs |
 | MQTT compatibility | **Zenoh MQTT plugin / bridge** | Existing brokers attach via standard broker bridging. To test: QoS, retained messages, topic edge cases |
 | Push vs pull | Both | Signed documents can be pushed over pub/sub and pulled on reconnect; trust is in the signature |
