@@ -27,6 +27,7 @@ ones we integrate with and which we only learn from.
 | **Red Hat Edge Manager / Flight Control** (`flightctl`) | Fleet templates, bootc image-mode OS, apps, config, TPM identity | OSS upstream (Flight Control) + Red Hat product | ★ very close to our model for Linux; evaluate deeply |
 | **Project EVE** (LF Edge) | Edge OS + hypervisor, VMs/containers, controller API | Apache-2.0 | ○ strong security model, heavy for small devices |
 | **Pantacor / Pantavisor** | Container-based embedded Linux system and updates | OSS + SaaS | ○ |
+| **FLECS** (FLECS Technologies GmbH) | Industrial app runtime + fleet console + branded marketplace with licensing; implements Margo; on-prem/offline, pull model; Linux amd64/arm64 | Open core: device runtime "FLECS Core" + web UI Apache-2.0; console/marketplace commercial | ○ overlaps the workload/app layer only; interoperate via Margo |
 | **Eclipse Kanto** | Modular edge agent: container mgmt, update, file upload, local MQTT | EPL-2.0 | ★ device-agent building blocks |
 | **AWS IoT Core + Greengrass v2** | Broker, shadows, jobs, edge components | Proprietary cloud, Greengrass nucleus OSS | ✕ integration target (users "bring their own AWS") |
 | **Azure IoT Hub + IoT Edge** ⚠ | Hub, twins, edge modules | IoT Edge 1.5 LTS end of servicing Nov 2026; IoT Central retirement reported | ✕ migration opportunity |
