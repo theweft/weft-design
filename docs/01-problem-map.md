@@ -154,7 +154,7 @@ site-to-site links.
   so an air-gapped site can run its own overlay.
 - Just-in-time operator access with session audit.
 - Integration with an existing corporate VPN (IPsec, OpenVPN, existing WireGuard).
-- **Seam:** a "connectivity provider" plugin: native WireGuard managed by fleetloom, Headscale/Tailscale,
+- **Seam:** a "connectivity provider" plugin: native WireGuard managed by weft, Headscale/Tailscale,
   Nebula, OpenZiti, or the user's existing VPN.
 
 ## P12. Security & supply chain (cross-cutting)
@@ -225,7 +225,7 @@ Every function must work without a cloud, by design and not as a degraded mode.
 
 ## Open design questions
 
-1. **Single agent or orchestrated agents?** Write one fleetloom agent with plugins, or coordinate existing agents?
+1. **Single agent or orchestrated agents?** Write one weft agent with plugins, or coordinate existing agents?
 2. **Which protocol is the baseline?** The topology requirement (P4a) favours a protocol with native peer, routed and brokered modes (Zenoh is the strongest candidate). MQTT 5 then becomes a bridge for interoperability rather than the core.
 3. **Everything as OCI?** Using one OCI registry for OS images, containers and config would simplify P3/P6/P5 a lot.
 4. **Kubernetes on the edge or not?** k3s/KubeEdge reuse a big ecosystem but are heavy for small devices.

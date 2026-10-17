@@ -30,7 +30,7 @@ Two layers on purpose:
 
 ## Safe defaults that need no policy at all
 
-- **Identity-bound namespace**: a device may only publish under `fl/{tenant}/{its-own-id}/...`
+- **Identity-bound namespace**: a device may only publish under `weft/{tenant}/{its-own-id}/...`
   (derived from its certificate). It can subscribe to its own `state/desired`, its groups' topics and
   `desc` queries addressed to it.
 - Apps on a device get nothing beyond their own sub-namespace unless their manifest asks and policy grants.
@@ -58,7 +58,7 @@ Two layers on purpose:
                                        ▼                   ▼                         ▼
                               Zenoh ACL config     MQTT plugin allow/deny     external broker ACL
                               (routers, peers,     + bridge credentials       (e.g. Mosquitto acl_file,
-                               local app router)                               pattern fl/acme/%c/#)
+                               local app router)                               pattern weft/acme/%c/#)
 ```
 
 **Division of labour:**
@@ -72,7 +72,7 @@ Two layers on purpose:
 
 **Rules:**
 - **Identity binding**: Zenoh links use mTLS (TLS or QUIC); the certificate's identity is the ACL subject.
-  The first rule every node gets: a subject may only `put` under `fl/{tenant}/{its-id}/**`.
+  The first rule every node gets: a subject may only `put` under `weft/{tenant}/{its-id}/**`.
   If Zenoh's ACL has no per-identity substitution, the compiler generates one rule per device.
 - **Every node enforces its own sessions**: routers for their links, peers for their direct peer links,
   the device's local router for its local apps. There is no single choke point, matching the
@@ -111,7 +111,7 @@ Alternatives considered: OPA/Rego (Go, general-purpose, less analyzable), UCAN, 
 - ~~Cedar for policies + Biscuit for tokens?~~ Direction (see 07, minimal trusted code): **not both**.
   Start with **one delegation mechanism for everything** (config, rollouts, commands, topic rights):
   COSE-signed delegation documents with a small, fixed constraint vocabulary (tenant, site, labels,
-  components, actions, config fields, validity), verified in `fleetloom-verifier`. This mechanism is needed
+  components, actions, config fields, validity), verified in `weft-verifier`. This mechanism is needed
   for desired state anyway, so it adds no second system. If richer conditions are ever needed, Biscuit is
   the fallback (one library, Datalog). Biscuit caveats: tokens are Protobuf-encoded (a second encoding
   in the trusted path) and only support Ed25519/P-256 today (no post-quantum yet).

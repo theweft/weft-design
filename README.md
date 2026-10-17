@@ -1,8 +1,8 @@
-# fleetloom
+# weft
 
 **Weave existing open tools into one end-to-end embedded fleet platform.**
 
-fleetloom is an integration project, not a rewrite. It aims to cover the full path of an
+weft is an integration project, not a rewrite. It aims to cover the full path of an
 embedded device fleet:
 
 - **Lifecycle**: provisioning, identity, OTA updates (OS, firmware, apps), rollbacks, decommissioning.
@@ -34,8 +34,11 @@ application API. The topology is configuration, not code.
 
 ## Name
 
-*Fleet* says what it manages. A *loom* weaves existing threads into one fabric, which is exactly
-what this project does with existing tools.
+*weft* is the thread that runs across a loom and ties all the fixed threads into one fabric.
+weft does the same with existing tools: it weaves them into one platform without replacing them.
+
+- Website: [theweft.org](https://theweft.org) (also theweft.dev, weftfleet.org, weftfleet.dev, weftfleet.com)
+- Crates: `weft-*` (e.g. `weft-verifier`)
 
 ## Docs
 

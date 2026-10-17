@@ -17,8 +17,8 @@ interoperability and trust. So the envelope scales with the kind of traffic:
 |---|---|---|---|
 | `specversion` | 0 | yes | CloudEvents version |
 | `id` | 1 | yes | Unique per source (dedup) |
-| `source` | 2 | yes | `fl://{tenant}/{device}/{component}` |
-| `type` | 3 | yes | e.g. `io.fleetloom.ota.status.v1` |
+| `source` | 2 | yes | `weft://{tenant}/{device}/{component}` |
+| `type` | 3 | yes | e.g. `org.theweft.ota.status.v1` |
 | `time` | 4 | no | Hybrid logical clock timestamp (HLC), not just wall clock |
 | `subject` | 5 | no | What it is about (sensor, app, job) |
 | `datacontenttype` | 6 | no | Default `application/cbor` |
@@ -44,14 +44,14 @@ ML-DSA / hybrid as they are registered).
 ### 1.2 Topic namespace
 
 ```
-fl/{tenant}/{device}/tel/{path...}            telemetry          e.g. fl/acme/dev-042/tel/pump/temperature
-fl/{tenant}/{device}/evt/{type...}            events
-fl/{tenant}/{device}/cmd/{component}/{name}   commands (Zenoh query/queryable, MQTT 5 response-topic)
-fl/{tenant}/{device}/state/desired            desired-state documents (pushed; also pullable by hash)
-fl/{tenant}/{device}/state/reported           reported state
-fl/{tenant}/{device}/desc                     self-description (published on connect, queryable)
-fl/{tenant}/group/{group}/state/desired       documents for many devices at once
-@fl/{tenant}/{device}                         liveliness (Zenoh liveliness token; LWT on MQTT)
+weft/{tenant}/{device}/tel/{path...}            telemetry          e.g. weft/acme/dev-042/tel/pump/temperature
+weft/{tenant}/{device}/evt/{type...}            events
+weft/{tenant}/{device}/cmd/{component}/{name}   commands (Zenoh query/queryable, MQTT 5 response-topic)
+weft/{tenant}/{device}/state/desired            desired-state documents (pushed; also pullable by hash)
+weft/{tenant}/{device}/state/reported           reported state
+weft/{tenant}/{device}/desc                     self-description (published on connect, queryable)
+weft/{tenant}/group/{group}/state/desired       documents for many devices at once
+@weft/{tenant}/{device}                         liveliness (Zenoh liveliness token; LWT on MQTT)
 ```
 
 Location hierarchies (ISA-95 / Unified Namespace paths) and Sparkplug/OPC UA topics are
@@ -79,7 +79,7 @@ W3C WoT Thing Description.
 
 ```yaml
 kind: ConfigFragment
-apiVersion: fleetloom.io/v1
+apiVersion: theweft.org/v1
 scope: site
 issuer: acme/site-vienna          # key delegated by the tenant root, limited to this site
 selector: { labels: { line: line-3 } }
@@ -115,7 +115,7 @@ artifact hashes per device or group, preventing mix-and-match of old and new fra
 Config changes are treated like small updates:
 
 1. Render the effective config and hand it to the component through its plugin
-   (file under `/etc/fleetloom/...`, environment, or a local API call).
+   (file under `/etc/weft/...`, environment, or a local API call).
 2. Reload or restart per the component's declared policy.
 3. Run the component's health check.
 4. On failure or schema error: keep or restore the **last-known-good** config and report the failure.
@@ -124,7 +124,7 @@ Config changes are treated like small updates:
 
 The device reports per component: hash of the effective config, applied fragment versions, and
 **per-field provenance** ("`alarm.threshold_c` = 85 from site-vienna v17"), plus conflicts
-("device fragment tried to change a locked field"). Changes made outside fleetloom are reported as
+("device fragment tried to change a locked field"). Changes made outside weft are reported as
 **drift**; policy per component decides: revert, or adopt as a `local` fragment.
 
 ### 2.6 Authoring

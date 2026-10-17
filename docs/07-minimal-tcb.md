@@ -10,7 +10,7 @@ eliminate bugs, eliminate code, eliminate *trusted* code.
 
 ## 1. A tiny, pure verification core
 
-All security decisions live in one small Rust crate, the **verifier** (`fleetloom-verifier`):
+All security decisions live in one small Rust crate, the **verifier** (`weft-verifier`):
 
 - Verify signatures and delegation chains.
 - Evaluate policy (capabilities, ACL decisions for commands and config writes).
@@ -31,9 +31,9 @@ Verification effort concentrates here: fuzzing (cargo-fuzz), property tests (pro
 model checking / proofs of key properties with **Kani** (e.g. resolution is deterministic and
 order-independent; a narrowed delegation never grants more than its parent).
 
-## 1b. Verifier scope (the `fleetloom-verifier` crate)
+## 1b. Verifier scope (the `weft-verifier` crate)
 
-In classic terms, the verifier is fleetloom's **reference monitor** (Anderson, 1972: always invoked,
+In classic terms, the verifier is weft's **reference monitor** (Anderson, 1972: always invoked,
 tamper-proof, small enough to verify) and its **policy decision point (PDP)**. The executor is the
 **policy enforcement point (PEP)**. This is the same decide/enforce split as SELinux's Flask
 architecture (security server vs. object managers).
@@ -107,7 +107,7 @@ Target ≤ ~5,000 lines of own code; same crate builds for Linux and MCUs (`no_s
  untrusted network ──► [ transport process ]  unprivileged, sandboxed: Zenoh/MQTT/USB/registry I/O
                                │ raw bytes (documents, artifacts by hash)
                                ▼
-                       [ decider ]            no network, no privileges; runs fleetloom-verifier
+                       [ decider ]            no network, no privileges; runs weft-verifier
                                │ narrow, typed commands: install(hash) · apply_config(hash) · start(app)
                                ▼
                        [ executor ]           privileged, tiny: re-checks artifact hash, calls SWUpdate /
@@ -132,7 +132,7 @@ Target ≤ ~5,000 lines of own code; same crate builds for Linux and MCUs (`no_s
 - **No scripting in the trusted path**: no shell or Lua hooks executed from documents. Prefer declarative
   handlers (applies to SWUpdate: no embedded Lua in update packages by default).
 - **Delegate to the OS**: systemd for supervision, Podman for containers, dm-verity for integrity,
-  the kernel for isolation. fleetloom orchestrates, it does not reimplement.
+  the kernel for isolation. weft orchestrates, it does not reimplement.
 - **Fewer options**: every option is a code path and a misconfiguration risk. Secure defaults, few knobs.
 - **Build only what the device needs**: Cargo features per device profile; a device image contains
   only its plugins.

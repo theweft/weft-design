@@ -202,7 +202,7 @@ This is an open gap to research.
 
 | Tool | Notes | Fit |
 |---|---|---|
-| **WireGuard** (kernel, wireguard-go, boringtun) | Fast, simple, static config; ideal base for a fleetloom-managed overlay | ★ |
+| **WireGuard** (kernel, wireguard-go, boringtun) | Fast, simple, static config; ideal base for a weft-managed overlay | ★ |
 | **Headscale** + Tailscale client | Self-hosted Tailscale control plane; NAT traversal with relays, subnet routers, exit nodes, ACLs | ★ |
 | **Nebula** (Slack, now Defined Networking) | Certificate-based mesh; "lighthouses" for discovery, relays; trust comes from a CA, not a live server | ★ fits the signed, decentralized model |
 | **innernet** | WireGuard mesh with CIDR-based access rules | ○ |
@@ -261,7 +261,7 @@ How well existing tools work with no cloud. Not verified in depth; check each be
 
 **Takeaway:** Device-side update tools handle offline installs well. Few control planes are designed to
 run at every level (cloud, site, device) and federate with each other. That hierarchical, relocatable
-control plane is a gap fleetloom could fill.
+control plane is a gap weft could fill.
 
 ---
 
@@ -289,7 +289,7 @@ Citations are from memory and need checking before we rely on them.
 
 ---
 
-## 15. First impressions for fleetloom
+## 15. First impressions for weft
 
 0. **Offline first:** one relocatable control plane (cloud, site, gateway, device) plus a signed offline bundle format carrying the same desired state and artifacts.
 1. **Messaging core:** Zenoh as the topology-flexible bus, with an MQTT 5 bridge for interop and NATS or Kafka at the backend.
