@@ -52,6 +52,7 @@ weft does the same with existing tools: it weaves them into one platform without
 - [docs/08-apps.md](docs/08-apps.md): app deployment, permission tiers, hardware access, microcontrollers.
 - [docs/09-prior-art.md](docs/09-prior-art.md): similar projects and standards, what we adopted and why.
 - [docs/10-device-requirements.md](docs/10-device-requirements.md): minimum hardware and software per device class, with measurements.
+- [docs/11-time-and-persistence.md](docs/11-time-and-persistence.md): which clock for what, and power-loss-safe state.
 
 ## Status
 
