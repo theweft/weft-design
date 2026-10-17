@@ -45,6 +45,7 @@ what this project does with existing tools.
 - [docs/04-decisions.md](docs/04-decisions.md): current design decisions, open questions and next steps.
 - [docs/05-envelope-and-config.md](docs/05-envelope-and-config.md): draft design of the message envelope, topic namespace and configuration model.
 - [docs/06-access-control.md](docs/06-access-control.md): draft design of access control (policy model, enforcement points, delegation).
+- [docs/07-minimal-tcb.md](docs/07-minimal-tcb.md): keeping the trusted code small (pure core, privilege separation, fewer formats).
 
 ## Status
 
