@@ -77,10 +77,12 @@ The **executor** executes exactly the verifier's actions and re-checks artifact 
 
 ### Dependencies (target)
 
-`minicbor` (no_std CBOR), `coset` (COSE), `sha2`, `ed25519-dalek`, `p256`, `ml-dsa` (RustCrypto,
-still pre-1.0: review before relying on it). Nothing else.
+`minicbor` (no_std CBOR), `sha2`, `ed25519-dalek`, `p256` (optional feature), later `ml-dsa`
+(RustCrypto, still pre-1.0: review before relying on it). Nothing else. `COSE_Sign1` is implemented
+directly on minicbor (about 150 lines) instead of using `coset`, which would add a second CBOR
+library (ciborium) and ~11k lines to the trusted path.
 
-All six are `no_std` (checked 2026-10-17: minicbor 2.3 via `default-features = false`, coset 0.4,
+All are `no_std` (checked 2026-10-17: minicbor 2.3 via `default-features = false`,
 sha2 0.11, ed25519-dalek 3.0, p256 0.14, ml-dsa 0.1). The crate uses `core` + `alloc`, and `BTreeMap`
 instead of `HashMap`, which also gives deterministic ordering. CI builds the verifier **on its own** for a
 bare-metal target (e.g. `thumbv7em-none-eabihf`), so a dependency that silently pulls in `std` fails the

@@ -140,7 +140,7 @@ Same documents from every entry point:
 - ~~Canonical encoding for signing~~ Decided: **deterministic CBOR** (RFC 8949 §4.2). Schemas for all
   documents and envelopes in **CDDL** (RFC 8610); human-readable form in CBOR diagnostic notation;
   YAML/JSON only in authoring tools, converted before signing. Rust: `minicbor` (no_std, derive) in the
-  verifier, `coset` for COSE, a CDDL validator (e.g. the `cddl` crate) only in CI/tests.
+  verifier, own minimal COSE_Sign1 on minicbor, a CDDL validator (e.g. the `cddl` crate) only in CI/tests.
 - Whether to reuse TUF metadata directly for snapshots/delegations or define our own on COSE.
 - Batch signing scheme for telemetry.
 - Schema evolution rules for config units across component versions (migrations).
