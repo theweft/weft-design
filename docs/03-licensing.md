@@ -48,4 +48,6 @@ service, without copyleft obligations beyond simple source offers.
 - **Yocto:** `INCOMPATIBLE_LICENSE = "GPL-3.0* LGPL-3.0* AGPL-3.0*"` fails the build if such a package lands in the image; image licence manifests and SPDX SBOMs come for free.
 - **Buildroot:** `make legal-info` produces the licence report.
 - **CI for our own code:** `cargo-deny` (Rust), `go-licenses` (Go), plus ScanCode or the OSS Review Toolkit (ORT) for full scans.
-- **Our own licence:** Apache-2.0 (patent grant, compatible with everything green).
+- **Our own licence:** **MIT** in every weft repository (decided 2026-10-17). Short, universally understood, compatible with everything green. Trade-off: no explicit patent grant (Apache-2.0 has one); accepted for consistency and simplicity.
+- **Blue Oak Model License 1.0.0** counts as green (permissive, OSI approved, with patent grant; used by minicbor).
+- **cargo-deny uses an allow list**: every licence not listed (GPL, LGPL, AGPL, SSPL, BUSL, custom) fails CI. The trusted core (`weft-verifier`) additionally excludes weak copyleft.
