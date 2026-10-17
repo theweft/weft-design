@@ -50,6 +50,7 @@ weft does the same with existing tools: it weaves them into one platform without
 - [docs/06-access-control.md](docs/06-access-control.md): draft design of access control (policy model, enforcement points, delegation).
 - [docs/07-minimal-tcb.md](docs/07-minimal-tcb.md): keeping the trusted code small (pure core, privilege separation, fewer formats).
 - [docs/08-apps.md](docs/08-apps.md): app deployment, permission tiers, hardware access, microcontrollers.
+- [docs/09-prior-art.md](docs/09-prior-art.md): similar projects and standards, what we adopted and why.
 
 ## Status
 
