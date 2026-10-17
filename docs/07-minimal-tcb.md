@@ -126,7 +126,7 @@ Target ≤ ~5,000 lines of own code; same crate builds for Linux and MCUs (`no_s
 
 ## 3. Write less code by design
 
-- **Don't write crypto, TLS or protocol stacks**: rustls, RustCrypto / aws-lc-rs, Zenoh, coset (COSE),
+- **Don't write crypto, TLS or protocol stacks**: rustls, RustCrypto / aws-lc-rs, Zenoh,
   minicbor, Cedar/Biscuit.
 - **One of each in the trusted path**: one encoding (CBOR), one signature format (COSE), one artifact
   format (OCI), one merge semantics (JSON Merge Patch). YAML/JSON exist only in authoring tools, never
