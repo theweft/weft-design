@@ -29,6 +29,63 @@ Measured values (2026-10-17, weft-verifier 0.1, Rust 1.99.1): see the bottom of 
 - **Gateway / edge PC**: same as embedded Linux, optionally bootc image mode, optionally k3s.
 - **Backend**: optional; any Linux host (single binary or Kubernetes).
 
+## Environment and infrastructure
+
+Principle: weft **requires no infrastructure** (offline-first) but uses it when present, and states
+what degrades without it.
+
+### Time
+
+| Topic | Requirement | Without it |
+|---|---|---|
+| Hardware clock | Battery-backed RTC strongly recommended (supercap: days, battery: years) | Boots at a reset date; the verifier's time floor (persisted, advanced by signed `issued_at`) never goes backwards |
+| Network time | **NTS** (RFC 8915) or **Roughtime**; plain NTP only as fallback, may only move time forward within limits, large jumps reported | Spoofed NTP could push time forward and "expire" certificates (denial of service) |
+| Industrial time | PTP (IEEE 1588) and GNSS as sources | – |
+| Durations | Monotonic clock for timers, retries, health checks | Time jumps would break them |
+| Signed time | Planned TUF-style timestamp document doubles as authenticated coarse time for offline sites | – |
+| Precision | RTC drift (~2 s/day) is irrelevant; only expiry checks depend on wall time | – |
+
+UTC only; no time zones in the platform.
+
+### Network
+
+- Addressing: DHCP, static, IPv6 SLAAC, **link-local** (required for infrastructure-free peer-to-peer).
+- Discovery: multicast scouting where allowed; **configured peers/routers always work** (industrial
+  networks often block multicast); mDNS optional.
+- DNS optional: everything works with IP addresses; only hostname conduits need DNS.
+- Restrictive networks: outbound-only (NAT, CGNAT), HTTP proxy support, **fallback over 443**
+  (Zenoh over QUIC/WebSocket), published list of required ports.
+- MTU 1,280–1,420 on cellular and tunnels: no dependence on large packets.
+- Metered links: bandwidth budgets, deltas, telemetry batching.
+- Sleeping devices: liveliness distinguishes "asleep" from "gone".
+
+### Storage, power, reliability
+
+- **Atomic persistence (hard requirement for the shell)**: verifier state and document store survive
+  power loss at any moment (write temp, fsync, rename; journaling file system).
+- Flash wear: write budgets for logs/telemetry, rotation, RAM buffers, eMMC health monitoring; no SD
+  cards in production.
+- Read-only root file system, separate data partition.
+- **Hardware watchdog (required)**: recovers hung agents, drives boot counting (U-Boot bootcount,
+  MCUboot test mode) for A/B rollback.
+- Brownout detection; optional supercap for clean shutdown.
+
+### Security hardware and boot chain
+
+- Unbroken secure boot: ROM → bootloader → kernel → dm-verity root file system.
+- JTAG/SWD locked in production.
+- Unique per-device keys (generated on device or in a secure element).
+- Hardware RNG for early-boot key generation.
+
+### Lifecycle and operations
+
+- Factory provisioning: image, keys, onboarding voucher (FDO), hardware profile id, test.
+- Recovery independent of the fleet: recovery partition or USB boot, factory reset.
+- On-site service: local UI/CLI via Ethernet, USB network gadget or BLE; USB bundles (FAT32/exFAT,
+  signed content only).
+- Decommissioning and resale: revoke keys, secure erase, ownership transfer.
+- Regulatory: radio domain (Wi-Fi country code), EN 18031.
+
 ## Measurements
 
 | Item | Value | How |
