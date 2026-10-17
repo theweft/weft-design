@@ -130,6 +130,26 @@ Install: pull by digest (registry, mirror, peer, USB/OCI layout) → start new �
 remove old; on failure switch back (previous images kept). Config: `ApplyConfig` → validate against
 the app schema → mount read-only → reload or restart.
 
+## Activation gates (when an update may take effect)
+
+Downloading and staging happen immediately; **activation** (reboot, slot switch, app restart) waits
+for a gate. Reasons: safety and production (no reboot mid-run), operations (shifts, staff on site),
+regulation (UNECE R156: safe state, consent), cost and power (night tariffs, charging), spreading risk.
+
+| Gate | Example | Wall time? |
+|---|---|---|
+| Device state | machine idle, vehicle parked, no job running, battery > 50 % | no |
+| App veto | app says "not now" (like systemd inhibitor locks) | no |
+| Approval | technician on site or user consent | no |
+| Time window | 02:00–04:00 UTC | yes |
+
+- The deployment document carries the signed activation policy (e.g. "idle OR night window OR
+  technician confirms"). Evaluation needs live device state, so it happens in the executor, not the
+  verifier (the verifier still only says `Install`).
+- Emergency override ("activate as soon as possible") for critical patches is an explicit right.
+- Config changes that apply without restart need no gate.
+- Most gates need no wall time; time windows are UTC ranges.
+
 ## Gaps in weft-verifier
 
 1. Removal ("absent" deployments).

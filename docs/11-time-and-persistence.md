@@ -52,5 +52,5 @@ Rules:
 6. Clocks: Linux `CLOCK_BOOTTIME` for durations including suspend (Rust `Instant` uses
    `CLOCK_MONOTONIC`, which stops during suspend); `CLOCK_REALTIME` for wall time; Zephyr `k_uptime`
    + floor in flash.
-7. UTC only, except maintenance windows: authoring tools convert local windows to UTC ranges per
-   period (time-zone rules in documents only if ever needed).
+7. UTC only. Time windows are one kind of activation gate (see 08-apps.md); most gates (idle, app
+   veto, approval) need no wall time. Authoring tools convert local windows to UTC ranges.
