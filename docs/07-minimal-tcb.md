@@ -10,7 +10,7 @@ eliminate bugs, eliminate code, eliminate *trusted* code.
 
 ## 1. A tiny, pure verification core
 
-All security decisions live in one small Rust crate, **heddle** (`fleetloom-heddle`):
+All security decisions live in one small Rust crate, the **verifier** (`fleetloom-verifier`):
 
 - Verify signatures and delegation chains.
 - Evaluate policy (capabilities, ACL decisions for commands and config writes).
@@ -31,11 +31,9 @@ Verification effort concentrates here: fuzzing (cargo-fuzz), property tests (pro
 model checking / proofs of key properties with **Kani** (e.g. resolution is deterministic and
 order-independent; a narrowed delegation never grants more than its parent).
 
-## 1b. Heddle scope (the `fleetloom-heddle` crate)
+## 1b. Verifier scope (the `fleetloom-verifier` crate)
 
-Name: on a loom, the *heddles* decide which threads are lifted for every pass, and so decide the pattern. Here, heddle decides what is trusted and what happens; everything else only carries and executes.
-
-In classic terms, heddle is fleetloom's **reference monitor** (Anderson, 1972: always invoked,
+In classic terms, the verifier is fleetloom's **reference monitor** (Anderson, 1972: always invoked,
 tamper-proof, small enough to verify) and its **policy decision point (PDP)**. The executor is the
 **policy enforcement point (PEP)**. This is the same decide/enforce split as SELinux's Flask
 architecture (security server vs. object managers).
@@ -44,18 +42,18 @@ architecture (security server vs. object managers).
 
 ```rust
 // no I/O, no clock, no randomness, no global state
-fn step(state: &HeddleState, anchors: &TrustAnchors, facts: &DeviceFacts, inputs: &[&[u8]])
-    -> (HeddleState, Decisions);
+fn step(state: &VerifierState, anchors: &TrustAnchors, facts: &DeviceFacts, inputs: &[&[u8]])
+    -> (VerifierState, Decisions);
 
-fn authorize(state: &HeddleState, anchors: &TrustAnchors, facts: &DeviceFacts, request: &[u8])
+fn authorize(state: &VerifierState, anchors: &TrustAnchors, facts: &DeviceFacts, request: &[u8])
     -> Verdict;   // for commands and local API calls
 ```
 
 - **State** is passed in and out explicitly (highest versions seen, last-known-good hashes,
   revocations, time lower bound). The shell persists it. This makes every decision replayable and testable.
-- **Inputs** are raw bytes; heddle decodes them itself. The shell never pre-parses.
+- **Inputs** are raw bytes; the verifier decodes them itself. The shell never pre-parses.
 
-### Inside heddle
+### Inside the verifier
 
 | # | Function | Notes |
 |---|---|---|
@@ -68,14 +66,14 @@ fn authorize(state: &HeddleState, anchors: &TrustAnchors, facts: &DeviceFacts, r
 | K7 | Plan | Effective desired state vs. reported facts → a small list of typed, authorized actions: `Install{component, hash}`, `ApplyConfig{component, hash}`, `Start/Stop{app}`, `RotateKey{...}` |
 | K8 | Record building | Bytes for audit and reported-state records; *signing* is done by the key holder (TPM) outside |
 
-### Outside heddle (on purpose)
+### Outside the verifier (on purpose)
 
 Networking and transports · storage · key storage and signing (TPM / secure element) · time source ·
 downloading artifacts · JSON Schema validation of config (an authorized but invalid config is a
 correctness problem, handled by the plugin with last-known-good rollback) · YAML / authoring ·
 telemetry · UI · all plugins · executing actions.
 
-The **executor** executes exactly heddle's actions and re-checks artifact hashes before use.
+The **executor** executes exactly the verifier's actions and re-checks artifact hashes before use.
 
 ### Dependencies (target)
 
@@ -103,7 +101,7 @@ Target ≤ ~5,000 lines of own code; same crate builds for Linux and MCUs (`no_s
  untrusted network ──► [ transport process ]  unprivileged, sandboxed: Zenoh/MQTT/USB/registry I/O
                                │ raw bytes (documents, artifacts by hash)
                                ▼
-                       [ decider ]            no network, no privileges; runs fleetloom-heddle
+                       [ decider ]            no network, no privileges; runs fleetloom-verifier
                                │ narrow, typed commands: install(hash) · apply_config(hash) · start(app)
                                ▼
                        [ executor ]           privileged, tiny: re-checks artifact hash, calls SWUpdate /
