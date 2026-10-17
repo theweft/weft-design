@@ -51,6 +51,7 @@ weft does the same with existing tools: it weaves them into one platform without
 - [docs/07-minimal-tcb.md](docs/07-minimal-tcb.md): keeping the trusted code small (pure core, privilege separation, fewer formats).
 - [docs/08-apps.md](docs/08-apps.md): app deployment, permission tiers, hardware access, microcontrollers.
 - [docs/09-prior-art.md](docs/09-prior-art.md): similar projects and standards, what we adopted and why.
+- [docs/10-device-requirements.md](docs/10-device-requirements.md): minimum hardware and software per device class, with measurements.
 
 ## Status
 
