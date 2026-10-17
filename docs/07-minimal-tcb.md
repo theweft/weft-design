@@ -80,6 +80,12 @@ The **executor** executes exactly the verifier's actions and re-checks artifact 
 `minicbor` (no_std CBOR), `coset` (COSE), `sha2`, `ed25519-dalek`, `p256`, `ml-dsa` (RustCrypto,
 still pre-1.0: review before relying on it). Nothing else.
 
+All six are `no_std` (checked 2026-10-17: minicbor 2.3 via `default-features = false`, coset 0.4,
+sha2 0.11, ed25519-dalek 3.0, p256 0.14, ml-dsa 0.1). The crate uses `core` + `alloc`, and `BTreeMap`
+instead of `HashMap`, which also gives deterministic ordering. CI builds the verifier **on its own** for a
+bare-metal target (e.g. `thumbv7em-none-eabihf`), so a dependency that silently pulls in `std` fails the
+build. Tests, fuzzing and Kani run on the host with `std`.
+
 ### Properties to prove or test exhaustively
 
 - **Deny by default**: any decode, signature or delegation failure → no effect, state unchanged.
