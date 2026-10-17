@@ -69,29 +69,41 @@ refused.
 - Optional **hardware service**: a privileged daemon owns sensitive or shared hardware; apps request
   actions over local pub/sub (safety interlocks, shared buses).
 
-## Network access
+## Network access: named conduits
 
-Default **deny**: an app has no network unless granted. Grants are allowlists (IEC 62443 conduits):
+Default **deny**. Networks work exactly like hardware: apps request **names**, profiles hold details.
+The site's network owner publishes a signed **network profile** (config fragment for
+`os/network-profile`) defining **conduits** (IEC 62443 term):
 
 ```yaml
-network:
-  egress:
-    - { cidr: "192.168.10.20/32", ports: [502] }   # Modbus to one PLC
-    - { host: "api.example.com", ports: [443] }    # one cloud API
-  ingress:
-    - { port: 8080, from: [local, overlay] }       # local web UI, not from the internet
+conduits:
+  plc-line3: { egress: [{ cidr: "192.168.10.20/32", ports: [502] }] }   # Modbus to one PLC
+  cloud-api: { egress: [{ host: "api.example.com", ports: [443] }] }
+  local-ui:  { ingress: [{ port: 8080, from: [local, overlay] }] }
 ```
 
-- Enforcement (workload plugin, outside the verifier): per-app network namespace (Podman default) +
-  generated **nftables** rules; hostnames via a local resolver that answers only allowed names and
-  fills nftables sets (e.g. dnsmasq `nftset`). CIDR/port rules first, hostnames second. No L7
-  filtering; a proxy app can do that if needed.
-- Same policy compiler as Zenoh and overlay ACLs (06-access-control.md): app firewall rules are a third
-  output. The verifier checks that the deployer's rights cover the granted network permissions
-  (e.g. technicians may grant LAN, never internet egress).
-- Allowlists are tier 1; host networking (bypasses all of it) is tier 2.
-- Device-level firewall rules not tied to an app: config fragments for component `os/firewall`.
-- MCUs: firmware owns the network stack; WebAssembly apps get network only as a granted host function.
+The app manifest requests `conduits: [plc-line3, cloud-api]`. The workload plugin resolves names via
+the profile: per-app network namespace (Podman default) + generated **nftables** rules; hostnames via a
+local resolver that answers only allowed names and fills nftables sets (e.g. dnsmasq `nftset`). No L7
+filtering; a proxy app can do that. Raw rules not in any profile (a specific CIDR) are a tier 2
+grant; host networking is tier 2 as well. Device-level firewall rules not tied to an app: config for
+`os/firewall`. MCUs: firmware owns the network stack; WebAssembly apps get network only as a granted
+host function.
+
+## Grants in the verifier: one uniform model
+
+Every grant is a typed **name**; details (paths, CIDRs, device match rules) live only in signed
+profiles that plugins interpret. The verifier performs one generic check: each granted item is
+covered by a pattern in the deployer's rights.
+
+| Grant | Example | Verifier check |
+|---|---|---|
+| Hardware capability | `hw:led.status` | name pattern (`hw:*`, `hw:led.*`) |
+| Conduit | `net:plc-line3` | name pattern (`net:plc-*`) |
+| Pub/sub namespace | `topic:tel/pump/**` | pattern coverage (as for components) |
+| Tier | `tier:2` | ≤ the deployer's maximum tier |
+
+Same narrowing rule as all rights: delegations intersect grantable patterns and the maximum tier.
 
 ## Microcontrollers
 
@@ -110,6 +122,6 @@ the app schema → mount read-only → reload or restart.
 ## Gaps in weft-verifier
 
 1. Removal ("absent" deployments).
-2. Permission grants in deployment documents, bounded by the deployer's rights (incl. max tier and
-   network grants).
+2. Permission grants (typed names + tier) in deployment documents, bounded by the deployer's
+   grantable patterns and maximum tier.
 3. Failed installs reported in device facts, so the verifier stops retrying.
