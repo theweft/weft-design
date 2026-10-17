@@ -27,6 +27,14 @@ design, not its code), **Integrate** (supported through an adapter or plugin), *
 | Eclipse IoT Packages (Cloud2Edge) | Ideas | "Glue existing tools" precedent (Hono, Ditto, hawkBit); appears stale since about 2020 |
 | FIWARE, Eclipse Arrowhead | Ideas | Swappable-component architectures; not focused on OTA/fleets |
 | United Manufacturing Hub | Evaluate | Open-source Unified Namespace stack (MQTT, Kafka, Benthos); licence and architecture to check |
+| Siemens Industrial Edge | Ideas | Machine builder + plant operator app model on industrial PCs; proprietary, Siemens ecosystem (see docs/12) |
+| Rancher Fleet, SUSE Edge, Azure Arc | Rejected (retail/IT edge) | GitOps for k3s/Kubernetes clusters per site; solves x86 store edge well, too heavy for embedded, central control plane |
+| Formant, InOrbit | Ideas | Robot fleet operations (teleop, observability); SaaS, robotics only |
+| Niagara Framework (Tridium) | Integrate | De-facto building automation platform; adapter target, proprietary |
+| Vendor energy clouds (SMA, SOLARMAN, Solectria portal) | Ideas | Staged transfer vs. installation, per-device update order; closed, single-vendor |
+| OCPP CSMS backends | Integrate | OCPP owns charging logic and its own firmware-update command; weft manages what's underneath |
+| ChirpStack | Integrate | MIT LoRaWAN network server; runs as a weft app on gateways for offline farms and sites |
+| Davra | Rejected | Commercial IoT platform (Azure IoT Central migration target); centralized |
 
 ## Standards and specifications
 

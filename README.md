@@ -53,6 +53,7 @@ weft does the same with existing tools: it weaves them into one platform without
 - [docs/09-prior-art.md](docs/09-prior-art.md): similar projects and standards, what we adopted and why.
 - [docs/10-device-requirements.md](docs/10-device-requirements.md): minimum hardware and software per device class, with measurements.
 - [docs/11-time-and-persistence.md](docs/11-time-and-persistence.md): which clock for what, and power-loss-safe state.
+- [docs/12-case-study.md](docs/12-case-study.md): target industries, their typical hardware/network/backend setups, and what follows for weft.
 
 ## Status
 
