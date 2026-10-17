@@ -90,20 +90,31 @@ grant; host networking is tier 2 as well. Device-level firewall rules not tied t
 `os/firewall`. MCUs: firmware owns the network stack; WebAssembly apps get network only as a granted
 host function.
 
-## Grants in the verifier: one uniform model
+## Grants in the verifier: opaque strings
 
-Every grant is a typed **name**; details (paths, CIDRs, device match rules) live only in signed
-profiles that plugins interpret. The verifier performs one generic check: each granted item is
-covered by a pattern in the deployer's rights.
+The verifier does **not** know what grants mean. Its only job: every grant in a deployment document
+is covered by the signer's *grantable patterns*, and delegations intersect those patterns (narrowing).
+It then copies the signed grants into the `Install` instruction.
 
-| Grant | Example | Verifier check |
-|---|---|---|
-| Hardware capability | `hw:led.status` | name pattern (`hw:*`, `hw:led.*`) |
-| Conduit | `net:plc-line3` | name pattern (`net:plc-*`) |
-| Pub/sub namespace | `topic:tel/pump/**` | pattern coverage (as for components) |
-| Tier | `tier:2` | ≤ the deployer's maximum tier |
+- One pattern syntax for everything: segments separated by `/` or `.`, `*` = one segment,
+  `**` = everything below (the same matcher as component patterns).
+- Prefixes are a **naming convention** for people and plugins, not types the verifier interprets:
 
-Same narrowing rule as all rights: delegations intersect grantable patterns and the maximum tier.
+  | Prefix | Meaning | Defined by | Enforced by |
+  |---|---|---|---|
+  | `hw:` | hardware capability (`hw:led.status`) | board hardware profile | workload plugin (devices, sysfs, udev) |
+  | `net:` | conduit (`net:plc-line3`) | site network profile | workload plugin (nftables, DNS) |
+  | `pub:` / `sub:` | pub/sub namespace by direction (`pub:tel/pump/**`) | device namespace | local Zenoh router ACL |
+  | `secret:` | secret the app may receive (`secret:db-password`) | secret store | workload plugin |
+  | `vol:` | storage shared between apps (`vol:recordings`) | workload plugin | workload plugin |
+  | `raw:` | tier 2 items outside profiles (`raw:device=/dev/mem`, `raw:cap=NET_ADMIN`) | the grant itself | workload plugin |
+  | `tier:` | privilege tier (`tier:2`) | tier table | workload plugin (sandbox) |
+
+- "Maximum tier 2" is expressed as grantable names `tier:0`, `tier:1`, `tier:2` (authoring tools expand it).
+- **Unknown grants are handled by the plugin, fail closed**: a grant it does not understand stops the
+  app from starting and is reported. New grant types never require a verifier change.
+- Effective permissions = what the app manifest requests ∩ what the deployment grants (computed by the
+  plugin; the verifier never sees the manifest).
 
 ## Microcontrollers
 
@@ -122,6 +133,6 @@ the app schema → mount read-only → reload or restart.
 ## Gaps in weft-verifier
 
 1. Removal ("absent" deployments).
-2. Permission grants (typed names + tier) in deployment documents, bounded by the deployer's
-   grantable patterns and maximum tier.
+2. Permission grants (opaque strings) in deployment documents, covered by the deployer's grantable
+   patterns (intersected along delegations).
 3. Failed installs reported in device facts, so the verifier stops retrying.
