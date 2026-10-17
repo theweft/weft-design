@@ -69,6 +69,30 @@ refused.
 - Optional **hardware service**: a privileged daemon owns sensitive or shared hardware; apps request
   actions over local pub/sub (safety interlocks, shared buses).
 
+## Network access
+
+Default **deny**: an app has no network unless granted. Grants are allowlists (IEC 62443 conduits):
+
+```yaml
+network:
+  egress:
+    - { cidr: "192.168.10.20/32", ports: [502] }   # Modbus to one PLC
+    - { host: "api.example.com", ports: [443] }    # one cloud API
+  ingress:
+    - { port: 8080, from: [local, overlay] }       # local web UI, not from the internet
+```
+
+- Enforcement (workload plugin, outside the verifier): per-app network namespace (Podman default) +
+  generated **nftables** rules; hostnames via a local resolver that answers only allowed names and
+  fills nftables sets (e.g. dnsmasq `nftset`). CIDR/port rules first, hostnames second. No L7
+  filtering; a proxy app can do that if needed.
+- Same policy compiler as Zenoh and overlay ACLs (06-access-control.md): app firewall rules are a third
+  output. The verifier checks that the deployer's rights cover the granted network permissions
+  (e.g. technicians may grant LAN, never internet egress).
+- Allowlists are tier 1; host networking (bypasses all of it) is tier 2.
+- Device-level firewall rules not tied to an app: config fragments for component `os/firewall`.
+- MCUs: firmware owns the network stack; WebAssembly apps get network only as a granted host function.
+
 ## Microcontrollers
 
 - **Default: firmware + config.** The application is compiled into the firmware (component `fw`,
@@ -86,5 +110,6 @@ the app schema → mount read-only → reload or restart.
 ## Gaps in weft-verifier
 
 1. Removal ("absent" deployments).
-2. Permission grants in deployment documents, bounded by the deployer's rights (incl. max tier).
+2. Permission grants in deployment documents, bounded by the deployer's rights (incl. max tier and
+   network grants).
 3. Failed installs reported in device facts, so the verifier stops retrying.
