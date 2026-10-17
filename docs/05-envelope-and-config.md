@@ -98,17 +98,40 @@ validFrom: 2026-10-20T00:00:00Z   # optional
 
 ### 2.3 Resolution on the device (deterministic, no coordination)
 
-1. Collect all fragments for the component whose signature, delegation and selector are valid for this device.
-2. For each (scope, issuer, component), keep only the **highest version** (rollback protection).
-3. Merge in scope order with **JSON Merge Patch** semantics (RFC 7396): objects merge per field, arrays and
-   scalars are replaced, `null` deletes.
-4. **Locks**: a field locked by a scope cannot be changed by any other scope, unless that scope's
-   delegation explicitly allows overriding locks (e.g. tenant root).
-5. Validate the result against the component's JSON Schema.
+Implemented in `weft-verifier` (`resolve` module). Priorities are numbers; level names come from
+the tenant's signed **scope profile** (default: fleet 10, group 20, site 30, device 40, local 50),
+which authoring tools and backends use. The verifier never sees names.
 
-Every node with the same fragments computes the same effective config, so this works peer-to-peer
-and offline. A top-level signed **desired-state snapshot** lists the expected fragment versions and
-artifact hashes per device or group, preventing mix-and-match of old and new fragments (TUF snapshot idea).
+1. Collect all fragments whose signature, delegation and selector are valid for this device.
+2. Per (priority, issuer, component) keep only the **highest version** (rollback protection).
+3. Apply priorities in ascending order with **JSON Merge Patch** semantics (RFC 7396).
+4. **Ties**: different issuers at the same priority with incompatible changes to the same path (or a
+   path and its descendant) → *neither* applies, the lower-priority value stays, a `Tie` conflict
+   is reported. Identical changes are not a conflict.
+5. **Locks**: owned by the issuers of the lowest-priority fragments that lock a path. Others cannot
+   change it at any priority unless their rights include `locks.override`; attempts are reported as
+   `Locked` conflicts.
+6. Deployments: highest priority wins; different artifacts at that priority → `DeploymentTie`,
+   nothing installed, current version keeps running.
+7. Validate the result against the component's JSON Schema (plugin, outside the verifier).
+
+Cross-cutting dimensions (e.g. device model vs. site) are decided by the tenant's profile: give one a
+higher number, or the same number to force conflicts instead of silent overrides.
+
+Precedent: Windows Group Policy (layers + "Enforced" + explicit link order), Puppet Hiera
+(user-defined hierarchy), CSS cascade layers and `!important`, Kubernetes Server-Side Apply
+(field ownership, conflicts are errors), XACML "only-one-applicable", CRDT multi-value registers.
+
+### 2.3b Surfacing conflicts
+
+- **Verifier**: returns conflicts with a stable `id` (same conflict on many devices = same id),
+  kind, component, path, priority, issuers, document digests and value *hashes* (values may be secret).
+- **Device**: reported state (level-based, current set of conflicts), conflict appeared/resolved
+  events (edge-based), audit log, local UI/CLI (works offline).
+- **Fleet**: read model aggregates by `id`, notifies both issuers, shows both fragments and the ways
+  out (withdraw, decide from higher priority, lock); OpenTelemetry metric for open conflicts.
+- **Before rollout**: authoring tools and GitOps CI run the same verifier against representative
+  devices; new conflicts fail the review.
 
 ### 2.4 Apply, verify, roll back
 
