@@ -28,6 +28,8 @@ ones we integrate with and which we only learn from.
 | **Project EVE** (LF Edge) | Edge OS + hypervisor, VMs/containers, controller API | Apache-2.0 | ○ strong security model, heavy for small devices |
 | **Pantacor / Pantavisor** | Container-based embedded Linux system and updates | OSS + SaaS | ○ |
 | **FLECS** (FLECS Technologies GmbH) | Industrial app runtime + fleet console + branded marketplace with licensing; implements Margo; on-prem/offline, pull model; Linux amd64/arm64 | Open core: device runtime "FLECS Core" + web UI Apache-2.0; console/marketplace commercial | ○ overlaps the workload/app layer only; interoperate via Margo |
+| **thin-edge.io** (Cumulocity ecosystem) | Rust edge framework for constrained devices: local MQTT bus, plugins for software/config/firmware management, connectors to Cumulocity, AWS, Azure | Apache-2.0 (verify) | ★ evaluate in depth: same language, closest device-side overlap |
+| **Edge Core** | Self-hostable control plane for Linux fleets with WireGuard mesh and remote commands | Open source (verify licence) | ○ |
 | **Eclipse Kanto** | Modular edge agent: container mgmt, update, file upload, local MQTT | EPL-2.0 | ★ device-agent building blocks |
 | **AWS IoT Core + Greengrass v2** | Broker, shadows, jobs, edge components | Proprietary cloud, Greengrass nucleus OSS | ✕ integration target (users "bring their own AWS") |
 | **Azure IoT Hub + IoT Edge** ⚠ | Hub, twins, edge modules | IoT Edge 1.5 LTS end of servicing Nov 2026; IoT Central retirement reported | ✕ migration opportunity |

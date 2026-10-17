@@ -91,6 +91,6 @@ Margo and FLECS (workload layer only; FLECS is open-core, implements Margo); Via
 
 1. Prototype: Mosquitto client on device A ↔ native Zenoh app on device B (peer-to-peer) ↔ existing
    Mosquitto broker in "cloud" via the Zenoh MQTT plugin.
-2. Deep evaluation: SWUpdate, Flight Control, Mender, Eclipse Kanto/Ankaios, Zenoh security model, hawkBit, Margo PR spec.
+2. Deep evaluation: thin-edge.io, SWUpdate, Flight Control, Mender, Eclipse Kanto/Ankaios, Zenoh security model, hawkBit, Margo PR spec.
 3. Draft the desired-state document format and trust model (first mandatory contract).
 4. Set up project hygiene for certifiability from day one: SECURITY.md + disclosure policy, OpenSSF Scorecard and Best Practices badge, SBOM/provenance in CI; evaluate hosting under a foundation (Eclipse ORC working group for CRA).
