@@ -65,7 +65,7 @@ Alternatives considered: OPA/Rego (Go, general-purpose, less analyzable), UCAN, 
 - ~~Cedar for policies + Biscuit for tokens?~~ Direction (see 07, minimal trusted code): **not both**.
   Start with **one delegation mechanism for everything** (config, rollouts, commands, topic rights):
   COSE-signed delegation documents with a small, fixed constraint vocabulary (tenant, site, labels,
-  components, actions, config fields, validity), verified in `fleetloom-warp`. This mechanism is needed
+  components, actions, config fields, validity), verified in `fleetloom-heddle`. This mechanism is needed
   for desired state anyway, so it adds no second system. If richer conditions are ever needed, Biscuit is
   the fallback (one library, Datalog). Biscuit caveats: tokens are Protobuf-encoded (a second encoding
   in the trusted path) and only support Ed25519/P-256 today (no post-quantum yet).
