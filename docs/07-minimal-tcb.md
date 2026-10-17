@@ -35,6 +35,11 @@ order-independent; a narrowed delegation never grants more than its parent).
 
 Name: on a loom, the *heddles* decide which threads are lifted for every pass, and so decide the pattern. Here, heddle decides what is trusted and what happens; everything else only carries and executes.
 
+In classic terms, heddle is fleetloom's **reference monitor** (Anderson, 1972: always invoked,
+tamper-proof, small enough to verify) and its **policy decision point (PDP)**. The executor is the
+**policy enforcement point (PEP)**. This is the same decide/enforce split as SELinux's Flask
+architecture (security server vs. object managers).
+
 ### Shape: one pure state-transition function
 
 ```rust
