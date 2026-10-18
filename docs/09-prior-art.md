@@ -112,6 +112,9 @@ models and `weft-boardchecker`. See the hardware test row in [04-decisions.md](0
 | Project | Decision | Reason |
 |---|---|---|
 | QEMU (virt machine) | Adopted (planned, Linux-side CI) | Best-maintained machine, same arm64 architecture as the Pi; runs the real drivers against simulated chips. The raspi4b machine is rejected: no usable I2C/SPI controllers, adding them means C inside QEMU |
+| Firecracker, libkrun (microVMs) | Rejected | Tiny and fast because they drop almost all devices: no virtio-i2c/spi/gpio, no generic vhost-user devices, KVM only (no arm64 guest on x86 CI runners) |
+| Cloud Hypervisor, crosvm | Rejected (for now) | rust-vmm based with some vhost-user device types, but no I2C/GPIO support known; the weft backend is a plain vhost-user daemon, so it can move if they add generic vhost-user devices |
+| QEMU microvm machine | Rejected | x86 only. Small footprint comes from the guest instead: QEMU virt with only the needed devices, direct kernel boot, minimal kernel config and a busybox initramfs, about 128 MB RAM |
 | rust-vmm vhost-device (i2c, spi, gpio) | Adopted (planned, Linux-side CI) | Rust virtio backends for QEMU's virt machine; I2cDevice and SpiDevice traits accept a simulated device instead of host hardware, so weft's register models plug in without patching QEMU. Check that the target kernel has the virtio SPI driver |
 | swtpm / ms-tpm-20-ref | Adopted (planned, CI) | Real TPM 2.0 logic in software; tests measured boot and key handling without the SLB9672. The SPI transport is only tested on hardware |
 | Zephyr emulators (native_sim + emul) | Adopted (planned, if the co-MCU runs Zephyr) | Register-level I2C/SPI device emulators linked into host tests of real drivers; matches the MCUboot/mcumgr choice |
