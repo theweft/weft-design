@@ -121,6 +121,102 @@ code = [
   { repo = "weft-website", file = "public/security/index.html", pattern = "within {value} working days" },
 ]
 
+# --- Brand (docs/19) ----------------------------------------------------------------------
+
+[[fact]]
+id = "brand.color.warp_light"
+value = "#1f3bad"
+kind = "decision"
+status = "decided"
+note = "Warp (vertical threads) on light backgrounds"
+code = [
+  { repo = "weft-website", file = "brand/generate.py", pattern = '"light": {"warp": "{value}"' },
+  { repo = "weft-website", file = "public/style.css", pattern = "--warp: {value};" },
+]
+
+[[fact]]
+id = "brand.color.weft_light"
+value = "#c18215"
+kind = "decision"
+status = "decided"
+note = "Weft (horizontal threads) on light backgrounds"
+code = [
+  { repo = "weft-website", file = "brand/generate.py", pattern = '"weft": "{value}"' },
+  { repo = "weft-website", file = "public/style.css", pattern = "--weft: {value};" },
+]
+
+[[fact]]
+id = "brand.color.warp_dark"
+value = "#3355db"
+kind = "decision"
+status = "decided"
+note = "Warp (vertical threads) on dark backgrounds"
+code = [
+  { repo = "weft-website", file = "brand/generate.py", pattern = '"dark": {"warp": "{value}"' },
+  { repo = "weft-website", file = "public/style.css", pattern = "--warp: {value};" },
+]
+
+[[fact]]
+id = "brand.color.weft_dark"
+value = "#f6bb55"
+kind = "decision"
+status = "decided"
+note = "Weft (horizontal threads) on dark backgrounds"
+code = [
+  { repo = "weft-website", file = "brand/generate.py", pattern = '"weft": "{value}"' },
+  { repo = "weft-website", file = "public/style.css", pattern = "--weft: {value};" },
+]
+
+[[fact]]
+id = "brand.color.ink_light"
+value = "#1d2333"
+kind = "decision"
+status = "decided"
+note = "Wordmark on light backgrounds"
+code = [
+  { repo = "weft-website", file = "brand/generate.py", pattern = '"ink": "{value}"' },
+]
+
+[[fact]]
+id = "brand.color.ink_dark"
+value = "#e6e8ee"
+kind = "decision"
+status = "decided"
+note = "Wordmark on dark backgrounds"
+code = [
+  { repo = "weft-website", file = "brand/generate.py", pattern = '"ink": "{value}"' },
+]
+
+[[fact]]
+id = "brand.font"
+value = "Inter"
+kind = "decision"
+status = "decided"
+note = "Wordmark font (SIL OFL), as outlines"
+code = [
+  { repo = "weft-website", file = "flake.nix", pattern = "share/fonts/truetype/{value}Variable.ttf" },
+]
+
+[[fact]]
+id = "brand.font_weight"
+value = 600
+kind = "decision"
+status = "decided"
+note = "Wordmark font weight"
+code = [
+  { repo = "weft-website", file = "brand/generate.py", pattern = "WORD_WEIGHT = {value}" },
+]
+
+[[fact]]
+id = "brand.mark_min_px"
+value = 16
+kind = "decision"
+status = "decided"
+note = "Minimum logomark size in pixels"
+code = [
+  { repo = "weft-website", file = "brand/README.md", pattern = "logomark {value} px" },
+]
+
 # --- Verifier (weft-verifier) -----------------------------------------------------------
 
 [[fact]]

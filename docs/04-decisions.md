@@ -31,6 +31,11 @@ direction, not frozen. Each item can be revisited with a short rationale.
   (attorney check, EU filing in classes 9 and 42, or rename) before the first release, funding, a
   foundation move, or if another party files WEFT for software; the EU is first-to-file.
 
+## Brand
+
+Logo (2×2 weave), colours (indigo and amber), wordmark (Inter) and lockups: decided, with rejected
+alternatives and rationale, in [19-brand.md](19-brand.md).
+
 ## Mandatory core (the "narrow waist")
 
 Contracts are mandatory, implementations are not:

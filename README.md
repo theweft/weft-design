@@ -75,6 +75,7 @@ Key values (limits, device requirements, defaults, dates, estimates) live in one
 - [docs/16-transport-protocols.md](docs/16-transport-protocols.md): TLS, QUIC, HTTP versions, WebSockets, firewall traversal, constrained links.
 - [docs/17-test-lab-and-funding.md](docs/17-test-lab-and-funding.md): hardware for tests and benchmarks with rough costs, and funding options.
 - [docs/18-constrained-mcus.md](docs/18-constrained-mcus.md): how small MCUs take part: classes M0–M3, crypto (P-256, LMS), OTA via proxy and bootloader.
+- [docs/19-brand.md](docs/19-brand.md): logo, colours and type: what was decided, what was rejected and why.
 
 ## Status
 

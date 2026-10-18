@@ -4,6 +4,20 @@
 
 Key values, decisions and assumptions of weft. The source of truth is [facts.toml](facts.toml); docs refer to entries with inline markers, and `just check` verifies them.
 
+## brand
+
+| Id | Value | Kind | Status | Note |
+|---|---|---|---|---|
+| `brand.color.warp_light` | #1f3bad | decision | decided | Warp (vertical threads) on light backgrounds |
+| `brand.color.weft_light` | #c18215 | decision | decided | Weft (horizontal threads) on light backgrounds |
+| `brand.color.warp_dark` | #3355db | decision | decided | Warp (vertical threads) on dark backgrounds |
+| `brand.color.weft_dark` | #f6bb55 | decision | decided | Weft (horizontal threads) on dark backgrounds |
+| `brand.color.ink_light` | #1d2333 | decision | decided | Wordmark on light backgrounds |
+| `brand.color.ink_dark` | #e6e8ee | decision | decided | Wordmark on dark backgrounds |
+| `brand.font` | Inter | decision | decided | Wordmark font (SIL OFL), as outlines |
+| `brand.font_weight` | 600 | decision | decided | Wordmark font weight |
+| `brand.mark_min_px` | 16 | decision | decided | Minimum logomark size in pixels |
+
 ## cra
 
 | Id | Value | Kind | Status | Note |
