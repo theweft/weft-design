@@ -141,3 +141,19 @@ models and `weft-boardchecker`. See the hardware test row in [04-decisions.md](0
 | Linux dt-bindings (YAML) | Integrate (source of truth for compatibles and properties) | Defines compatible strings and property names such as reset-gpios; weft-parts references the binding path and adds only pin knowledge |
 | embedded-hal 1.0 | Adopted (weft-parts) | Standard Rust I2C trait; the simulated bus implements it, so Rust MCU drivers run against the chip models on the host |
 | ads1x1x, mcp4728, eeprom24x (crates) | Adopted (test oracles in weft-parts) | Independent drivers for the modelled chips; the models must satisfy them, not only weft's own reading of the datasheets |
+
+## Project signing and security contact
+
+Direction under discussion (2026-10-18): one key per purpose, no single long-lived project key.
+
+| Project | Decision | Reason |
+|---|---|---|
+| crates.io Trusted Publishing | Evaluate (crate releases) | Publishes from CI via short-lived OIDC tokens; no long-lived token to steal. Cargo does not verify signatures on crates, so a separate crate-signing key would protect nobody |
+| Sigstore (cosign, GitHub artifact attestations) | Evaluate (release artifacts, SLSA provenance) | Keyless signing tied to the CI identity, logged in a public transparency log; matches D7 (signed releases with provenance) |
+| gitsign | Ideas | Sigstore keyless commit signing; SSH signing is simpler for a small team |
+| SSH commit and tag signing | Evaluate (per developer) | Supported by git and shown as Verified by GitHub; key can live on a hardware token |
+| OpenPGP (security@ key) + Web Key Directory | Evaluate (security reports) | Expected by some reporters and referenced from security.txt; WKD publishes the key on theweft.org. Role key, not a personal key; Gmail cannot decrypt it, so it needs Thunderbird or similar |
+| GitHub private vulnerability reporting | Evaluate (primary security channel) | Built-in private reports per repository, no keys for reporters to handle |
+| security.txt (RFC 9116) | Evaluate | Standard place on theweft.org for the security contact, policy and encryption key |
+| minisign / signify | Rejected (for now) | Simple and sound, but Sigstore covers releases without a key to guard |
+| weft-verifier document keys | Separate | Device-facing signing (COSE, HSS/LMS in an HSM) is product trust, unrelated to release and email keys |
