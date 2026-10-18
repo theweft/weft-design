@@ -1,0 +1,28 @@
+name: facts
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1" # weekly: catches stale external facts and changes in weft-verifier
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: design
+      - uses: actions/checkout@v4
+        with:
+          repository: theweft/weft-verifier
+          path: weft-verifier
+      - uses: cachix/install-nix-action@v31
+      - name: Check facts
+        working-directory: design
+        run: >
+          nix develop ../weft-verifier --command
+          cargo run --locked --manifest-path tools/factcheck/Cargo.toml -- check --repos ..

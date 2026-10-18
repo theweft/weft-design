@@ -189,7 +189,7 @@ The most typical hardware, network and backend setup across the high-fit industr
 
 | Tier | Typical parts | Notes |
 |---|---|---|
-| Sensor/actuator MCU | STM32 (pros), ESP32 (most used overall, 38% in JetBrains 2025 **[S]**), nRF52/nRF54 (BLE/Thread), RP2040/RP2350 | ESP32 is Xtensa or RISC-V, **not** Cortex-M |
+| Sensor/actuator MCU | STM32 (pros), ESP32 (most used overall, <!--f:survey.esp32_share-->38%<!--/f--> in JetBrains 2025 **[S]**), nRF52/nRF54 (BLE/Thread), RP2040/RP2350 | ESP32 is Xtensa or RISC-V, **not** Cortex-M |
 | Embedded Linux device | NXP i.MX6ULL / i.MX8M / i.MX93, TI AM62x, Raspberry Pi CM4/CM5 | Cortex-A7/A53/A55, 256 MB–2 GB RAM, eMMC |
 | Gateway / industrial PC | ARM gateways (Moxa, Advantech, Siemens), x86 IPCs (Intel Atom/Core) **[V]** | −40…+85 °C, 10–15 year availability |
 | Router | Cellular industrial routers (Teltonika, Robustel, Moxa, Siemens Scalance), many OpenWrt-based | Often the only thing with WAN access |
@@ -226,7 +226,7 @@ Modbus RTU/TCP is the common denominator across energy, utilities, buildings and
 
 ### Regulation
 
-- **CRA:** reporting of actively exploited vulnerabilities from 11 Sep 2026 (24 h / 72 h / 14 days). Full requirements and CE marking from 11 Dec 2027 **[S]**. This applies to almost every industry above that sells into the EU.
+- **CRA:** reporting of actively exploited vulnerabilities from <!--f:cra.reporting_from-->11 Sep 2026<!--/f--> (24 h / 72 h / 14 days). Full requirements and CE marking from <!--f:cra.full_application-->11 Dec 2027<!--/f--> **[S]**. This applies to almost every industry above that sells into the EU.
 - **Sector rules:**
   - IEC 62443 (industry, utilities, charging);
   - EN 50155 and EN 50121 (rail);

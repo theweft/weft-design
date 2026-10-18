@@ -1,14 +1,14 @@
 # Minimum device requirements (draft)
 
-Measured values (2026-10-17, weft-verifier 0.1, Rust 1.99.1): see the bottom of this file.
+Measured values (2026-10-17, weft-verifier 0.1, Rust <!--f:toolchain.rust-->1.99.1<!--/f-->): see the bottom of this file.
 
 ## Device classes
 
 | | MCU class M1 (verifier on device) | MCU class M2 (proxy-authorized) | Embedded Linux | Gateway / edge PC |
 |---|---|---|---|---|
 | CPU | 32-bit Cortex-M4/M33 class or better | Any MCU MCUboot supports | ARMv7-A / ARMv8-A | arm64 / x86-64 |
-| Flash / storage | ≥ 1 MB (2 firmware slots + bootloader + settings) | ≥ 128 KB internal; secondary slot may be external SPI flash | ≥ 1 GB eMMC (A/B base OS + data); ≥ 4 GB with containers | ≥ 16 GB |
-| RAM | ≥ 256 KB (≥ 128 KB without TLS / with small document sets) | ≥ 16 KB | ≥ 256 MB (≥ 512 MB with containers) | ≥ 2 GB |
+| Flash / storage | ≥ <!--f:device.m1.flash_min-->1 MB<!--/f--> (2 firmware slots + bootloader + settings) | ≥ <!--f:device.m2.flash_min-->128 KB<!--/f--> internal; secondary slot may be external SPI flash | ≥ <!--f:device.linux.storage_min-->1 GB<!--/f--> eMMC (A/B base OS + data); ≥ <!--f:device.linux.storage_min_containers-->4 GB<!--/f--> with containers | ≥ <!--f:device.gateway.storage_min-->16 GB<!--/f--> |
+| RAM | ≥ <!--f:device.m1.ram_min-->256 KB<!--/f--> (≥ <!--f:device.m1.ram_min_small-->128 KB<!--/f--> without TLS / with small document sets) | ≥ <!--f:device.m2.ram_min-->16 KB<!--/f--> | ≥ <!--f:device.linux.ram_min-->256 MB<!--/f--> (≥ <!--f:device.linux.ram_min_containers-->512 MB<!--/f--> with containers) | ≥ <!--f:device.gateway.ram_min-->2 GB<!--/f--> |
 | Boot | MCUboot, A/B slots, signature check | MCUboot | U-Boot or UEFI, A/B (SWUpdate) or OSTree/bootc | UEFI, bootc or A/B |
 | Keys | Secure element, TrustZone-M (PSA) or protected flash | Release and proxy public keys in bootloader/OTP; private key only for identity (secure element, or a symmetric key shared with the proxy) | TPM 2.0 (discrete or firmware) recommended | TPM 2.0 |
 | Entropy | True RNG (keys, TLS) | Only if the device holds a private key | Kernel RNG | Kernel RNG |
@@ -58,7 +58,7 @@ UTC only; no time zones in the platform.
 - DNS optional: everything works with IP addresses; only hostname conduits need DNS.
 - Restrictive networks: outbound-only (NAT, CGNAT), HTTP proxy support, **fallback over 443**
   (Zenoh over QUIC/WebSocket), published list of required ports.
-- MTU 1,280–1,420 on cellular and tunnels: no dependence on large packets.
+- MTU <!--f:net.mtu-->1,280–1,420<!--/f--> on cellular and tunnels: no dependence on large packets.
 - Metered links: bandwidth budgets, deltas, telemetry batching.
 - Sleeping devices: liveliness distinguishes "asleep" from "gone".
 
@@ -93,9 +93,9 @@ UTC only; no time zones in the platform.
 
 | Item | Value | How |
 |---|---|---|
-| Verifier code size, Cortex-M4 (`thumbv7em-none-eabihf`) | ≈ 88 KB | Static library, `opt-level = "z"`, LTO, panic = abort; includes CBOR, SHA-256, Ed25519 (P-256 enabled made no measurable difference, inlining makes per-crate attribution unreliable; budget extra to be safe). Allocator not included (+ a few KB) |
-| Peak heap for one step | ≈ 30 KB on 64-bit (≈ 20 KB expected on 32-bit) | 10 documents, 3.1 KB input: 1 delegation, 3 components × 2 config priorities (20 fields each), 3 deployments |
-| Persisted state | 659 bytes | Same scenario, CBOR |
+| Verifier code size, Cortex-M4 (`thumbv7em-none-eabihf`) | ≈ <!--f:measure.verifier.code_size_m4-->88 KB<!--/f--> | Static library, `opt-level = "z"`, LTO, panic = abort; includes CBOR, SHA-256, Ed25519 (P-256 enabled made no measurable difference, inlining makes per-crate attribution unreliable; budget extra to be safe). Allocator not included (+ a few KB) |
+| Peak heap for one step | ≈ <!--f:measure.verifier.peak_heap-->30 KB<!--/f--> on 64-bit (≈ 20 KB expected on 32-bit) | 10 documents, 3.1 KB input: 1 delegation, 3 components × 2 config priorities (20 fields each), 3 deployments |
+| Persisted state | <!--f:measure.verifier.state_size-->659 bytes<!--/f--> | Same scenario, CBOR |
 
 Optimization potential: borrow instead of copy in the CBOR layer, fewer generic instantiations,
 processing documents in batches. Re-measure on real hardware (e.g. nRF5340, STM32U5) before committing.

@@ -22,7 +22,7 @@ Prices are rough euro estimates (single units, incl. VAT, October 2026) and vary
 - energy use;
 - a real Modbus device and a real industrial router as reference points.
 
-## 2. Tier A: essential lab (≈ €850–1,000)
+## 2. Tier A: essential lab (≈ €<!--f:lab.tier_a_cost-->850–1,000<!--/f-->)
 
 | Item | Covers | ≈ € |
 |---|---|---|
@@ -38,7 +38,7 @@ Prices are rough euro estimates (single units, incl. VAT, October 2026) and vary
 | LTE modem (USB or HAT) + IoT SIM | Real cellular: NAT timeouts, handovers, keepalive cost | 75 |
 | Cables, USB-serial adapters, SD cards, debug probe (CMSIS-DAP) | – | 80 |
 
-## 3. Tier B: reasonable for credible benchmarks (+ ≈ €1,000–1,800)
+## 3. Tier B: reasonable for credible benchmarks (+ ≈ €<!--f:lab.tier_b_cost-->1,000–1,800<!--/f-->)
 
 | Item | Why | ≈ € |
 |---|---|---|
@@ -71,7 +71,7 @@ Prices are rough euro estimates (single units, incl. VAT, October 2026) and vary
 
 | Programme | For | Amount | Status (2026-10-18) | Fit |
 |---|---|---|---|---|
-| **NLnet: Restack** (EU, Horizon Europe, Open Internet Stack) | Open internet infrastructure, from hardware to applications; mentions secure, privacy-friendly devices, deployment and service management, and supply chain trust | €5k–50k first grant, scale-up possible | **Open, deadline 3 Nov 2026, 12:00 CET** | **Good.** Frame weft as open infrastructure for securely managing devices: signed updates, supply chain (SBOM, provenance), no lock-in |
+| **NLnet: Restack** (EU, Horizon Europe, Open Internet Stack) | Open internet infrastructure, from hardware to applications; mentions secure, privacy-friendly devices, deployment and service management, and supply chain trust | €5k–50k first grant, scale-up possible | **Open, deadline <!--f:funding.nlnet_restack_deadline-->3 Nov 2026<!--/f-->, 12:00 CET** | **Good.** Frame weft as open infrastructure for securely managing devices: signed updates, supply chain (SBOM, provenance), no lock-in |
 | NLnet: CodeSupply | Open software metadata (origin, licences, vulnerabilities) | €5k–50k (total €400k) | Open, same deadline | Partial: only the SBOM/VEX/firmware-provenance part (G5/G6) |
 | **netidee** (Internet Privatstiftung Austria) | Internet projects with open results, OSI licences; individuals allowed | up to €60k | Call 21 closed 7 July 2026; next call expected spring 2027 (assumption from the yearly cycle) | Good, if you live in Austria |
 | Prototype Fund (Germany) | Open-source prototypes by individuals | – | Continues (four more years from 2024); current round dates not found | Only for residents of Germany |

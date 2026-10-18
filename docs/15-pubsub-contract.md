@@ -11,7 +11,7 @@ A transport is supported when it provides these, natively or through a thin adap
 | # | Requirement | Notes |
 |---|---|---|
 | T1 | **Publish to a hierarchical key** and **subscribe by prefix**, plus a single-level wildcard | MQTT `+` / `#`, Zenoh `*` / `**`, NATS `*` / `>`, DDS topics plus content filter |
-| T2 | **Opaque binary payload of at least 4 KiB**, preferably 64 KiB | Large data never goes through pub/sub as one message (see §4) |
+| T2 | **Opaque binary payload of at least <!--f:pubsub.payload_min-->4 KiB<!--/f-->**, preferably <!--f:pubsub.payload_preferred-->64 KiB<!--/f--> | Large data never goes through pub/sub as one message (see §4) |
 | T3 | **Best-effort delivery** (at most once) | That's all. Loss, duplicates and reordering must be tolerated by weft |
 | T4 | **Local connection state** (link up or down) | Drives store and forward and resync |
 | T5 | **Authenticated peers or clients**, per node identity | TLS/mTLS, Zenoh TLS/QUIC, or the overlay. Used for transport ACLs, not for trust |
@@ -78,15 +78,15 @@ This works over every transport that meets T1–T4, including across bridges.
 
 - **Attributes travel in binary mode** (transport headers) when the transport has headers. Otherwise they travel in **structured mode**: a CBOR array `[attributes, payload]` as the message payload. A bridge converts between the two without changing the signature, because the signature covers payload plus attributes, not the framing.
 - **Dedupe** by (`source`, `id`). **Gap detection** by `weftseq`. **Expiry** by `weftexpires`: issued_at plus a duration, checked against the receiver's time floor. Commands with no reliable time use the time floor (docs/11).
-- **Topic charset** valid on every transport: segments are `[a-z0-9_-]{1,64}`, separated by `/`.
+- **Topic charset** valid on every transport: segments are `[a-z0-9_-]`, 1 to <!--f:pubsub.topic.segment_max-->64<!--/f--> characters, separated by `/`.
   - No `+ # * > . $ ? @` inside segments, because each of those is special in at least one of MQTT, Zenoh or NATS.
-  - Maximum depth 16 and total length 256 bytes.
+  - Maximum depth <!--f:pubsub.topic.max_depth-->16<!--/f--> and total length <!--f:pubsub.topic.max_len-->256 bytes<!--/f-->.
   - The adapter maps `/` to `.` for NATS.
 - **Liveliness topic**: `weft/{tenant}/{device}/live` instead of `@weft/...`, since `@` is reserved in Zenoh key expressions. Zenoh liveliness tokens and MQTT last will are mapped onto it.
 
 ## 4. Size limits and large data
 
-- Minimum payload size a transport must accept: 4 KiB. weft messages other than bulk stay under 4 KiB by default, and telemetry batches stay under 4 KiB as well (this also keeps AWS IoT billing at one message per 5 KiB step).
+- Minimum payload size a transport must accept: <!--f:pubsub.payload_min-->4 KiB<!--/f-->. weft messages other than bulk stay under 4 KiB by default, and telemetry batches stay under 4 KiB as well (this also keeps AWS IoT billing at one message per 5 KiB step).
 - Bulk data is fetched by digest over HTTP/OCI when IP is available. Otherwise it is sent as chunked transfer over pub/sub (fixed-size chunks, each with digest and index, resumable). Chunking covers serial, BLE and LoRa-class links through a proxy.
 
 ## 5. The adapter interface (sketch, part of G10)

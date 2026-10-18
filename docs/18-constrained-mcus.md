@@ -1,6 +1,6 @@
 # Constrained MCUs: crypto and OTA (draft)
 
-How MCUs that are too small for `weft-verifier` (measured: ~88 KB code on Cortex-M4, ~30 KB peak heap for 10 documents, docs/10) still take part in weft safely.
+How MCUs that are too small for `weft-verifier` (measured: ~<!--f:measure.verifier.code_size_m4-->88 KB<!--/f--> code on Cortex-M4, ~<!--f:measure.verifier.peak_heap-->30 KB<!--/f--> peak heap for 10 documents, docs/10) still take part in weft safely.
 
 ## 1. Main idea: split authenticity from authorization
 
@@ -27,8 +27,8 @@ It can **never** install foreign or modified firmware. This is the same idea as 
 
 | Class | Typical hardware | Runs | Image authenticity | Authorization | Config |
 |---|---|---|---|---|---|
-| **M1 Full** | ≥ 1 MB flash, ≥ 256 KB RAM, Cortex-M33/M4F/M7, ESP32-C6, nRF54 | `weft-verifier`, MCUboot, zenoh-pico | MCUboot + release key | On device (verifier) | Signed weft documents, verified on device |
-| **M2 Constrained** | 128 KB–1 MB flash, 16–256 KB RAM, Cortex-M0+/M4, nRF52, small STM32 | MCUboot (or a similar signing bootloader), a small update agent | MCUboot + release key (end to end) | **Proxy** runs the verifier, sends a compact signed *directive* | Compact config signed by the proxy |
+| **M1 Full** | ≥ <!--f:device.m1.flash_min-->1 MB<!--/f--> flash, ≥ <!--f:device.m1.ram_min-->256 KB<!--/f--> RAM, Cortex-M33/M4F/M7, ESP32-C6, nRF54 | `weft-verifier`, MCUboot, zenoh-pico | MCUboot + release key | On device (verifier) | Signed weft documents, verified on device |
+| **M2 Constrained** | <!--f:device.m2.flash_min-->128 KB<!--/f-->–1 MB flash, <!--f:device.m2.ram_min-->16 KB<!--/f-->–256 KB RAM, Cortex-M0+/M4, nRF52, small STM32 | MCUboot (or a similar signing bootloader), a small update agent | MCUboot + release key (end to end) | **Proxy** runs the verifier, sends a compact signed *directive* | Compact config signed by the proxy |
 | **M3 Peripheral** | < 128 KB flash, < 16 KB RAM, 8/16-bit, or no signing bootloader (UART, CAN or I²C ROM bootloaders) | Its application, maybe a vendor bootloader | **None on the device**: only a CRC or nothing. The proxy checks the image digest before flashing | Proxy | Written by the proxy (Modbus registers, CAN parameters) |
 | **M0 Fixed** | Cannot be updated | – | – | – | Read-only; the version is reported by the proxy |
 
@@ -97,7 +97,7 @@ release HSM ──signs image──► OCI registry ──► proxy (gateway/upl
   - a sequence number;
   - optional config values.
 - It is signed with the proxy's key, which the MCU learned when it was provisioned.
-- About 150–250 bytes, verified with one signature check.
+- About <!--f:directive.size-->150–250 bytes<!--/f-->, verified with one signature check.
 - Long term this is a **SUIT manifest** (RFC 9019/9124) for interoperability. Nordic's nRF Connect SDK already uses SUIT on newer parts, and libcsuit exists.
 
 ### 4.3 Flash layout options
@@ -145,7 +145,7 @@ Many products contain one Linux SoC and several MCUs: motor control, safety, rad
 - **`weft-directive`** (name decided 2026-10-18), a tiny crate for M2:
   - `no_std`, no alloc;
   - one signature check plus a sequence check;
-  - target < 10 KB code without the crypto library, a few hundred bytes of RAM.
+  - target < <!--f:directive.code_budget-->10 KB<!--/f--> code without the crypto library, a few hundred bytes of RAM.
 
   This is a second, much smaller trusted piece of code for M2 devices.
 - Layout: `weft_directive::check(...)` is `no_std`, has no `alloc`, and is the only part an MCU runs. `weft_directive::encode(...)` sits behind a feature and is used by the proxy, outside the trusted code.

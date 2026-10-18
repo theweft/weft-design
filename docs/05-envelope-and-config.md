@@ -100,7 +100,7 @@ validFrom: 2026-10-20T00:00:00Z   # optional
 ### 2.3 Resolution on the device (deterministic, no coordination)
 
 Implemented in `weft-verifier` (`resolve` module). Priorities are numbers; level names come from
-the tenant's signed **scope profile** (default: fleet 10, group 20, site 30, device 40, local 50),
+the tenant's signed **scope profile** (default: fleet <!--f:priority.default.fleet-->10<!--/f-->, group <!--f:priority.default.group-->20<!--/f-->, site <!--f:priority.default.site-->30<!--/f-->, device <!--f:priority.default.device-->40<!--/f-->, local <!--f:priority.default.local-->50<!--/f-->),
 which authoring tools and backends use. The verifier never sees names.
 
 1. Collect all fragments whose signature, delegation and selector are valid for this device.

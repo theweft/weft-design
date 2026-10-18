@@ -1,0 +1,17 @@
+[package]
+name = "factcheck"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+license = "MIT"
+description = "Checks the design docs against facts.toml (the single source of truth for key values)"
+publish = false
+
+[dependencies]
+toml = "=1.1.6"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }

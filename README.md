@@ -51,6 +51,10 @@ weft does the same with existing tools: it weaves them into one platform without
 - Website: [theweft.org](https://theweft.org) (also theweft.dev, weftfleet.org, weftfleet.dev, weftfleet.com)
 - Crates: `weft-*`; role nouns for components that act (`weft-verifier`, `weft-executor`, `weft-agent`), artifact nouns for formats (`weft-envelope`, `weft-directive`)
 
+## Facts
+
+Key values (limits, device requirements, defaults, dates, estimates) live in one place: [facts.toml](facts.toml), rendered as [FACTS.md](FACTS.md). Docs show them through inline markers, and `just check` verifies that docs and the code in sibling repositories (e.g. `weft-verifier` constants) agree with it. To change a value, change `facts.toml` and the markers, then run `just facts-index` and `just check`.
+
 ## Docs
 
 - [docs/01-problem-map.md](docs/01-problem-map.md): the problems we have to solve, and where the seams go.

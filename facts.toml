@@ -1,0 +1,426 @@
+# Single source of truth for key values, decisions and assumptions of weft.
+#
+# Docs refer to an entry with an inline marker that renders as plain text on GitHub:
+#   <!--f:device.m1.flash_min-->1 MB<!--/f-->
+# The text between the markers must equal `text` (or `value` when there is no `text`).
+# `[[fact.code]]` entries pin the value in source code of a sibling repository.
+# Check with `just check`; regenerate FACTS.md with `just facts-index`.
+#
+# Fields:
+#   id            [a-z0-9._-]+, the first segment groups the entry in FACTS.md
+#   value         typed value, for tools and code checks
+#   text          how the value appears in docs (optional, defaults to value)
+#   kind          decision | requirement | assumption | measurement | external
+#   status        draft | decided | superseded (default draft)
+#   note          short explanation
+#   source        URL (required for external)
+#   checked       date the source was last checked (required for external)
+#   measured      date of measurement (required for measurement)
+#   max_age_days  warn when `checked` is older (default 180)
+
+# --- Principles (docs/04) ---------------------------------------------------------------
+
+[[fact]]
+id = "principle.d1"
+value = "Decided"
+kind = "decision"
+status = "decided"
+note = "D1: every layer is swappable behind a seam"
+
+[[fact]]
+id = "principle.d2"
+value = "Decided"
+kind = "decision"
+status = "decided"
+note = "D2: offline by design, cloud optional"
+
+[[fact]]
+id = "principle.d3"
+value = "Decided"
+kind = "decision"
+status = "decided"
+note = "D3: decentralized by design, authority from signing keys"
+
+[[fact]]
+id = "principle.d4"
+value = "Decided"
+kind = "decision"
+status = "decided"
+note = "D4: topology-flexible pub/sub"
+
+[[fact]]
+id = "principle.d5"
+value = "Decided"
+kind = "decision"
+status = "decided"
+note = "D5: permissive licences, no GPLv3/AGPL/BSL/SSPL in the core"
+
+[[fact]]
+id = "principle.d6"
+value = "Decided"
+kind = "decision"
+status = "decided"
+note = "D6: crypto agility and post-quantum readiness"
+
+[[fact]]
+id = "principle.d7"
+value = "Decided"
+kind = "decision"
+status = "decided"
+note = "D7: certifiable by design (CRA, IEC 62443)"
+
+[[fact]]
+id = "principle.d8"
+value = "Decided"
+kind = "decision"
+status = "decided"
+note = "D8: Rust everywhere"
+
+[[fact]]
+id = "principle.d9"
+value = "Decided"
+kind = "decision"
+status = "decided"
+note = "D9: minimal trusted code, weft-verifier as reference monitor"
+
+[[fact]]
+id = "license.weft"
+value = "MIT"
+kind = "decision"
+status = "decided"
+note = "Licence of all weft repositories"
+code = [{ repo = "weft-verifier", file = "Cargo.toml", pattern = 'license = "{value}"' }]
+
+[[fact]]
+id = "toolchain.rust"
+value = "1.99.1"
+kind = "decision"
+status = "decided"
+note = "Pinned Rust toolchain"
+code = [{ repo = "weft-verifier", file = "rust-toolchain.toml", pattern = 'channel = "{value}"' }]
+
+# --- Verifier (weft-verifier) -----------------------------------------------------------
+
+[[fact]]
+id = "verifier.max_chain_depth"
+value = 8
+kind = "decision"
+status = "decided"
+note = "Maximum delegation chain length"
+code = [{ repo = "weft-verifier", file = "src/verifier.rs", pattern = "pub const MAX_CHAIN_DEPTH: usize = {value};" }]
+
+[[fact]]
+id = "verifier.max_rights_per_key"
+value = 8
+kind = "decision"
+status = "decided"
+note = "Maximum rights sets per key (bounds work per step)"
+code = [{ repo = "weft-verifier", file = "src/verifier.rs", pattern = "pub const MAX_RIGHTS_PER_KEY: usize = {value};" }]
+
+[[fact]]
+id = "verifier.format_version"
+value = 1
+kind = "decision"
+status = "decided"
+note = "Document format version"
+code = [{ repo = "weft-verifier", file = "src/doc.rs", pattern = "pub const FORMAT_VERSION: i64 = {value};" }]
+
+[[fact]]
+id = "verifier.cbor.max_len"
+value = 65536
+text = "64 KiB"
+kind = "decision"
+status = "decided"
+note = "Default maximum input size per document"
+code = [{ repo = "weft-verifier", file = "src/cbor.rs", pattern = "max_len: 64 * 1024," }]
+
+[[fact]]
+id = "verifier.cbor.max_depth"
+value = 16
+kind = "decision"
+status = "decided"
+note = "Default maximum CBOR nesting depth"
+code = [{ repo = "weft-verifier", file = "src/cbor.rs", pattern = "max_depth: {value}," }]
+
+[[fact]]
+id = "verifier.cbor.max_items"
+value = 4096
+kind = "decision"
+status = "decided"
+note = "Default maximum CBOR items per document"
+code = [{ repo = "weft-verifier", file = "src/cbor.rs", pattern = "max_items: {value}," }]
+
+[[fact]]
+id = "verifier.key_id_len"
+value = 16
+kind = "decision"
+status = "decided"
+note = "Key id length in bytes (truncated SHA-256)"
+code = [{ repo = "weft-verifier", file = "src/crypto.rs", pattern = "pub type KeyId = [u8; {value}];" }]
+
+[[fact]]
+id = "verifier.key_id_domain"
+value = "weft-key-id-v1"
+kind = "decision"
+status = "decided"
+note = "Domain separation tag for key ids"
+code = [{ repo = "weft-verifier", file = "src/crypto.rs", pattern = 'b"{value}"' }]
+
+[[fact]]
+id = "verifier.alg.ed25519"
+value = -8
+kind = "decision"
+status = "decided"
+note = "COSE algorithm id for Ed25519 (EdDSA)"
+code = [{ repo = "weft-verifier", file = "src/crypto.rs", pattern = "{value} => Some(Algorithm::Ed25519)" }]
+
+[[fact]]
+id = "verifier.alg.es256"
+value = -7
+kind = "decision"
+status = "decided"
+note = "COSE algorithm id for ECDSA P-256 (feature p256)"
+code = [{ repo = "weft-verifier", file = "src/crypto.rs", pattern = "{value} => Some(Algorithm::EcdsaP256)" }]
+
+# --- Default scope profile (docs/05 §2.3) -----------------------------------------------
+
+[[fact]]
+id = "priority.default.fleet"
+value = 10
+kind = "decision"
+status = "decided"
+note = "Default priority of fleet-wide fragments"
+code = [{ repo = "weft-verifier", file = "src/rights.rs", pattern = "pub const FLEET: Priority = {value};" }]
+
+[[fact]]
+id = "priority.default.group"
+value = 20
+kind = "decision"
+status = "decided"
+note = "Default priority of group fragments"
+code = [{ repo = "weft-verifier", file = "src/rights.rs", pattern = "pub const GROUP: Priority = {value};" }]
+
+[[fact]]
+id = "priority.default.site"
+value = 30
+kind = "decision"
+status = "decided"
+note = "Default priority of site fragments"
+code = [{ repo = "weft-verifier", file = "src/rights.rs", pattern = "pub const SITE: Priority = {value};" }]
+
+[[fact]]
+id = "priority.default.device"
+value = 40
+kind = "decision"
+status = "decided"
+note = "Default priority of device fragments"
+code = [{ repo = "weft-verifier", file = "src/rights.rs", pattern = "pub const DEVICE: Priority = {value};" }]
+
+[[fact]]
+id = "priority.default.local"
+value = 50
+kind = "decision"
+status = "decided"
+note = "Default priority of local (on-site) changes"
+code = [{ repo = "weft-verifier", file = "src/rights.rs", pattern = "pub const LOCAL: Priority = {value};" }]
+
+# --- Measurements (docs/10) -------------------------------------------------------------
+
+[[fact]]
+id = "measure.verifier.code_size_m4"
+value = 88
+text = "88 KB"
+kind = "measurement"
+measured = 2026-10-17
+note = "Verifier code size, Cortex-M4, opt-level z, LTO (approximate)"
+
+[[fact]]
+id = "measure.verifier.peak_heap"
+value = 30
+text = "30 KB"
+kind = "measurement"
+measured = 2026-10-17
+note = "Peak heap for one step, 64-bit, 10 documents, 3.1 KB input"
+
+[[fact]]
+id = "measure.verifier.state_size"
+value = 659
+text = "659 bytes"
+kind = "measurement"
+measured = 2026-10-17
+note = "Persisted verifier state, same scenario"
+
+# --- Device requirements (docs/10, docs/18) ---------------------------------------------
+
+[[fact]]
+id = "device.m1.flash_min"
+value = "1 MB"
+kind = "requirement"
+note = "MCU class M1 (verifier on device): flash"
+
+[[fact]]
+id = "device.m1.ram_min"
+value = "256 KB"
+kind = "requirement"
+note = "MCU class M1: RAM"
+
+[[fact]]
+id = "device.m1.ram_min_small"
+value = "128 KB"
+kind = "requirement"
+note = "MCU class M1 without TLS / with small document sets: RAM"
+
+[[fact]]
+id = "device.m2.flash_min"
+value = "128 KB"
+kind = "requirement"
+note = "MCU class M2 (proxy-authorized): internal flash"
+
+[[fact]]
+id = "device.m2.ram_min"
+value = "16 KB"
+kind = "requirement"
+note = "MCU class M2: RAM"
+
+[[fact]]
+id = "device.linux.storage_min"
+value = "1 GB"
+kind = "requirement"
+note = "Embedded Linux: storage (A/B base OS + data)"
+
+[[fact]]
+id = "device.linux.storage_min_containers"
+value = "4 GB"
+kind = "requirement"
+note = "Embedded Linux with containers: storage"
+
+[[fact]]
+id = "device.linux.ram_min"
+value = "256 MB"
+kind = "requirement"
+note = "Embedded Linux: RAM"
+
+[[fact]]
+id = "device.linux.ram_min_containers"
+value = "512 MB"
+kind = "requirement"
+note = "Embedded Linux with containers: RAM"
+
+[[fact]]
+id = "device.gateway.storage_min"
+value = "16 GB"
+kind = "requirement"
+note = "Gateway / edge PC: storage"
+
+[[fact]]
+id = "device.gateway.ram_min"
+value = "2 GB"
+kind = "requirement"
+note = "Gateway / edge PC: RAM"
+
+[[fact]]
+id = "net.mtu"
+value = "1,280–1,420"
+kind = "assumption"
+note = "MTU range to expect on cellular and tunnels (bytes)"
+
+# --- MCU directive (docs/18) ------------------------------------------------------------
+
+[[fact]]
+id = "directive.size"
+value = "150–250 bytes"
+kind = "assumption"
+note = "Expected size of a weft-directive"
+
+[[fact]]
+id = "directive.code_budget"
+value = "10 KB"
+kind = "requirement"
+note = "Code budget of weft-directive without the crypto library (upper bound)"
+
+# --- Pub/sub contract (docs/15) ---------------------------------------------------------
+
+[[fact]]
+id = "pubsub.payload_min"
+value = "4 KiB"
+kind = "requirement"
+note = "Minimum payload size a transport must accept (T2)"
+
+[[fact]]
+id = "pubsub.payload_preferred"
+value = "64 KiB"
+kind = "requirement"
+note = "Preferred payload size a transport accepts (T2)"
+
+[[fact]]
+id = "pubsub.topic.segment_max"
+value = 64
+kind = "requirement"
+note = "Maximum characters per topic segment"
+
+[[fact]]
+id = "pubsub.topic.max_depth"
+value = 16
+kind = "requirement"
+note = "Maximum topic depth"
+
+[[fact]]
+id = "pubsub.topic.max_len"
+value = 256
+text = "256 bytes"
+kind = "requirement"
+note = "Maximum total topic length"
+
+# --- External facts (sources change: re-check) ------------------------------------------
+
+[[fact]]
+id = "cra.reporting_from"
+value = 2026-09-11
+text = "11 Sep 2026"
+kind = "external"
+source = "https://www.pwc.ch/en/insights/regulation/eu-cyber-resilience-act.html"
+checked = 2026-10-17
+max_age_days = 365
+note = "CRA reporting obligations for actively exploited vulnerabilities apply"
+
+[[fact]]
+id = "cra.full_application"
+value = 2027-12-11
+text = "11 Dec 2027"
+kind = "external"
+source = "https://www.dataguard.com/cyber-resilience-act/timeline/"
+checked = 2026-10-17
+max_age_days = 365
+note = "CRA essential requirements and CE marking apply"
+
+[[fact]]
+id = "survey.esp32_share"
+value = "38%"
+kind = "external"
+source = "https://lp.jetbrains.com/the-state-of-embedded-2025"
+checked = 2026-10-17
+note = "Share of developers using ESP32 (JetBrains State of Embedded 2025)"
+
+[[fact]]
+id = "funding.nlnet_restack_deadline"
+value = 2026-11-03
+text = "3 Nov 2026"
+kind = "external"
+source = "https://www.nlnet.nl/restack/"
+checked = 2026-10-18
+max_age_days = 30
+note = "NLnet Restack call deadline, 12:00 CET"
+
+# --- Estimates (docs/17) ----------------------------------------------------------------
+
+[[fact]]
+id = "lab.tier_a_cost"
+value = "850–1,000"
+kind = "assumption"
+note = "Essential test lab, euro, rough estimate (2026-10)"
+
+[[fact]]
+id = "lab.tier_b_cost"
+value = "1,000–1,800"
+kind = "assumption"
+note = "Additional lab for credible benchmarks, euro, rough estimate (2026-10)"

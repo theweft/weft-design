@@ -86,7 +86,7 @@ The overlay (P11, docs/04: Nebula or weft-managed WireGuard, with OpenZiti optio
    - The route is scoped by a conduit and time-limited by a grant, and every session is logged.
 5. **MCUs** usually reach the overlay through their proxy or uplink. Running WireGuard on an MCU is possible (ESP32 ports exist), but it is not a weft requirement.
 6. **Apps that need their own tunnel** (a customer VPN, a vendor service link) ask for it in the manifest. It is granted like any other network right (a `net:` grant at a higher permission tier, docs/08), so developers are not blocked, but the device owner sees and approves it.
-7. **Nested tunnels** are fine: the overlay can run inside a corporate VPN or over satellite SD-WAN. Mind the MTU (docs/10: 1,280–1,420 bytes).
+7. **Nested tunnels** are fine: the overlay can run inside a corporate VPN or over satellite SD-WAN. Mind the MTU (docs/10: <!--f:net.mtu-->1,280–1,420<!--/f--> bytes).
 
 ## 6. Open points
 
