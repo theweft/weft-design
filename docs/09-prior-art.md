@@ -148,6 +148,18 @@ models and `weft-boardchecker`. See the hardware test row in [04-decisions.md](0
 | embedded-hal 1.0 | Adopted (weft-parts) | Standard Rust I2C trait; the simulated bus implements it, so Rust MCU drivers run against the chip models on the host |
 | ads1x1x, mcp4728, eeprom24x (crates) | Adopted (test oracles in weft-parts) | Independent drivers for the modelled chips; the models must satisfy them, not only weft's own reading of the datasheets |
 
+## Project infrastructure
+
+Direction (2026-10-18): the project's own infrastructure (DNS, mail authentication, website
+settings) is code in the private repository weft-terraform.
+
+| Project | Decision | Reason |
+|---|---|---|
+| OpenTofu | Adopted (weft-terraform) | Open-source fork of Terraform under the Linux Foundation (MPL-2.0); same language and providers. Files use the `.tofu` extension |
+| HashiCorp Terraform | Rejected | Business Source License since 2023, outside weft's licence policy |
+| Cloudflare provider (cloudflare/cloudflare) | Adopted | Official provider for DNS, Email Routing and Workers settings |
+| Cloudflare R2 (s3 backend) | Evaluate (state storage) | Keeps state off laptops and out of git; free tier covers it |
+
 ## Project signing and security contact
 
 Direction under discussion (2026-10-18): one key per purpose, no single long-lived project key.
