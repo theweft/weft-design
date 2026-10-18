@@ -4,27 +4,28 @@ Measured values (2026-10-17, weft-verifier 0.1, Rust 1.99.1): see the bottom of 
 
 ## Device classes
 
-| | MCU, verifier on device | MCU behind a gateway | Embedded Linux | Gateway / edge PC |
+| | MCU class M1 (verifier on device) | MCU class M2 (proxy-authorized) | Embedded Linux | Gateway / edge PC |
 |---|---|---|---|---|
 | CPU | 32-bit Cortex-M4/M33 class or better | Any MCU MCUboot supports | ARMv7-A / ARMv8-A | arm64 / x86-64 |
-| Flash / storage | ≥ 1 MB (2 firmware slots + bootloader + settings) | ≥ 256 KB | ≥ 1 GB eMMC (A/B base OS + data); ≥ 4 GB with containers | ≥ 16 GB |
-| RAM | ≥ 256 KB (≥ 128 KB without TLS / with small document sets) | ≥ 32 KB | ≥ 256 MB (≥ 512 MB with containers) | ≥ 2 GB |
+| Flash / storage | ≥ 1 MB (2 firmware slots + bootloader + settings) | ≥ 128 KB internal; secondary slot may be external SPI flash | ≥ 1 GB eMMC (A/B base OS + data); ≥ 4 GB with containers | ≥ 16 GB |
+| RAM | ≥ 256 KB (≥ 128 KB without TLS / with small document sets) | ≥ 16 KB | ≥ 256 MB (≥ 512 MB with containers) | ≥ 2 GB |
 | Boot | MCUboot, A/B slots, signature check | MCUboot | U-Boot or UEFI, A/B (SWUpdate) or OSTree/bootc | UEFI, bootc or A/B |
-| Keys | Secure element, TrustZone-M (PSA) or protected flash | Same | TPM 2.0 (discrete or firmware) recommended | TPM 2.0 |
-| Entropy | True RNG (keys, TLS) | True RNG | Kernel RNG | Kernel RNG |
+| Keys | Secure element, TrustZone-M (PSA) or protected flash | Release and proxy public keys in bootloader/OTP; private key only for identity (secure element, or a symmetric key shared with the proxy) | TPM 2.0 (discrete or firmware) recommended | TPM 2.0 |
+| Entropy | True RNG (keys, TLS) | Only if the device holds a private key | Kernel RNG | Kernel RNG |
 | Time | RTC recommended; time floor persisted in flash | – | RTC | RTC |
-| Anti-rollback | Monotonic counter (OTP / secure element) recommended | Same | TPM counter or eFuses recommended | TPM |
+| Anti-rollback | Monotonic counter (OTP / secure element) recommended | MCUboot security counter (OTP / secure element / protected flash); persisted directive sequence number | TPM counter or eFuses recommended | TPM |
 | Network | IP stack (Zephyr) for zenoh-pico/MQTT-SN, or none | BLE, CAN, serial, Thread to the gateway | Ethernet / Wi-Fi / cellular | Any |
 
-For MCUs below these limits (classes M2 and M3, proxy-authorized), see [18-constrained-mcus.md](18-constrained-mcus.md).
+MCU classes (M0 fixed, M1 full, M2 constrained, M3 peripheral) are defined in [18-constrained-mcus.md](18-constrained-mcus.md) §2. M3 devices (no signing bootloader) and M0 devices (not updatable) have no minimum requirements: their proxy does the work.
 
 ## Software architecture per class
 
-- **MCU, on device**: Zephyr (or Embassy) + MCUboot + `weft-verifier` (no_std) + zenoh-pico + settings
+- **MCU class M1**: Zephyr (or Embassy) + MCUboot + `weft-verifier` (no_std) + zenoh-pico + settings
   storage. No processes: privilege separation via TrustZone-M / MPU where available (verifier and
   keys in the secure partition, e.g. a TF-M partition).
-- **MCU behind a gateway**: MCUboot verifies the firmware signature (SUIT manifest planned); the
-  gateway runs the verifier and forwards approved firmware and config.
+- **MCU class M2**: MCUboot verifies the release signature end to end; the proxy runs the verifier
+  and sends a `weft-directive` (SUIT manifest planned) plus approved firmware and config.
+- **MCU classes M3 / M0**: no weft code on the device; the proxy flashes (M3) or only reports (M0).
 - **Embedded Linux**: Yocto, systemd, SWUpdate, Podman (Quadlet), Zenoh, weft agent as separate
   processes (sandboxed transport, unprivileged decider, tiny privileged executor). Kernel: namespaces,
   cgroup v2, seccomp, nftables, overlayfs; dm-verity recommended.
