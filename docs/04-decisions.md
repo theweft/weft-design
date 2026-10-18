@@ -36,6 +36,14 @@ direction, not frozen. Each item can be revisited with a short rationale.
 Logo (2×2 weave), colours (indigo and amber), wordmark (Inter) and lockups: decided, with rejected
 alternatives and rationale, in [19-brand.md](19-brand.md).
 
+## AI-built, human-decided
+
+weft is developed heavily with an AI coding assistant (Claude Code): it drafts most docs, code,
+tests and artwork; the maintainer directs, decides and reviews. This is stated up front in the
+[README](../README.md#how-weft-is-made) and marked per commit with a `Co-Authored-By` trailer.
+Consequence for the design: prefer claims that can be checked mechanically (facts with sources,
+tests against independent implementations, CI) over prose that has to be trusted.
+
 ## Mandatory core (the "narrow waist")
 
 Contracts are mandatory, implementations are not:

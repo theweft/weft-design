@@ -11,6 +11,14 @@ embedded device fleet:
 - **Ingestion**: routing, storing and processing what the fleet produces.
 - **Operations**: observability, remote access, inventory, rollout control.
 
+> [!IMPORTANT]
+> **weft is built heavily with AI.** Most of the text, code and artwork in the weft repositories
+> is written by an AI coding assistant ([Claude Code](https://claude.com/claude-code)), directed
+> and reviewed by one human maintainer, who makes the decisions. Commits with substantial AI
+> output carry a `Co-Authored-By: Claude` trailer. Treat claims, numbers and sources as
+> unverified until a test or a cited source backs them, and report errors you find. See
+> [How weft is made](#how-weft-is-made).
+
 ## Core principle: every layer is swappable
 
 Each layer sits behind a *seam*: a well-defined contract, preferably an existing open standard
@@ -76,6 +84,19 @@ Key values (limits, device requirements, defaults, dates, estimates) live in one
 - [docs/17-test-lab-and-funding.md](docs/17-test-lab-and-funding.md): hardware for tests and benchmarks with rough costs, and funding options.
 - [docs/18-constrained-mcus.md](docs/18-constrained-mcus.md): how small MCUs take part: classes M0–M3, crypto (P-256, LMS), OTA via proxy and bootloader.
 - [docs/19-brand.md](docs/19-brand.md): logo, colours and type: what was decided, what was rejected and why.
+
+## How weft is made
+
+- **AI writes most of it.** Design docs, research summaries, code, tests, the website and the logo
+  are drafted by an AI assistant from the maintainer's requests.
+- **A human decides.** The maintainer sets direction, chooses between options, and reviews and
+  merges every change. Decisions and their reasons are recorded in [docs/04-decisions.md](docs/04-decisions.md).
+- **Checks over trust.** AI output can be confidently wrong, so the project leans on things that
+  can be checked mechanically: `facts.toml` with `just check`, tests against independent driver
+  crates, CI, cited sources with a `checked` date. Text that no check covers is a draft.
+- **Licensing.** The output is published under MIT like everything else here; see
+  [docs/03-licensing.md](docs/03-licensing.md).
+- **Contributions** are welcome whether or not you use AI tools; you are responsible for what you submit.
 
 ## Status
 

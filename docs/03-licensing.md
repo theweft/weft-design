@@ -50,5 +50,10 @@ service, without copyleft obligations beyond simple source offers.
 - **CI for our own code:** `cargo-deny` (Rust), `go-licenses` (Go), plus ScanCode or the OSS Review Toolkit (ORT) for full scans.
 - **Our own licence:** **MIT** in every weft repository (decided 2026-10-17). Short, universally understood, compatible with everything green. Trade-off: no explicit patent grant (Apache-2.0 has one); accepted for consistency and simplicity.
 - **Content (website, docs, logo):** also **MIT** for now (decided 2026-10-18). MIT covers "software and associated documentation files", so it legally covers HTML, text and artwork. Creative Commons Attribution 4.0 (CC-BY-4.0) is the usual licence for prose and images; switch new substantial content to it (articles, a documentation site, illustrations) when it appears. REUSE metadata allows per-file licences, so the two can coexist. CC licences are not meant for code. Third-party exception: the wordmark uses outlines of Inter (SIL Open Font License 1.1, which permits use in logos); see [19-brand.md](19-brand.md).
+- **AI-generated material:** most weft content is drafted by an AI assistant (see the
+  [README](../README.md#how-weft-is-made)). In many jurisdictions, purely machine-generated
+  material may not be protected by copyright at all; human selection, editing and arrangement can
+  be. The MIT grant covers whatever rights exist, so users get at least the MIT freedoms either way.
+  Do not paste third-party code or text into prompts unless its licence allows inclusion here.
 - **Blue Oak Model License 1.0.0** counts as green (permissive, OSI approved, with patent grant; used by minicbor).
 - **cargo-deny uses an allow list**: every licence not listed (GPL, LGPL, AGPL, SSPL, BUSL, custom) fails CI. The trusted core (`weft-verifier`) additionally excludes weak copyleft.
