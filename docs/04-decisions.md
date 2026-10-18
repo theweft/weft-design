@@ -23,6 +23,13 @@ direction, not frozen. Each item can be revisited with a short rationale.
 - **Components that act** get role nouns: `weft-verifier`, `weft-executor`, `weft-agent`.
 - **Formats** get artifact nouns, with their check and encode functions inside: `weft-envelope`, `weft-directive`, `weft-parts` (chip data).
 - Names never suggest more security than a component provides. That is why it is `weft-directive`, not `weft-verifier-lite` (docs/18).
+- **Project name "weft" kept for now** (2026-10-18). Name check: no registered WEFT mark for software
+  found, but the name is crowded: WeaveMindAI's weft (Rust AI orchestration language, about 2,000
+  stars, since 2026-04), Weft Learning (weftlearning.com, US mark WEFT LEARNING for education SaaS),
+  the `weft` crate on crates.io and many other weft projects. Compound "weft fleet" rejected: "fleet"
+  is descriptive and "WeftFleet" is close to Webfleet (Bridgestone, fleet management). Revisit
+  (attorney check, EU filing in classes 9 and 42, or rename) before the first release, funding, a
+  foundation move, or if another party files WEFT for software; the EU is first-to-file.
 
 ## Mandatory core (the "narrow waist")
 
