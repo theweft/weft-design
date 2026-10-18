@@ -1,4 +1,9 @@
-# weft
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://theweft.org/brand/lockup-horizontal-dark.svg">
+    <img src="https://theweft.org/brand/lockup-horizontal-light.svg" alt="weft" height="64">
+  </picture>
+</h1>
 
 **Weave existing open tools into one end-to-end embedded fleet platform.**
 
