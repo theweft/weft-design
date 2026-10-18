@@ -21,7 +21,7 @@ direction, not frozen. Each item can be revisited with a short rationale.
 
 - All crates and repositories are `weft-*`.
 - **Components that act** get role nouns: `weft-verifier`, `weft-executor`, `weft-agent`.
-- **Formats** get artifact nouns, with their check and encode functions inside: `weft-envelope`, `weft-directive`.
+- **Formats** get artifact nouns, with their check and encode functions inside: `weft-envelope`, `weft-directive`, `weft-parts` (chip data).
 - Names never suggest more security than a component provides. That is why it is `weft-directive`, not `weft-verifier-lite` (docs/18).
 
 ## Mandatory core (the "narrow waist")
@@ -71,7 +71,7 @@ The concrete adoption contract (what a system must accept to use weft) and adopt
 | Ingestion | Kafka protocol, Bento, ClickHouse/QuestDB | |
 | Observability | OpenTelemetry, Fluent Bit, VictoriaMetrics, Perses | |
 | Twin / read model | Optional central read model (Ditto-like) built from signed documents | Not the source of truth |
-| Hardware test | **QEMU virt + rust-vmm vhost-device** with weft register models, swtpm, Zephyr native_sim, KiCad + ngspice; **`weft-boardchecker`** checks the PCB (IPC-2581, fallback IPC-D-356A + BOM) against the compiled overlay, run by KiBot | Existing tools where they do the job; weft writes only chip models and the board checker. Pi firmware, boot chain and switch registers need real hardware. See [09-prior-art.md](09-prior-art.md) |
+| Hardware test | **`weft-parts`** holds one data file per chip (pinouts, address straps, device tree facts) plus behavioural I2C/SPI models; **`weft-boardchecker`** checks the PCB (IPC-2581, fallback IPC-D-356A + BOM) against the compiled overlay, run by KiBot; models run under **QEMU virt + rust-vmm vhost-device** (Linux drivers) and **embedded-hal** (Rust MCU drivers); swtpm, Zephyr native_sim, KiCad + ngspice | Existing tools where they do the job; weft writes only chip data, models and the board checker. Pi firmware, boot chain and switch registers need real hardware. See [09-prior-art.md](09-prior-art.md) |
 
 ## Industry standards: hub and spoke
 

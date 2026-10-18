@@ -135,7 +135,9 @@ models and `weft-boardchecker`. See the hardware test row in [04-decisions.md](0
 | roxmltree, csv, toml, clap | Adopted (weft-boardchecker) | Permissive, widely used; XML, BOM, config and CLI parsing |
 | fdt (crate) | Rejected | MPL-2.0, outside the permissive allow list |
 | fdt-rs | Rejected | MIT, but an unsafe zero-copy API and no release since 2024; reading a DTB is about 150 lines in weft-boardchecker. `dtc` stays the tool for device tree source |
-| SystemRDL (Accellera) | Evaluate (chip register maps) | Standard register description language with open tooling (PeakRDL); candidate source for weft's register models instead of a home-grown format |
+| SystemRDL (Accellera) | Evaluate (later, chip register maps) | Standard register description language with open tooling (PeakRDL). Not used yet: chip behaviour (command protocols, conversions) needs code anyway, and no Rust tooling exists; revisit when register-heavy chips (switches) get models |
 | CMSIS-SVD | Rejected (for external chips) | Register descriptions for MCU peripherals only; no I2C/SPI peripheral chips |
-| KiCad symbol libraries | Evaluate (pinout source) | Symbols name every pin; a generator could fill pinouts for the parts data instead of typing them from datasheets. Address rules are not in them |
-| Linux dt-bindings (YAML) | Integrate (source of truth for compatibles and properties) | Defines compatible strings and property names such as reset-gpios; the parts data should reference bindings, not restate them |
+| KiCad symbol libraries | Evaluate (pinout source for weft-parts) | Symbols name every pin; a generator could fill weft-parts pinouts instead of typing them from datasheets. Address rules are not in them. IPC-2581 exports carry pin numbers only, so the chip data must supply pin roles |
+| Linux dt-bindings (YAML) | Integrate (source of truth for compatibles and properties) | Defines compatible strings and property names such as reset-gpios; weft-parts references the binding path and adds only pin knowledge |
+| embedded-hal 1.0 | Adopted (weft-parts) | Standard Rust I2C trait; the simulated bus implements it, so Rust MCU drivers run against the chip models on the host |
+| ads1x1x, mcp4728, eeprom24x (crates) | Adopted (test oracles in weft-parts) | Independent drivers for the modelled chips; the models must satisfy them, not only weft's own reading of the datasheets |
