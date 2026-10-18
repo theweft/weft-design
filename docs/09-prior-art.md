@@ -118,3 +118,7 @@ design, not its code), **Integrate** (supported through an adapter or plugin), *
 | umockdev | Evaluate | Records and replays sysfs, uevents and i2c-dev/spidev ioctls for userspace tests |
 | KiCad + ngspice | Evaluate (analog front ends) | SPICE simulation of ADC inputs and DAC outputs from the schematic; digital buses are out of scope |
 | SimulIDE, Proteus VSM | Rejected | Schematic plus firmware co-simulation, but limited MCU support (Proteus is commercial); no Linux host |
+| atopile | Evaluate (board design) | Hardware described as code with typed interfaces (I2C, SPI) and parameter constraints; catches some wiring errors at design time; means leaving schematic capture |
+| SKiDL | Ideas | Python-defined netlists with ERC; netlist as code makes cross-checks scriptable |
+| KiBot | Evaluate (board CI) | Runs KiCad ERC/DRC and exports in CI; hook for a custom netlist-vs-device-tree check |
+| dt-schema (dtbs_check) | Evaluate (overlay CI) | Validates device tree overlays against kernel bindings; knows nothing about the PCB |
