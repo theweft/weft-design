@@ -114,6 +114,7 @@ design, not its code), **Integrate** (supported through an adapter or plugin), *
 | Wokwi (+ custom chips API) | Ideas | Browser/CI simulation of RP2040/RP2350-class MCUs with user-written I2C/SPI chip models; MCU only, no Linux host |
 | Zephyr emulators (native_sim + emul) | Evaluate (if co-MCU runs Zephyr) | Register-level I2C/SPI device emulators linked into host tests of real drivers |
 | Linux i2c-stub, i2c-slave-eeprom, dsa_loop, netdevsim | Evaluate | In-kernel fakes: SMBus register file, EEPROM backend, mock DSA switch, mock netdev; no faithful KSZ9477 model exists |
+| rust-vmm vhost-device (i2c, spi, gpio) | Evaluate (Linux-side CI, recommended) | Rust virtio backends for QEMU's virt machine; I2cDevice and SpiDevice traits accept a simulated device instead of host hardware, so register models plug in without patching QEMU |
 | roadtest (Axis, RFC 2022) | Ideas | Kernel driver tests under UML with Python device models; not merged upstream, but the right pattern for register-level twins |
 | umockdev | Evaluate | Records and replays sysfs, uevents and i2c-dev/spidev ioctls for userspace tests |
 | KiCad + ngspice | Evaluate (analog front ends) | SPICE simulation of ADC inputs and DAC outputs from the schematic; digital buses are out of scope |
