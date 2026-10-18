@@ -107,6 +107,20 @@ code = [
   { repo = "weft-parts", file = "rust-toolchain.toml", pattern = 'channel = "{value}"' },
 ]
 
+[[fact]]
+id = "security.ack_working_days"
+value = 3
+kind = "decision"
+status = "decided"
+note = "Working days until a vulnerability report is acknowledged"
+code = [
+  { repo = "weft-verifier", file = "SECURITY.md", pattern = "within {value} working days" },
+  { repo = "weft-parts", file = "SECURITY.md", pattern = "within {value} working days" },
+  { repo = "weft-boardchecker", file = "SECURITY.md", pattern = "within {value} working days" },
+  { repo = "weft-design", file = "SECURITY.md", pattern = "within {value} working days" },
+  { repo = "weft-website", file = "public/security/index.html", pattern = "within {value} working days" },
+]
+
 # --- Verifier (weft-verifier) -----------------------------------------------------------
 
 [[fact]]

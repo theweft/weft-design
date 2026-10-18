@@ -101,6 +101,12 @@ Key values, decisions and assumptions of weft. The source of truth is [facts.tom
 | `pubsub.topic.max_depth` | 16 | requirement | draft | Maximum topic depth |
 | `pubsub.topic.max_len` | 256 bytes | requirement | draft | Maximum total topic length |
 
+## security
+
+| Id | Value | Kind | Status | Note |
+|---|---|---|---|---|
+| `security.ack_working_days` | 3 | decision | decided | Working days until a vulnerability report is acknowledged |
+
 ## survey
 
 | Id | Value | Kind | Status | Note |
