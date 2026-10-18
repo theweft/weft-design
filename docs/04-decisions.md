@@ -31,6 +31,8 @@ Contracts are mandatory, implementations are not:
 
 Each contract gets conformance tests. Margo is an adapter, not part of the core.
 
+The concrete adoption contract (what a system must accept to use weft) and adoption levels L1–L4 are in [14-core-features-and-gaps.md](14-core-features-and-gaps.md).
+
 ## Conflicts and consistency
 
 - Desired state from several authorities: no merging; deterministic precedence (scope priority, then

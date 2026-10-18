@@ -55,6 +55,7 @@ weft does the same with existing tools: it weaves them into one platform without
 - [docs/11-time-and-persistence.md](docs/11-time-and-persistence.md): which clock for what, and power-loss-safe state.
 - [docs/12-case-study.md](docs/12-case-study.md): target industries, their typical hardware/network/backend setups, and what follows for weft.
 - [docs/13-topologies-and-roles.md](docs/13-topologies-and-roles.md): node roles (endpoint, relay, uplink, proxy, site services) and the supported topologies.
+- [docs/14-core-features-and-gaps.md](docs/14-core-features-and-gaps.md): feature overview, the adoption contract (what is mandatory), adoption levels, and open gaps.
 
 ## Status
 
