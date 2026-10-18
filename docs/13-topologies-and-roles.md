@@ -64,9 +64,34 @@ The topologies can be mixed: for example T3 inside a building that is one level 
 | Proxy | Adapter app publishing on behalf of devices | Same | n/a |
 | Site services | Zenoh storage (persistent queryables) | Retained messages (limited) | n/a |
 
-## 5. Open points
+## 5. Tunnels and the overlay
+
+The overlay (P11, docs/04: Nebula or weft-managed WireGuard, with OpenZiti optional and Rosenpass for post-quantum keys) is a **separate layer below pub/sub**. Every topology works with or without it.
+
+1. **Pub/sub can run over any path:**
+   - directly on the local network;
+   - over the overlay;
+   - over a tunnel the customer already has (IPsec, OpenVPN, their own WireGuard).
+
+   Zenoh and MQTT only need IP reachability. Integrity never depends on the tunnel (rule 1), so a tunnel adds confidentiality and reachability, not trust.
+2. **Overlay config is signed weft config.** A network component (`net/overlay`) carries the following, distributed and conflict-resolved like any config:
+   - the peers' public keys, endpoints and AllowedIPs;
+   - the Nebula CA bundle and groups;
+   - the firewall rules generated from the policy.
+
+   The private keys never leave the device, ideally staying in the TPM or secure element.
+3. **Works offline.** Nebula certificates are signed offline by the tenant CA, so no live controller is needed. WireGuard peer lists come in signed documents, so a site can run its own overlay with no upstream (T1, T5).
+4. **Uplink as tunnel gateway.**
+   - An uplink node can route a subnet into the overlay. This gives remote access to devices that cannot join the overlay themselves (PLCs, Modbus TCP devices, HMIs), which is the "remote PLC programming" use case of classic industrial gateways (docs/12 §6).
+   - The route is scoped by a conduit and time-limited by a grant, and every session is logged.
+5. **MCUs** usually reach the overlay through their proxy or uplink. Running WireGuard on an MCU is possible (ESP32 ports exist), but it is not a weft requirement.
+6. **Apps that need their own tunnel** (a customer VPN, a vendor service link) ask for it in the manifest. It is granted like any other network right (a `net:` grant at a higher permission tier, docs/08), so developers are not blocked, but the device owner sees and approves it.
+7. **Nested tunnels** are fine: the overlay can run inside a corporate VPN or over satellite SD-WAN. Mind the MTU (docs/10: 1,280–1,420 bytes).
+
+## 6. Open points
 
 - Choosing an uplink when several are available (cost, link class, health) without central coordination.
 - Group encryption for confidential traffic through untrusted relays and uplinks (docs/06).
 - How a T5 level enforces that its subtree only receives documents meant for it, if bandwidth is limited: filter by selector at the uplink.
-- Test topologies T1–T7 in the dev environment (containers with network namespaces, simulated link loss and metered links).
+- Overlay key rotation and revocation timing across offline sites (a revoked device stays in a site overlay until that site gets the revocation).
+- Test topologies T1–T7 in the dev environment (containers with network namespaces, WireGuard/Nebula between them, simulated link loss and metered links).
