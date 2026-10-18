@@ -16,6 +16,8 @@ decisions and why.
 | Lockups | Horizontal (mark left, name right) and stacked (mark above) | The two standard arrangements; x-height of the name is 21/48 of the mark |
 | Variants | `light`, `dark`, `black`, `white` for every logo | Light and dark backgrounds, plus one-colour use (print, photos, engraving) |
 | App icon, avatar | Logomark on the light background, full square | The dark-mode indigo disappears on a navy tile; platforms round the corners themselves |
+| Repository icons | Logomark (smaller) with an indigo badge bottom-right holding a white pictogram: text lines (design), check (verifier), chip (parts), magnifier (boardchecker), play (sim), browser window (website) | A family that reads as weft first and names the repository second. Readable down to 32 px; below that use the plain logomark |
+| Repository cards | 1280 × 640 social previews: logomark, name ("weft-" in ink, the rest in warp), description | GitHub has no repository avatars; the social preview is the image GitHub shows for a repository. Uploaded by hand: GitHub has no API for it |
 | Favicon | SVG that follows the browser's light or dark mode | One file, correct colours in both themes |
 | Site text | System font stack, no web fonts | Privacy, strict CSP, speed; only the wordmark uses Inter, as outlines |
 | Minimum size | Logomark <!--f:brand.mark_min_px-->16<!--/f--> px | Smallest size where the weave still reads |
@@ -43,6 +45,9 @@ site use separate accent colours, because the dark-mode indigo is too dark for t
 | 2×2 inside a circle ("swatch") | Distinctive; kept in reserve if the hash-like outline ever becomes a problem |
 | 2×2 rotated 45° | The rotational symmetry starts to resemble a swastika |
 | 2×2 filling a rounded square | Still read as a hash |
+| Repository icons: small mark with the repository's initial | Readable, but initials say little and collide as repositories grow |
+| Repository icons: white initial on indigo with an amber stripe | Most readable at 32 px, but drops the weave entirely |
+| Repository icon pictograms: globe (website), board with check (boardchecker), eight-pin chip (parts) | Turned into blobs at 32 px; replaced by browser window, magnifier and four-pin chip |
 | Ink and madder red; indigo and madder; teal and madder | Better greyscale in places, but less liked (ink/indigo), or poor greyscale (teal) |
 | Original indigo and amber values | Both threads turned the same grey |
 
