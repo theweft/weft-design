@@ -103,3 +103,18 @@ design, not its code), **Integrate** (supported through an adapter or plugin), *
 | OpenTelemetry, Fluent Bit, VictoriaMetrics, Perses | Adopted | Permissive; Grafana, Loki, Tempo (AGPL) rejected |
 | Apache PLC4X, Telegraf, EdgeX device services | Integrate | Field-protocol access for adapters |
 | WAMR, LF Edge Ocre, Zephyr LLEXT | Integrate (MCU apps) | Optional dynamic apps on larger MCUs |
+
+## Hardware simulation and test
+
+| Project | Decision | Reason |
+|---|---|---|
+| Renode (Antmicro) | Evaluate (firmware CI) | Whole-board simulation with I2C/SPI peripheral models in C# or Python; runs unmodified firmware and some Linux boards; co-simulates RTL via Verilator. No BCM2711 Linux model; RP2350 support to verify |
+| QEMU | Evaluate (Linux-side CI) | raspi4b machine exists but has few peripherals; has at24c EEPROM and TPM TIS (I2C, not SPI) devices; custom I2C/SPI models need C in QEMU |
+| swtpm / ms-tpm-20-ref | Evaluate (adopt for CI) | Real TPM 2.0 logic in software; tests measured boot and key handling without the SLB9672 |
+| Wokwi (+ custom chips API) | Ideas | Browser/CI simulation of RP2040/RP2350-class MCUs with user-written I2C/SPI chip models; MCU only, no Linux host |
+| Zephyr emulators (native_sim + emul) | Evaluate (if co-MCU runs Zephyr) | Register-level I2C/SPI device emulators linked into host tests of real drivers |
+| Linux i2c-stub, i2c-slave-eeprom, dsa_loop, netdevsim | Evaluate | In-kernel fakes: SMBus register file, EEPROM backend, mock DSA switch, mock netdev; no faithful KSZ9477 model exists |
+| roadtest (Axis, RFC 2022) | Ideas | Kernel driver tests under UML with Python device models; not merged upstream, but the right pattern for register-level twins |
+| umockdev | Evaluate | Records and replays sysfs, uevents and i2c-dev/spidev ioctls for userspace tests |
+| KiCad + ngspice | Evaluate (analog front ends) | SPICE simulation of ADC inputs and DAC outputs from the schematic; digital buses are out of scope |
+| SimulIDE, Proteus VSM | Rejected | Schematic plus firmware co-simulation, but limited MCU support (Proteus is commercial); no Linux host |
