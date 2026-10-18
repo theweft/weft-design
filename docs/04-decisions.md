@@ -36,6 +36,31 @@ direction, not frozen. Each item can be revisited with a short rationale.
 Logo (2×2 weave), colours (indigo and amber), wordmark (Inter) and lockups: decided, with rejected
 alternatives and rationale, in [19-brand.md](19-brand.md).
 
+## Digital twin (weft-twin)
+
+Decided 2026-10-18, prototype working (one chip, x86-64 guest):
+
+- **Models run inside the guest.** A small kernel module (`weft_sim.ko`) provides I2C (later SPI)
+  adapters that forward each transfer to `/dev/weft-sim`; a static Rust runner answers from the
+  weft-parts models. Bus traffic never leaves the VM, so the host needs only a stock QEMU, and the
+  same module and runner also work on a real Raspberry Pi without the HAT.
+- **The guest's CPU follows the host's** (x86-64 or arm64), so KVM, HVF or WHPX always accelerate
+  it; emulating another CPU is not acceptable as the default. Drivers and overlays are
+  architecture-independent: an x86-64 guest applies Raspberry Pi overlays to its device tree.
+- **Not vhost-user** (the earlier plan): rust-vmm's vhost crates are Linux-only, QEMU supports
+  vhost-user on macOS only when built with an extra option (Homebrew's QEMU is not), and never on
+  Windows. vhost-user stays possible as a later Linux-only transport.
+- **The module is C**, dual MIT OR GPL-2.0-only: Rust-for-Linux has no I2C adapter or SPI
+  controller abstractions yet, and a C module loads into any kernel, including Raspberry Pi OS
+  kernels built without Rust. It only copies bytes; all logic stays in Rust. Rewrite in Rust when
+  the abstractions exist.
+- **Host tools are portable; the twin needs QEMU.** Board checks and embedded-hal model tests run
+  natively on Linux, macOS and Windows. The twin runs wherever QEMU has a hypervisor (KVM, HVF on
+  macOS 15+ via Homebrew, WHPX).
+- **Guest kernel:** the prototype uses the prebuilt nixpkgs kernel; the target is weft's own minimal
+  configuration on an upstream LTS kernel, built in CI and published as a ready-made image, so
+  users need only QEMU.
+
 ## AI-built, human-decided
 
 weft is developed heavily with an AI coding assistant (Claude Code): it drafts most docs, code,
@@ -91,7 +116,7 @@ The concrete adoption contract (what a system must accept to use weft) and adopt
 | Ingestion | Kafka protocol, Bento, ClickHouse/QuestDB | |
 | Observability | OpenTelemetry, Fluent Bit, VictoriaMetrics, Perses | |
 | Twin / read model | Optional central read model (Ditto-like) built from signed documents | Not the source of truth |
-| Hardware test | **`weft-parts`** holds one data file per chip (pinouts, address straps, device tree facts) plus behavioural I2C/SPI models; **`weft-boardchecker`** checks the PCB (IPC-2581, fallback IPC-D-356A + BOM) against the compiled overlay, run by KiBot; models run under **QEMU virt + rust-vmm vhost-device** (Linux drivers) and **embedded-hal** (Rust MCU drivers); swtpm, Zephyr native_sim, KiCad + ngspice | Existing tools where they do the job; weft writes only chip data, models and the board checker. Pi firmware, boot chain and switch registers need real hardware. See [09-prior-art.md](09-prior-art.md) |
+| Hardware test | **`weft-parts`** holds one data file per chip (pinouts, address straps, device tree facts) plus behavioural I2C/SPI models; **`weft-boardchecker`** checks the PCB (IPC-2581, fallback IPC-D-356A + BOM) against the compiled overlay, run by KiBot; **`weft-twin`** runs the real Linux drivers in a small QEMU guest against the models (see Digital twin below); **embedded-hal** runs Rust MCU drivers against them on the host; swtpm, Zephyr native_sim, KiCad + ngspice | Existing tools where they do the job; weft writes only chip data, models, the board checker and the twin's bus bridge. Pi firmware, boot chain, switch fabric and analogue behaviour need real hardware. See [09-prior-art.md](09-prior-art.md) |
 
 ## Industry standards: hub and spoke
 
