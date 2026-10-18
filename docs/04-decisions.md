@@ -36,7 +36,7 @@ direction, not frozen. Each item can be revisited with a short rationale.
 Logo (2×2 weave), colours (indigo and amber), wordmark (Inter) and lockups: decided, with rejected
 alternatives and rationale, in [19-brand.md](19-brand.md).
 
-## Digital twin (weft-twin)
+## Board simulation (weft-sim)
 
 Decided 2026-10-18, prototype working (one chip, x86-64 guest):
 
@@ -54,12 +54,14 @@ Decided 2026-10-18, prototype working (one chip, x86-64 guest):
   controller abstractions yet, and a C module loads into any kernel, including Raspberry Pi OS
   kernels built without Rust. It only copies bytes; all logic stays in Rust. Rewrite in Rust when
   the abstractions exist.
-- **Host tools are portable; the twin needs QEMU.** Board checks and embedded-hal model tests run
-  natively on Linux, macOS and Windows. The twin runs wherever QEMU has a hypervisor (KVM, HVF on
+- **Host tools are portable; weft-sim needs QEMU.** Board checks and embedded-hal model tests run
+  natively on Linux, macOS and Windows. weft-sim runs wherever QEMU has a hypervisor (KVM, HVF on
   macOS 15+ via Homebrew, WHPX).
 - **Guest kernel:** the prototype uses the prebuilt nixpkgs kernel; the target is weft's own minimal
   configuration on an upstream LTS kernel, built in CI and published as a ready-made image, so
   users need only QEMU.
+- **Name:** weft-sim, not "weft-twin": in fleet platforms "device twin" means the cloud-side
+  mirror of device state (AWS shadows, Azure twins), which weft also has.
 
 ## AI-built, human-decided
 
@@ -116,7 +118,7 @@ The concrete adoption contract (what a system must accept to use weft) and adopt
 | Ingestion | Kafka protocol, Bento, ClickHouse/QuestDB | |
 | Observability | OpenTelemetry, Fluent Bit, VictoriaMetrics, Perses | |
 | Twin / read model | Optional central read model (Ditto-like) built from signed documents | Not the source of truth |
-| Hardware test | **`weft-parts`** holds one data file per chip (pinouts, address straps, device tree facts) plus behavioural I2C/SPI models; **`weft-boardchecker`** checks the PCB (IPC-2581, fallback IPC-D-356A + BOM) against the compiled overlay, run by KiBot; **`weft-twin`** runs the real Linux drivers in a small QEMU guest against the models (see Digital twin below); **embedded-hal** runs Rust MCU drivers against them on the host; swtpm, Zephyr native_sim, KiCad + ngspice | Existing tools where they do the job; weft writes only chip data, models, the board checker and the twin's bus bridge. Pi firmware, boot chain, switch fabric and analogue behaviour need real hardware. See [09-prior-art.md](09-prior-art.md) |
+| Hardware test | **`weft-parts`** holds one data file per chip (pinouts, address straps, device tree facts) plus behavioural I2C/SPI models; **`weft-boardchecker`** checks the PCB (IPC-2581, fallback IPC-D-356A + BOM) against the compiled overlay, run by KiBot; **`weft-sim`** runs the real Linux drivers in a small QEMU guest against the models (see Board simulation below); **embedded-hal** runs Rust MCU drivers against them on the host; swtpm, Zephyr native_sim, KiCad + ngspice | Existing tools where they do the job; weft writes only chip data, models, the board checker and weft-sim's bus bridge. Pi firmware, boot chain, switch fabric and analogue behaviour need real hardware. See [09-prior-art.md](09-prior-art.md) |
 
 ## Industry standards: hub and spoke
 
