@@ -79,3 +79,7 @@ Key values (limits, device requirements, defaults, dates, estimates) live in one
 ## Status
 
 Exploration / research phase.
+
+## Licence
+
+MIT, like all weft repositories. See [LICENSE](LICENSE).
