@@ -118,6 +118,8 @@ code = [
   { repo = "weft-parts", file = "SECURITY.md", pattern = "within {value} working days" },
   { repo = "weft-boardchecker", file = "SECURITY.md", pattern = "within {value} working days" },
   { repo = "weft-design", file = "SECURITY.md", pattern = "within {value} working days" },
+  { repo = "weft-sim", file = "SECURITY.md", pattern = "within {value} working days" },
+  { repo = ".github", file = "SECURITY.md", pattern = "within {value} working days" },
   { repo = "weft-website", file = "public/security/index.html", pattern = "within {value} working days" },
 ]
 

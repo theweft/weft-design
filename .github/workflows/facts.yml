@@ -38,6 +38,16 @@ jobs:
           repository: theweft/weft-website
           path: weft-website
           persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: theweft/weft-sim
+          path: weft-sim
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: theweft/.github
+          path: .github
+          persist-credentials: false
       - uses: cachix/install-nix-action@v31
       - name: Check facts
         working-directory: weft-design
