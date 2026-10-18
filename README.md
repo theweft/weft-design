@@ -32,6 +32,17 @@ no cloud and no internet. The cloud is just one optional place to run the contro
 Pub/sub works peer-to-peer, via other peers or gateways, or directly to the cloud, with the same
 application API. The topology is configuration, not code.
 
+## Adoption levels
+
+weft can be adopted step by step. Only the adoption contract is mandatory: signed documents, the verifier on (or for) each device, and a small executor. See [docs/14-core-features-and-gaps.md](docs/14-core-features-and-gaps.md) §2.
+
+| Level | Adds | Typical adopter |
+|---|---|---|
+| **L1 Trust** | Signed config and deployments, `weft-verifier`, executor. Your own OTA tool and messaging stay | Device maker with an existing update stack |
+| **L2 Lifecycle** | weft OTA profiles, apps, activation gates | Gateway or embedded Linux product |
+| **L3 Connected** | weft pub/sub, node roles, overlay, access policy | Multi-device sites, mixed topologies |
+| **L4 Full** | Ingestion, industry adapters, fleet read model | End-to-end fleet operator |
+
 ## Name
 
 *weft* is the thread that runs across a loom and ties all the fixed threads into one fabric.
@@ -56,6 +67,7 @@ weft does the same with existing tools: it weaves them into one platform without
 - [docs/12-case-study.md](docs/12-case-study.md): target industries, their typical hardware/network/backend setups, and what follows for weft.
 - [docs/13-topologies-and-roles.md](docs/13-topologies-and-roles.md): node roles (endpoint, relay, uplink, proxy, site services) and the supported topologies.
 - [docs/14-core-features-and-gaps.md](docs/14-core-features-and-gaps.md): feature overview, the adoption contract (what is mandatory), adoption levels, and open gaps.
+- [docs/15-pubsub-contract.md](docs/15-pubsub-contract.md): what weft requires from a pub/sub transport, what it builds itself, and how transports are swapped.
 
 ## Status
 

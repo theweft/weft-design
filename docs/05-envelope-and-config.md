@@ -23,12 +23,13 @@ interoperability and trust. So the envelope scales with the kind of traffic:
 | `subject` | 5 | no | What it is about (sensor, app, job) |
 | `datacontenttype` | 6 | no | Default `application/cbor` |
 | `dataschema` | 7 | no | Schema or semantic reference (OPC UA type, AAS semantic ID, IPSO id) |
-| `flcorrelation` | 8 | no | Correlation ID for request/reply |
-| `flreplyto` | 9 | no | Where replies go (if transport has no native request/reply) |
-| `flseq` | 10 | no | Per-source sequence number (gap detection, not strict ordering) |
-| `flsig` | 11 | no | Detached COSE_Sign1 signature over payload + attributes |
+| `weftcorrelation` | 8 | no | Correlation ID for request/reply |
+| `weftreplyto` | 9 | no | Where replies go (if transport has no native request/reply) |
+| `weftseq` | 10 | no | Per-source sequence number (gap detection, not strict ordering) |
+| `weftsig` | 11 | no | Detached COSE_Sign1 signature over payload + attributes |
+| `weftexpires` | 12 | no | Expiry (issued_at + duration); required for commands. See [15-pubsub-contract.md](15-pubsub-contract.md) |
 
-Encoding: **binary content mode** everywhere, payload untouched.
+Encoding: **binary content mode** where the transport has headers, payload untouched. Without headers (MQTT 3.1.1, DDS, raw links): **structured mode**, a CBOR array `[attributes, payload]`. See [15-pubsub-contract.md](15-pubsub-contract.md) §3.4.
 
 | Transport | Attributes travel in |
 |---|---|
@@ -51,7 +52,7 @@ weft/{tenant}/{device}/state/desired            desired-state documents (pushed;
 weft/{tenant}/{device}/state/reported           reported state
 weft/{tenant}/{device}/desc                     self-description (published on connect, queryable)
 weft/{tenant}/group/{group}/state/desired       documents for many devices at once
-@weft/{tenant}/{device}                         liveliness (Zenoh liveliness token; LWT on MQTT)
+weft/{tenant}/{device}/live                     liveliness (Zenoh liveliness token; LWT on MQTT); `@` is reserved in Zenoh
 ```
 
 Location hierarchies (ISA-95 / Unified Namespace paths) and Sparkplug/OPC UA topics are
