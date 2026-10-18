@@ -123,3 +123,8 @@ design, not its code), **Integrate** (supported through an adapter or plugin), *
 | SKiDL | Ideas | Python-defined netlists with ERC; netlist as code makes cross-checks scriptable |
 | KiBot | Evaluate (board CI) | Runs KiCad ERC/DRC and exports in CI; hook for a custom netlist-vs-device-tree check |
 | dt-schema (dtbs_check) | Evaluate (overlay CI) | Validates device tree overlays against kernel bindings; knows nothing about the PCB |
+| IPC-2581 (rev B/C) | Evaluate (netlist exchange, recommended) | Open IPC XML standard with netlist, BOM and component placement in one file; exported by KiCad 8+, Altium, Cadence Allegro/OrCAD and Siemens Xpedition. Part numbers only appear if the export maps them |
+| IPC-D-356A | Integrate (fallback) | Bare-board test netlist that nearly every PCB tool exports; nets and pads only, needs a separate BOM |
+| ODB++ | Rejected | Widely supported, but the spec is controlled by Siemens; IPC-2581 covers the same data openly |
+| EDIF | Rejected | Old schematic interchange standard; inconsistent dialects across tools |
+| Gerber X2/X3 attributes | Rejected (as checker input) | Carries net and component attributes, but rebuilding connectivity from copper is the wrong layer for this check |
