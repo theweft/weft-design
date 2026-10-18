@@ -240,8 +240,12 @@ New requirements and priority changes. All **[J]**, to be confirmed and then mov
 1. **Link-aware transfers.** Maritime, rail and metered cellular need a transfer policy: which link classes (`metered`, `satellite`, `unmetered`, `local`) may carry which artifact sizes, next to the activation gates. Delta updates (SWUpdate delta/zchunk, OCI layer dedup) move up in priority.
 2. **Component ordering.** Charging and energy need "update A before B" and "only activate A and B together". This is an executor-side plan from signed dependencies in the deployment document. The verifier only checks that they were signed. Today this is a gap.
 3. **Domain-protocol coexistence.** OCPP, IEEE 2030.5 and DNP3 already carry their own firmware or config commands. weft should provide adapters that turn such commands into signed weft documents (or refuse them), rather than ignore them.
-4. **Modbus first.** The first ingestion/adapter demo should be Modbus RTU/TCP to Zenoh, because it covers the most industries. OPC UA comes second.
-5. **MCU targets.** Add a RISC-V target (`riscv32imac-unknown-none-elf`, ESP32-C3/C6, and others) to the no_std CI next to `thumbv7em`, because ESP32 is the most used MCU.
+4. **Modbus first.** The first adapter demo should be Modbus RTU/TCP to *weft pub/sub* (the weft envelope and topic namespace), not to one transport. The same adapter then runs over Zenoh, MQTT or NATS by configuration. It covers the most industries. OPC UA comes second. See §6 for how gateways do this today.
+5. **Targets** (decided 2026-10-18):
+   - x86-64, arm64 and riscv64 for Linux;
+   - Cortex-M4F/M7 (`thumbv7em`), Cortex-M33 (`thumbv8m.main`) and RISC-V MCUs (`riscv32imac`, e.g. ESP32-C3/C6) for bare metal.
+
+   weft-verifier CI builds all six. Xtensa ESP32s (ESP32, S3) need Espressif's forked toolchain and are out of scope for now.
 6. **Hardware reference set for CI and demos:**
    - i.MX93 or i.MX8M Plus;
    - Raspberry Pi CM5 (cheap, widely available);
@@ -253,6 +257,51 @@ New requirements and priority changes. All **[J]**, to be confirmed and then mov
 9. **First target industries:**
    - **distributed energy** and **industrial gateways for machine builders**: they have the most fit criteria, large fleets, and the CRA pressure now;
    - **maritime/remote utilities** second, as the showcase for offline operation.
+
+## 6. How industrial gateways usually work
+
+A summary of how common gateways work, for example HMS Ewon Flexy, Moxa AIG/UC, Advantech WISE/ECU, Siemens IOT2050, Teltonika TRB, and software gateways such as Kepware or Ignition Edge on an industrial PC. Mostly **[J]**, from product documentation.
+
+1. **Hardware:**
+   - ARM (sometimes x86) on a DIN rail, 24 V DC, −40…+70/85 °C;
+   - 1–4 RS-232/485 ports, 2+ Ethernet ports, digital I/O;
+   - optional LTE modem, often eMMC plus an SD card.
+2. **Southbound polling engine:**
+   - **device templates** (register maps: address, type, scaling, unit), one per device model;
+   - a scan rate per tag group;
+   - the gateway is the Modbus master and polls in a loop.
+3. **Tag database:** every value becomes a *tag* (name, value, quality, timestamp). This is the internal data model all other parts use.
+4. **Processing:**
+   - deadband / report by exception;
+   - scaling, simple logic or scripts (BASIC on Ewon, Node-RED or Python on newer ones);
+   - alarms.
+5. **Store and forward:**
+   - a local buffer, a ring buffer on flash, holding hours to weeks;
+   - it is replayed when the link comes back.
+6. **Northbound connectors:**
+   - MQTT (often Sparkplug B), OPC UA server, REST;
+   - SDKs for the vendor cloud and for AWS or Azure.
+7. **Network role:**
+   - often dual-homed: one NIC in the machine network, one in the plant or IT network, with **no routing** between them, so data flows only through the tag layer;
+   - sometimes a firewall/NAT router with a VPN.
+8. **Remote access:** a vendor VPN service (Ewon Talk2M, Siemens SINEMA RC, Teltonika RMS) for remote programming of PLCs. This is often the main reason it is bought.
+9. **Management:**
+   - a web UI per device, or the vendor's device manager;
+   - firmware updates are usually whole-image, by the vendor;
+   - config is an exported file;
+   - newer models run Docker or containers.
+
+**What follows for weft:**
+
+- The gateway is an ordinary weft host (embedded Linux profile).
+- Each part above becomes a swappable app:
+  - southbound adapters (Modbus, OPC UA client, BACnet), configured with a signed **device template + tag mapping**, which is plain weft config;
+  - the tag layer is weft pub/sub (tag = topic, quality and timestamp in the envelope);
+  - store and forward is the ingestion buffer on the device;
+  - northbound bridges (MQTT/Sparkplug, OPC UA server, cloud).
+- The no-routing protocol break is a network conduit policy (docs/08).
+- Vendor VPN remote access is replaced by the overlay with per-device identity and audited, time-bounded grants.
+- Existing gateways can stay and integrate as a northbound source (MQTT/Sparkplug) without weft on them.
 
 ## Sources
 
