@@ -82,7 +82,17 @@ Prices are rough euro estimates (single units, incl. VAT, October 2026) and vary
 
 - Funding is primarily for technical development and paid by milestones. Hardware can be included as a budget item if it is justified by the plan (check the FAQ).
 - Proposals must be in English. Results must be under a free or open licence (MIT is fine).
-- NLnet states it is **not interested in AI-generated projects or proposals**. The proposal must be written by you, and you should be ready to explain and defend the design yourself.
+- **Generative AI** ([NLnet GenAI policy v1.1](https://nlnet.nl/foundation/policies/generativeAI/), valid since 26 Jan 2026): allowed, but with conditions.
+  - **Proposal:** disclose any AI use. Keep a *prompt provenance log* with the model, the date and time, the prompts, and the unedited output.
+  - **Funded work:**
+    - describe the AI use in the README;
+    - mark generated contributions, e.g., as separate commits with the model, its version and the prompts in the commit message;
+    - keep the logs publicly reachable without a login.
+
+    For tests and docs, a README note is enough.
+  - **Payment:** purely AI-generated deliverables are **not payable**. Human work (design, review, verification, integration) must be substantial, and you must be able to explain every design and code decision.
+  - You are responsible for checking that AI output doesn't reproduce incompatibly licensed code.
+  - Non-compliance can lead to rejection or termination of the grant.
 - Keep the first grant focused: €5k–50k for one clear deliverable. For example:
   1. `weft-verifier` 1.0 (TUF roles, fuzzing, Kani, ML-DSA);
   2. the agent and executor for the embedded Linux profile with SWUpdate;
