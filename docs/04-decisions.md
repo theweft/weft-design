@@ -71,6 +71,7 @@ The concrete adoption contract (what a system must accept to use weft) and adopt
 | Ingestion | Kafka protocol, Bento, ClickHouse/QuestDB | |
 | Observability | OpenTelemetry, Fluent Bit, VictoriaMetrics, Perses | |
 | Twin / read model | Optional central read model (Ditto-like) built from signed documents | Not the source of truth |
+| Hardware test | **QEMU virt + rust-vmm vhost-device** with weft register models, swtpm, Zephyr native_sim, KiCad + ngspice; **`weft-boardchecker`** checks the PCB (IPC-2581, fallback IPC-D-356A + BOM) against the compiled overlay, run by KiBot | Existing tools where they do the job; weft writes only chip models and the board checker. Pi firmware, boot chain and switch registers need real hardware. See [09-prior-art.md](09-prior-art.md) |
 
 ## Industry standards: hub and spoke
 

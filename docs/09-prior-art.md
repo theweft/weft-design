@@ -106,25 +106,32 @@ design, not its code), **Integrate** (supported through an adapter or plugin), *
 
 ## Hardware simulation and test
 
+Direction (2026-10-18): existing tools where they do the job; weft builds only the chip register
+models and `weft-boardchecker`. See the hardware test row in [04-decisions.md](04-decisions.md).
+
 | Project | Decision | Reason |
 |---|---|---|
-| Renode (Antmicro) | Evaluate (firmware CI) | Whole-board simulation with I2C/SPI peripheral models in C# or Python; runs unmodified firmware and some Linux boards; co-simulates RTL via Verilator. No BCM2711 Linux model; RP2350 support to verify |
-| QEMU | Evaluate (Linux-side CI) | raspi4b machine exists but has few peripherals; has at24c EEPROM and TPM TIS (I2C, not SPI) devices; custom I2C/SPI models need C in QEMU |
-| swtpm / ms-tpm-20-ref | Evaluate (adopt for CI) | Real TPM 2.0 logic in software; tests measured boot and key handling without the SLB9672 |
-| Wokwi (+ custom chips API) | Ideas | Browser/CI simulation of RP2040/RP2350-class MCUs with user-written I2C/SPI chip models; MCU only, no Linux host |
-| Zephyr emulators (native_sim + emul) | Evaluate (if co-MCU runs Zephyr) | Register-level I2C/SPI device emulators linked into host tests of real drivers |
-| Linux i2c-stub, i2c-slave-eeprom, dsa_loop, netdevsim | Evaluate | In-kernel fakes: SMBus register file, EEPROM backend, mock DSA switch, mock netdev; no faithful KSZ9477 model exists |
-| rust-vmm vhost-device (i2c, spi, gpio) | Evaluate (Linux-side CI, recommended) | Rust virtio backends for QEMU's virt machine; I2cDevice and SpiDevice traits accept a simulated device instead of host hardware, so register models plug in without patching QEMU |
-| roadtest (Axis, RFC 2022) | Ideas | Kernel driver tests under UML with Python device models; not merged upstream, but the right pattern for register-level twins |
-| umockdev | Evaluate | Records and replays sysfs, uevents and i2c-dev/spidev ioctls for userspace tests |
-| KiCad + ngspice | Evaluate (analog front ends) | SPICE simulation of ADC inputs and DAC outputs from the schematic; digital buses are out of scope |
+| QEMU (virt machine) | Adopted (planned, Linux-side CI) | Best-maintained machine, same arm64 architecture as the Pi; runs the real drivers against simulated chips. The raspi4b machine is rejected: no usable I2C/SPI controllers, adding them means C inside QEMU |
+| rust-vmm vhost-device (i2c, spi, gpio) | Adopted (planned, Linux-side CI) | Rust virtio backends for QEMU's virt machine; I2cDevice and SpiDevice traits accept a simulated device instead of host hardware, so weft's register models plug in without patching QEMU. Check that the target kernel has the virtio SPI driver |
+| swtpm / ms-tpm-20-ref | Adopted (planned, CI) | Real TPM 2.0 logic in software; tests measured boot and key handling without the SLB9672. The SPI transport is only tested on hardware |
+| Zephyr emulators (native_sim + emul) | Adopted (planned, if the co-MCU runs Zephyr) | Register-level I2C/SPI device emulators linked into host tests of real drivers; matches the MCUboot/mcumgr choice |
+| Linux dsa_loop | Adopted (planned, network config tests) | Mock DSA switch for weft's switch configuration; no faithful KSZ9477 register model exists, so switch registers are tested on hardware |
+| Linux i2c-stub, i2c-slave-eeprom, netdevsim | Rejected | i2c-stub is SMBus only (cannot take the MCP4728's raw writes); the register models cover these cases |
+| Renode (Antmicro) | Rejected | Strong whole-board simulator, but a second emulator next to QEMU; no BCM2711 model that boots Linux; native_sim covers the co-MCU |
+| Wokwi (+ custom chips API) | Rejected | MCU-only simulation that overlaps native_sim; CI runner needs a paid token |
+| roadtest (Axis, RFC 2022) | Ideas | Kernel driver tests under UML with Python device models; not merged upstream, but the pattern behind weft's register models |
+| umockdev | Rejected | Records and replays sysfs and i2c-dev/spidev ioctls; redundant once real drivers run against simulated chips |
+| KiCad + ngspice | Adopted (planned, analog front ends) | SPICE simulation of ADC inputs and DAC outputs inside the existing design tool; digital buses are out of scope |
 | SimulIDE, Proteus VSM | Rejected | Schematic plus firmware co-simulation, but limited MCU support (Proteus is commercial); no Linux host |
-| atopile | Evaluate (board design) | Hardware described as code with typed interfaces (I2C, SPI) and parameter constraints; catches some wiring errors at design time; means leaving schematic capture |
-| SKiDL | Ideas | Python-defined netlists with ERC; netlist as code makes cross-checks scriptable |
-| KiBot | Evaluate (board CI) | Runs KiCad ERC/DRC and exports in CI; hook for a custom netlist-vs-device-tree check |
-| dt-schema (dtbs_check) | Evaluate (overlay CI) | Validates device tree overlays against kernel bindings; knows nothing about the PCB |
-| IPC-2581 (rev B/C) | Evaluate (netlist exchange, recommended) | Open IPC XML standard with netlist, BOM and component placement in one file; exported by KiCad 8+, Altium, Cadence Allegro/OrCAD and Siemens Xpedition. Part numbers only appear if the export maps them |
-| IPC-D-356A | Integrate (fallback) | Bare-board test netlist that nearly every PCB tool exports; nets and pads only, needs a separate BOM |
+| atopile | Rejected (for now) | Hardware as code with typed I2C/SPI interfaces; would replace schematic capture to get checks weft-boardchecker provides |
+| SKiDL | Rejected (for now) | Python-defined netlists; same trade-off as atopile |
+| KiBot | Adopted (planned, board CI) | Runs KiCad ERC/DRC and the IPC-2581 export in CI, then weft-boardchecker |
+| dt-schema (dtbs_check) | Adopted (planned, overlay CI) | Validates overlays against kernel bindings; complements weft-boardchecker, which checks them against the PCB |
+| IPC-2581 (rev B/C) | Adopted (weft-boardchecker input) | Open IPC XML standard with netlist, BOM and component placement in one file; exported by KiCad 8+, Altium, Cadence Allegro/OrCAD and Siemens Xpedition. Part numbers only appear if the export maps them |
+| IPC-D-356A | Adopted (fallback input) | Bare-board test netlist that nearly every PCB tool exports; nets and pads only, combined with a CSV BOM |
 | ODB++ | Rejected | Widely supported, but the spec is controlled by Siemens; IPC-2581 covers the same data openly |
 | EDIF | Rejected | Old schematic interchange standard; inconsistent dialects across tools |
 | Gerber X2/X3 attributes | Rejected (as checker input) | Carries net and component attributes, but rebuilding connectivity from copper is the wrong layer for this check |
+| roxmltree, csv, toml, clap | Adopted (weft-boardchecker) | Permissive, widely used; XML, BOM, config and CLI parsing |
+| fdt (crate) | Rejected | MPL-2.0, outside the permissive allow list |
+| fdt-rs | Rejected | MIT, but an unsafe zero-copy API and no release since 2024; reading a DTB is about 150 lines in weft-boardchecker. `dtc` stays the tool for device tree source |

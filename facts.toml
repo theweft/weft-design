@@ -89,7 +89,10 @@ value = "MIT"
 kind = "decision"
 status = "decided"
 note = "Licence of all weft repositories"
-code = [{ repo = "weft-verifier", file = "Cargo.toml", pattern = 'license = "{value}"' }]
+code = [
+  { repo = "weft-verifier", file = "Cargo.toml", pattern = 'license = "{value}"' },
+  { repo = "weft-boardchecker", file = "Cargo.toml", pattern = 'license = "{value}"' },
+]
 
 [[fact]]
 id = "toolchain.rust"
@@ -97,7 +100,10 @@ value = "1.99.1"
 kind = "decision"
 status = "decided"
 note = "Pinned Rust toolchain"
-code = [{ repo = "weft-verifier", file = "rust-toolchain.toml", pattern = 'channel = "{value}"' }]
+code = [
+  { repo = "weft-verifier", file = "rust-toolchain.toml", pattern = 'channel = "{value}"' },
+  { repo = "weft-boardchecker", file = "rust-toolchain.toml", pattern = 'channel = "{value}"' },
+]
 
 # --- Verifier (weft-verifier) -----------------------------------------------------------
 
