@@ -15,9 +15,7 @@ embedded device fleet:
 > **weft is built heavily with AI.** Most of the text, code and artwork in the weft repositories
 > is written by an AI coding assistant ([Claude Code](https://claude.com/claude-code)), directed
 > and reviewed by one human maintainer, who makes the decisions. Commits with substantial AI
-> output carry a `Co-Authored-By: Claude` trailer. Treat claims, numbers and sources as
-> unverified until a test or a cited source backs them, and report errors you find. See
-> [How weft is made](#how-weft-is-made).
+> output carry a `Co-Authored-By: Claude` trailer. More in [How weft is made](#how-weft-is-made).
 
 ## Core principle: every layer is swappable
 
