@@ -19,7 +19,7 @@ decisions and why.
 | Favicon | SVG that follows the browser's light or dark mode | One file, correct colours in both themes |
 | Site text | System font stack, no web fonts | Privacy, strict CSP, speed; only the wordmark uses Inter, as outlines |
 | Minimum size | Logomark <!--f:brand.mark_min_px-->16<!--/f--> px | Smallest size where the weave still reads |
-| Licence | Artwork MIT, like all weft repositories | Free reuse in articles, talks and integrations; the name and logo are protected by trademark, not copyright |
+| Licence | Artwork MIT, like all weft repositories; CC-BY-4.0 considered for future prose and images (see [03-licensing.md](03-licensing.md)) | Free reuse in articles, talks and integrations; the name and logo are protected by trademark, not copyright |
 
 ## Colours
 
