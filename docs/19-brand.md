@@ -12,7 +12,7 @@ decisions and why.
 | Name | weft (see the naming section of [04-decisions.md](04-decisions.md)) | Kept despite a crowded name; trademark revisited before the first release |
 | Logomark | 2×2 plain weave: two vertical warp threads, two horizontal weft threads, square ends, real gaps where a thread goes under, open spacing with stubs | Literal meaning of the name; recognisable at 16 px; the cut-outs make it work on any background and in one colour |
 | Colours | Indigo warp and amber weft, separate values for light and dark backgrounds (below) | Liked look, tuned so the two threads differ in brightness: the weave stays visible in greyscale and for colour-blind viewers |
-| Wordmark | "weft" in <!--f:brand.font-->Inter<!--/f-->, weight <!--f:brand.font_weight-->600<!--/f-->, converted to outlines | Widely used, SIL Open Font License (permits logos); outlines need no installed font |
+| Wordmark | "weft" in <!--f:brand.font-->Inter<!--/f-->, weight <!--f:brand.font_weight-->600<!--/f-->, converted to outlines; 100 font units of extra space between f and t so their crossbars do not merge | Widely used, SIL Open Font License (permits logos); outlines need no installed font |
 | Lockups | Horizontal (mark left, name right) and stacked (mark above) | The two standard arrangements; x-height of the name is 21/48 of the mark |
 | Variants | `light`, `dark`, `black`, `white` for every logo | Light and dark backgrounds, plus one-colour use (print, photos, engraving) |
 | App icon, avatar | Logomark on the light background, full square | The dark-mode indigo disappears on a navy tile; platforms round the corners themselves |
