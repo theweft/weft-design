@@ -1,4 +1,4 @@
-# Design repository tasks. Sibling repositories (e.g. ../weft-verifier) are used for code checks.
+# Design repository tasks. Sibling repositories (../weft-verifier, ../weft-parts, ../weft-boardchecker, ../weft-website) are used for code checks.
 
 factcheck := "cargo run --quiet --locked --manifest-path tools/factcheck/Cargo.toml --"
 
