@@ -142,12 +142,14 @@ Many products contain one Linux SoC and several MCUs: motor control, safety, rad
 ## 5. What this means for weft-verifier and the agent
 
 - **Verifier:** no change for M1. For M2, the proxy needs the verifier's `Install` instructions *per proxied device*. The proxy then turns them into directives and SUIT manifests outside the trusted code. The verifier's facts must include the proxied device's reported version and class.
-- A **tiny directive-check crate** (`weft-directive`?) for M2:
+- **`weft-directive`** (name decided 2026-10-18), a tiny crate for M2:
   - `no_std`, no alloc;
   - one signature check plus a sequence check;
   - target < 10 KB code without the crypto library, a few hundred bytes of RAM.
 
   This is a second, much smaller trusted piece of code for M2 devices.
+- Layout: `weft_directive::check(...)` is `no_std`, has no `alloc`, and is the only part an MCU runs. `weft_directive::encode(...)` sits behind a feature and is used by the proxy, outside the trusted code.
+- Deliberately *not* named `weft-verifier-lite`: M2 trusts its proxy for authorization, which is a weaker model than the verifier's, and the name keeps that visible.
 - **Signing tooling:** HSS/LMS needs stateful key management in the release HSM. Plan it before the first post-quantum firmware release.
 - **CI:** add an M2 reference board (nRF52840 or STM32L4) and an M0+ board (RP2040, STM32G0) to the test lab (docs/17).
 

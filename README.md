@@ -49,7 +49,7 @@ weft can be adopted step by step. Only the adoption contract is mandatory: signe
 weft does the same with existing tools: it weaves them into one platform without replacing them.
 
 - Website: [theweft.org](https://theweft.org) (also theweft.dev, weftfleet.org, weftfleet.dev, weftfleet.com)
-- Crates: `weft-*` (e.g. `weft-verifier`)
+- Crates: `weft-*`; role nouns for components that act (`weft-verifier`, `weft-executor`, `weft-agent`), artifact nouns for formats (`weft-envelope`, `weft-directive`)
 
 ## Docs
 

@@ -17,6 +17,13 @@ direction, not frozen. Each item can be revisited with a short rationale.
 | D9 | **Minimal trusted code**: security decisions live in the **verifier** (`weft-verifier`), one small, pure, `no_std`, unsafe-free Rust crate (verify, evaluate policy, resolve state) shared by Linux and MCUs; privilege-separated agent (sandboxed transport, unprivileged decider, tiny privileged executor); one encoding/signature/artifact format in the trusted path; no scripting in the trusted path; code and dependency budgets in CI. See [07-minimal-tcb.md](07-minimal-tcb.md) | Decided |
 | D6 | **Crypto agility and post-quantum readiness**: algorithm IDs in all signed data, multiple keys per role, hybrid key exchange where available, PQ/hybrid signatures for long-lived roots first | Decided |
 
+## Naming
+
+- All crates and repositories are `weft-*`.
+- **Components that act** get role nouns: `weft-verifier`, `weft-executor`, `weft-agent`.
+- **Formats** get artifact nouns, with their check and encode functions inside: `weft-envelope`, `weft-directive`.
+- Names never suggest more security than a component provides. That is why it is `weft-directive`, not `weft-verifier-lite` (docs/18).
+
 ## Mandatory core (the "narrow waist")
 
 Contracts are mandatory, implementations are not:
