@@ -60,6 +60,11 @@ design, not its code), **Integrate** (supported through an adapter or plugin), *
 |---|---|---|
 | Zenoh (+ zenoh-pico, MQTT plugin) | Adopted (default pub/sub) | Only mature option for peer-to-peer, routed and direct-to-cloud with one API; MQTT bridge |
 | NATS | Integrate | Strong backend bus; needs a server, no true peer-to-peer |
+| MCUboot | Adopted (MCU bootloader) | Image signature + security counter checked end to end; swap, direct-XIP, serial recovery |
+| mcumgr / SMP | Adopted (proxy → MCU updates) | Zephyr standard for upload/test/confirm over UART, USB, BLE |
+| HSS/LMS (RFC 8554) | Adopted (planned, firmware signing) | Post-quantum, verification needs only SHA-256; stateful signing in the HSM |
+| LoRaWAN FUOTA | Integrate | Multicast firmware updates for LoRaWAN devices behind an LNS |
+| libcsuit / nRF Connect SDK SUIT | Evaluate | SUIT manifest implementations for the directive format |
 | rustls (+ aws-lc-rs) | Adopted (planned, transport adapters) | Memory-safe TLS 1.3, raw public keys, hybrid ML-KEM key exchange; permissive |
 | quinn | Adopted (planned, QUIC) | Rust QUIC, permissive; QUIC preferred for moving nodes and multi-link uplinks |
 | MQTT over QUIC (EMQX) | Rejected (for now) | Not standardized; Zenoh QUIC covers the need |

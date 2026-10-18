@@ -16,6 +16,8 @@ Measured values (2026-10-17, weft-verifier 0.1, Rust 1.99.1): see the bottom of 
 | Anti-rollback | Monotonic counter (OTP / secure element) recommended | Same | TPM counter or eFuses recommended | TPM |
 | Network | IP stack (Zephyr) for zenoh-pico/MQTT-SN, or none | BLE, CAN, serial, Thread to the gateway | Ethernet / Wi-Fi / cellular | Any |
 
+For MCUs below these limits (classes M2 and M3, proxy-authorized), see [18-constrained-mcus.md](18-constrained-mcus.md).
+
 ## Software architecture per class
 
 - **MCU, on device**: Zephyr (or Embassy) + MCUboot + `weft-verifier` (no_std) + zenoh-pico + settings

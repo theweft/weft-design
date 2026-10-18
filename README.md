@@ -70,6 +70,7 @@ weft does the same with existing tools: it weaves them into one platform without
 - [docs/15-pubsub-contract.md](docs/15-pubsub-contract.md): what weft requires from a pub/sub transport, what it builds itself, and how transports are swapped.
 - [docs/16-transport-protocols.md](docs/16-transport-protocols.md): TLS, QUIC, HTTP versions, WebSockets, firewall traversal, constrained links.
 - [docs/17-test-lab-and-funding.md](docs/17-test-lab-and-funding.md): hardware for tests and benchmarks with rough costs, and funding options.
+- [docs/18-constrained-mcus.md](docs/18-constrained-mcus.md): how small MCUs take part: classes M0–M3, crypto (P-256, LMS), OTA via proxy and bootloader.
 
 ## Status
 
