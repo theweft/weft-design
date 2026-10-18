@@ -60,6 +60,12 @@ design, not its code), **Integrate** (supported through an adapter or plugin), *
 |---|---|---|
 | Zenoh (+ zenoh-pico, MQTT plugin) | Adopted (default pub/sub) | Only mature option for peer-to-peer, routed and direct-to-cloud with one API; MQTT bridge |
 | NATS | Integrate | Strong backend bus; needs a server, no true peer-to-peer |
+| rustls (+ aws-lc-rs) | Adopted (planned, transport adapters) | Memory-safe TLS 1.3, raw public keys, hybrid ML-KEM key exchange; permissive |
+| quinn | Adopted (planned, QUIC) | Rust QUIC, permissive; QUIC preferred for moving nodes and multi-link uplinks |
+| MQTT over QUIC (EMQX) | Rejected (for now) | Not standardized; Zenoh QUIC covers the need |
+| WebTransport | Evaluate (later) | Browser streams over HTTP/3; UDP caveat as QUIC |
+| CoAP + OSCORE/EDHOC | Evaluate | Message-level (COSE) security that survives proxies and store and forward; candidate for MCU commands |
+| wstunnel | Evaluate | Tunnels UDP overlays (WireGuard/Nebula) through TCP/WebSocket on 443 |
 | MQTT brokers (Mosquitto, NanoMQ, HiveMQ CE) | Integrate | Interop via the Zenoh MQTT plugin and broker bridging |
 | EMQX ≥ 5.9 | Rejected | Business Source License |
 | DDS (Cyclone, Fast DDS) | Integrate | LAN and robotics; via Zenoh bridge |

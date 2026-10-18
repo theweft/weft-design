@@ -68,6 +68,7 @@ weft does the same with existing tools: it weaves them into one platform without
 - [docs/13-topologies-and-roles.md](docs/13-topologies-and-roles.md): node roles (endpoint, relay, uplink, proxy, site services) and the supported topologies.
 - [docs/14-core-features-and-gaps.md](docs/14-core-features-and-gaps.md): feature overview, the adoption contract (what is mandatory), adoption levels, and open gaps.
 - [docs/15-pubsub-contract.md](docs/15-pubsub-contract.md): what weft requires from a pub/sub transport, what it builds itself, and how transports are swapped.
+- [docs/16-transport-protocols.md](docs/16-transport-protocols.md): TLS, QUIC, HTTP versions, WebSockets, firewall traversal, constrained links.
 
 ## Status
 
