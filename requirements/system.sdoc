@@ -1,0 +1,450 @@
+[DOCUMENT]
+TITLE: weft system requirements
+VERSION: 0.1 (draft)
+OPTIONS:
+  MARKUP: Text
+
+[GRAMMAR]
+ELEMENTS:
+- TAG: SECTION
+  PROPERTIES:
+    IS_COMPOSITE: True
+  FIELDS:
+  - TITLE: UID
+    TYPE: String
+    REQUIRED: False
+  - TITLE: TITLE
+    TYPE: String
+    REQUIRED: True
+- TAG: TEXT
+  FIELDS:
+  - TITLE: UID
+    TYPE: String
+    REQUIRED: False
+  - TITLE: STATEMENT
+    TYPE: String
+    REQUIRED: True
+- TAG: REQUIREMENT
+  FIELDS:
+  - TITLE: UID
+    TYPE: String
+    REQUIRED: True
+  - TITLE: STATUS
+    TYPE: SingleChoice(Draft, Active, Deleted)
+    REQUIRED: True
+  - TITLE: VERIFICATION
+    TYPE: SingleChoice(Test, Analysis, Inspection, Demonstration)
+    REQUIRED: True
+  - TITLE: TITLE
+    TYPE: String
+    REQUIRED: True
+  - TITLE: STATEMENT
+    TYPE: String
+    REQUIRED: True
+  - TITLE: DERIVED_FROM
+    HUMAN_TITLE: Derived from (principles, docs/04)
+    TYPE: String
+    REQUIRED: False
+  - TITLE: DOCS
+    HUMAN_TITLE: Design docs
+    TYPE: String
+    REQUIRED: False
+  - TITLE: STANDARDS
+    HUMAN_TITLE: Standards (draft mapping)
+    TYPE: String
+    REQUIRED: False
+  - TITLE: FACTS
+    HUMAN_TITLE: Facts (facts.toml)
+    TYPE: String
+    REQUIRED: False
+  RELATIONS:
+  - TYPE: Parent
+  - TYPE: File
+
+[TEXT]
+STATEMENT: >>>
+System-level requirements of weft. They are derived from the principles D1-D9 (docs/04) and refine the adoption contract (docs/14 §2), the conflict model (docs/05), topologies (docs/13) and the pub/sub transport contract (docs/15).
+
+Component requirements in other repositories (for example weft-verifier/requirements/) refer to these with a SATISFIES field. `just check` fails when a reference is unknown, or when an Active requirement verified by Test is not satisfied by any component requirement. Draft requirements are designed but not yet implemented.
+
+STANDARDS is a draft mapping to IEC 62443-4-2 and CRA Annex I; it has not been reviewed by an assessor.
+<<<
+
+[[SECTION]]
+TITLE: Adoption contract
+
+[REQUIREMENT]
+UID: SYS-001
+STATUS: Active
+VERIFICATION: Test
+TITLE: Authority comes from keys
+STATEMENT: >>>
+Desired state shall reach a device only as signed weft documents under a tenant trust anchor. No server or path shall be able to command a device into a new state.
+<<<
+DERIVED_FROM: D3
+DOCS: docs/14 §2.1
+STANDARDS: IEC 62443-4-2 CR 2.1, CR 3.4; CRA Annex I Part I 2(d), 2(f)
+
+[REQUIREMENT]
+UID: SYS-002
+STATUS: Active
+VERIFICATION: Test
+TITLE: The device decides
+STATEMENT: >>>
+Every managed device shall decide locally with weft-verifier, or be managed by a proxy that runs the verifier on its behalf and is shown as such in the inventory.
+<<<
+DERIVED_FROM: D3, D9
+DOCS: docs/14 §2.2, docs/18
+STANDARDS: IEC 62443-4-2 CR 2.1
+
+[REQUIREMENT]
+UID: SYS-003
+STATUS: Draft
+VERIFICATION: Test
+TITLE: Separate, minimal executor
+STATEMENT: >>>
+A device shall apply only the verifier's instructions, through a small executor separated from transport and decision code.
+<<<
+DERIVED_FROM: D9
+DOCS: docs/07, docs/14 §2.2
+STANDARDS: IEC 62443-4-2 CR 2.1; CRA Annex I Part I 2(j)
+
+[REQUIREMENT]
+UID: SYS-004
+STATUS: Draft
+VERIFICATION: Test
+TITLE: Per-device identity
+STATEMENT: >>>
+Each device shall have its own key pair, hardware-backed where the hardware allows. Device identity is the key, not a name or an address.
+<<<
+DERIVED_FROM: D3, D6
+DOCS: docs/10, docs/14 §2.3
+STANDARDS: IEC 62443-4-2 CR 1.2, CR 1.5
+
+[REQUIREMENT]
+UID: SYS-005
+STATUS: Active
+VERIFICATION: Test
+TITLE: Content-addressed, forward-only components
+STATEMENT: >>>
+Every deployable thing shall be a named component referring to an artifact by digest, and versions shall only move forward per slot.
+<<<
+DERIVED_FROM: D3
+DOCS: docs/14 §2.4
+STANDARDS: IEC 62443-4-2 CR 3.4; CRA Annex I Part I 2(c)
+
+[REQUIREMENT]
+UID: SYS-006
+STATUS: Draft
+VERIFICATION: Test
+TITLE: Persist before acting
+STATEMENT: >>>
+Decision state (version marks, time floor, revocations) shall be persisted atomically before the device acts on a decision, and shall survive power loss.
+<<<
+DERIVED_FROM: D2, D3
+DOCS: docs/11, docs/14 §2.5
+STANDARDS: IEC 62443-4-2 CR 3.4
+
+[REQUIREMENT]
+UID: SYS-007
+STATUS: Active
+VERIFICATION: Test
+TITLE: Versions order, clocks do not
+STATEMENT: >>>
+Ordering of documents shall come from versions. Wall time shall only be used as a forward-only lower bound for expiry.
+<<<
+DERIVED_FROM: D2
+DOCS: docs/11, docs/14 §2.6
+STANDARDS: IEC 62443-4-2 CR 2.11
+
+[REQUIREMENT]
+UID: SYS-008
+STATUS: Draft
+VERIFICATION: Test
+TITLE: Reported state in weft terms
+STATEMENT: >>>
+Devices shall report state, conflicts and withheld components in the weft vocabulary, independent of how the report travels.
+<<<
+DERIVED_FROM: D3
+DOCS: docs/05 §2.3b, docs/14 §2.7
+STANDARDS: IEC 62443-4-2 CR 2.8; CRA Annex I Part I 2(l)
+
+[REQUIREMENT]
+UID: SYS-009
+STATUS: Draft
+VERIFICATION: Test
+TITLE: Envelope and topic namespace
+STATEMENT: >>>
+Messages that use weft pub/sub shall use the weft envelope and topic namespace; the transport is free.
+<<<
+DERIVED_FROM: D1, D4
+DOCS: docs/05 §1, docs/15 §3.4
+FACTS: pubsub.topic.segment_max, pubsub.topic.max_depth, pubsub.topic.max_len
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: Decisions and conflicts
+
+[REQUIREMENT]
+UID: SYS-010
+STATUS: Active
+VERIFICATION: Test
+TITLE: Deterministic precedence
+STATEMENT: >>>
+Precedence between authorized documents shall be a number, with names given by the tenant's scope profile.
+<<<
+DERIVED_FROM: D3
+DOCS: docs/05 §2.3
+STANDARDS: IEC 62443-4-2 CR 2.1
+FACTS: priority.default.fleet, priority.default.group, priority.default.site, priority.default.device, priority.default.local
+
+[REQUIREMENT]
+UID: SYS-011
+STATUS: Active
+VERIFICATION: Test
+TITLE: Conflicts are never silent
+STATEMENT: >>>
+Conflicting changes shall never be resolved by hidden tie-breaking: ties apply neither change, locks are respected, and every conflict is reported with an id that is the same on every device.
+<<<
+DERIVED_FROM: D3
+DOCS: docs/05 §2.3, §2.3b
+STANDARDS: IEC 62443-4-2 CR 2.8, CR 3.6
+
+[REQUIREMENT]
+UID: SYS-012
+STATUS: Active
+VERIFICATION: Test
+TITLE: Rollback and equivocation protection
+STATEMENT: >>>
+Devices shall reject older versions than they accepted, and shall detect different documents with the same version.
+<<<
+DERIVED_FROM: D3
+DOCS: docs/05, docs/07
+STANDARDS: IEC 62443-4-2 CR 3.4; CRA Annex I Part I 2(c), 2(f)
+
+[REQUIREMENT]
+UID: SYS-013
+STATUS: Active
+VERIFICATION: Test
+TITLE: Fail safe when incomplete
+STATEMENT: >>>
+When information needed for a decision is missing, the device shall keep its current state for that component instead of acting on partial state.
+<<<
+DERIVED_FROM: D3, D9
+DOCS: docs/07
+STANDARDS: IEC 62443-4-2 CR 3.6
+
+[REQUIREMENT]
+UID: SYS-014
+STATUS: Active
+VERIFICATION: Test
+TITLE: Delegation narrows
+STATEMENT: >>>
+Delegated rights shall never exceed the delegator's rights, and shall be limited in time.
+<<<
+DERIVED_FROM: D3
+DOCS: docs/06
+STANDARDS: IEC 62443-4-2 CR 1.9, CR 2.1
+
+[REQUIREMENT]
+UID: SYS-015
+STATUS: Active
+VERIFICATION: Test
+TITLE: Monotonic revocation
+STATEMENT: >>>
+Revocation shall be permanent and shall not need coordination.
+<<<
+DERIVED_FROM: D3
+DOCS: docs/04 (CALM), docs/06
+STANDARDS: IEC 62443-4-2 CR 1.9
+
+[REQUIREMENT]
+UID: SYS-016
+STATUS: Active
+VERIFICATION: Test
+TITLE: Strict, bounded input in the trusted path
+STATEMENT: >>>
+All parsers in the trusted path shall accept exactly one encoding per value and shall bound memory, depth and work for any input, without panicking.
+<<<
+DERIVED_FROM: D9
+DOCS: docs/07
+STANDARDS: IEC 62443-4-2 CR 3.5, CR 3.7, CR 7.2; CRA Annex I Part I 2(h), 2(j)
+
+[REQUIREMENT]
+UID: SYS-017
+STATUS: Active
+VERIFICATION: Test
+TITLE: Same inputs, same decision
+STATEMENT: >>>
+Devices given the same documents shall reach the same decisions, whatever order or path the documents arrived in.
+<<<
+DERIVED_FROM: D3, D4
+DOCS: docs/13 §3
+STANDARDS: IEC 62443-4-2 CR 3.6
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: Offline and topology
+
+[REQUIREMENT]
+UID: SYS-020
+STATUS: Draft
+VERIFICATION: Demonstration
+TITLE: Works without cloud
+STATEMENT: >>>
+Every function (configuration, deployments, updates, conflicts, local UI) shall work with no cloud or internet connection.
+<<<
+DERIVED_FROM: D2
+DOCS: docs/01 P15, docs/13
+
+[REQUIREMENT]
+UID: SYS-021
+STATUS: Active
+VERIFICATION: Test
+TITLE: Trust independent of path
+STATEMENT: >>>
+Integrity shall come from end-to-end signatures, so any relay, uplink, bridge or removable medium may carry documents without being trusted.
+<<<
+DERIVED_FROM: D3, D4
+DOCS: docs/13 §3, docs/16
+STANDARDS: IEC 62443-4-2 CR 3.4
+
+[REQUIREMENT]
+UID: SYS-022
+STATUS: Draft
+VERIFICATION: Demonstration
+TITLE: Roles by configuration
+STATEMENT: >>>
+Node roles (endpoint, relay, uplink, proxy, site services) shall be assigned by signed configuration, with the same build for all topologies.
+<<<
+DERIVED_FROM: D4
+DOCS: docs/13 §1
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: Pub/sub transport contract
+
+[REQUIREMENT]
+UID: SYS-030
+STATUS: Draft
+VERIFICATION: Test
+TITLE: T1: hierarchical keys
+STATEMENT: >>>
+A transport shall support publishing to hierarchical keys and subscribing by prefix and single-level wildcard.
+<<<
+DERIVED_FROM: D1, D4
+DOCS: docs/15 §1
+
+[REQUIREMENT]
+UID: SYS-031
+STATUS: Draft
+VERIFICATION: Test
+TITLE: T2: binary payloads
+STATEMENT: >>>
+A transport shall carry opaque binary payloads of at least the minimum size, preferably the preferred size.
+<<<
+DERIVED_FROM: D1, D4
+DOCS: docs/15 §1, §4
+FACTS: pubsub.payload_min, pubsub.payload_preferred
+
+[REQUIREMENT]
+UID: SYS-032
+STATUS: Draft
+VERIFICATION: Test
+TITLE: T3: best effort is enough
+STATEMENT: >>>
+weft shall be correct over best-effort transports; loss, duplicates and reordering shall be handled end to end.
+<<<
+DERIVED_FROM: D1, D4
+DOCS: docs/15 §1, §3
+
+[REQUIREMENT]
+UID: SYS-033
+STATUS: Draft
+VERIFICATION: Test
+TITLE: T4: link state
+STATEMENT: >>>
+A transport adapter shall report local link state, which drives store and forward and resynchronisation.
+<<<
+DERIVED_FROM: D2, D4
+DOCS: docs/15 §1
+
+[REQUIREMENT]
+UID: SYS-034
+STATUS: Draft
+VERIFICATION: Test
+TITLE: T5: authenticated peers
+STATEMENT: >>>
+Transport peers and clients shall be authenticated per node identity, for transport access control.
+<<<
+DERIVED_FROM: D4
+DOCS: docs/15 §1, docs/16
+STANDARDS: IEC 62443-4-2 CR 1.2
+
+[REQUIREMENT]
+UID: SYS-035
+STATUS: Draft
+VERIFICATION: Test
+TITLE: T6: prefix ACLs
+STATEMENT: >>>
+Transports with a broker or router shall enforce ACLs by key prefix per identity, generated from the weft policy.
+<<<
+DERIVED_FROM: D4
+DOCS: docs/06, docs/15 §1
+STANDARDS: IEC 62443-4-2 CR 2.1
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: Platform
+
+[REQUIREMENT]
+UID: SYS-040
+STATUS: Active
+VERIFICATION: Inspection
+TITLE: Permissive licences
+STATEMENT: >>>
+weft shall be MIT licensed, and its core shall contain no GPLv3, AGPL, BSL or SSPL dependencies.
+<<<
+DERIVED_FROM: D5
+DOCS: docs/03
+FACTS: license.weft
+
+[REQUIREMENT]
+UID: SYS-041
+STATUS: Active
+VERIFICATION: Inspection
+TITLE: Minimal trusted code
+STATEMENT: >>>
+Security decisions shall live in weft-verifier: no_std, no unsafe code, no I/O.
+<<<
+DERIVED_FROM: D9
+DOCS: docs/07
+STANDARDS: CRA Annex I Part I 2(j), 2(k)
+
+[REQUIREMENT]
+UID: SYS-042
+STATUS: Active
+VERIFICATION: Test
+TITLE: Crypto agility
+STATEMENT: >>>
+Signed data shall carry algorithm identifiers, so that algorithms can be added and retired, including post-quantum ones.
+<<<
+DERIVED_FROM: D6
+DOCS: docs/01 P12, docs/18 §3
+
+[REQUIREMENT]
+UID: SYS-043
+STATUS: Active
+VERIFICATION: Inspection
+TITLE: Supported targets
+STATEMENT: >>>
+Trusted-path code shall build for x86-64, arm64 and riscv64 Linux, and for Cortex-M and RISC-V microcontrollers.
+<<<
+DERIVED_FROM: D8
+DOCS: docs/12 §5
+
+[[/SECTION]]

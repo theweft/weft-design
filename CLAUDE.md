@@ -6,3 +6,4 @@
 - External facts (prices, deadlines, survey numbers, regulations) need `source` and `checked`; re-check them when `just check` warns.
 - Keep docs/09-prior-art.md updated with every similar project discussed.
 - Requirements live as StrictDoc files in each repository (e.g. weft-verifier/requirements/). When behaviour changes, update the requirement and the `@relation(...)` markers on implementing functions and tests; `cargo test` gates coverage.
+- System requirements are in requirements/system.sdoc. A new component requirement names its parent(s) with `SATISFIES:`; when a Draft system requirement gets implemented, set it Active and make sure a component requirement satisfies it.

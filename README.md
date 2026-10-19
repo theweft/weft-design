@@ -66,6 +66,10 @@ weft does the same with existing tools: it weaves them into one platform without
 
 Key values (limits, device requirements, defaults, dates, estimates) live in one place: [facts.toml](facts.toml), rendered as [FACTS.md](FACTS.md). Docs show them through inline markers, and `just check` verifies that docs and the code in sibling repositories (e.g. `weft-verifier` constants) agree with it. To change a value, change `facts.toml` and the markers, then run `just facts-index` and `just check`.
 
+## Requirements
+
+System requirements are in [requirements/system.sdoc](requirements/system.sdoc) (StrictDoc). Component requirements in other repositories (e.g. `weft-verifier/requirements/`) refine them with `SATISFIES` and are traced to code and tests there. `just check` verifies the links across repositories; `just requirements` renders HTML and ReqIF to `target/requirements/`.
+
 ## Docs
 
 - [docs/01-problem-map.md](docs/01-problem-map.md): the problems we have to solve, and where the seams go.

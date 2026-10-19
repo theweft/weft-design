@@ -8,6 +8,7 @@
 //! - Every `[[fact.code]]` pattern must occur in the named file of the named repository.
 //! - `FACTS.md` must match what `factcheck index` generates.
 //! - External facts older than their `max_age_days` and unused facts are warnings.
+//! - Requirements across repositories are consistent (see `requirements.rs`).
 //!
 //! Usage: `factcheck [check|index] [--root DIR] [--repos DIR] [--deny-warnings]`
 
@@ -18,6 +19,8 @@ use std::process::ExitCode;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use toml::Value;
+
+mod requirements;
 
 const FACTS_FILE: &str = "facts.toml";
 const INDEX_FILE: &str = "FACTS.md";
@@ -61,7 +64,7 @@ impl Fact {
 }
 
 #[derive(Default)]
-struct Report {
+pub(crate) struct Report {
     errors: Vec<String>,
     warnings: Vec<String>,
 }
@@ -402,6 +405,16 @@ fn check(root: &Path, repos: &Path, facts: &[Fact], report: &mut Report) {
             }
         }
     }
+
+    let reqs = requirements::collect(root, repos, report);
+    let fact_ids: BTreeSet<&str> = by_id.keys().copied().collect();
+    let req_facts = requirements::check(&reqs, &fact_ids, report);
+    used.extend(
+        facts
+            .iter()
+            .filter(|f| req_facts.contains(&f.id))
+            .map(|f| f.id.as_str()),
+    );
 
     for f in facts {
         for c in &f.code {

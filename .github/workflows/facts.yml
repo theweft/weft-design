@@ -54,3 +54,6 @@ jobs:
         run: >
           nix develop ../weft-verifier --command
           cargo run --locked --manifest-path tools/factcheck/Cargo.toml -- check --repos ..
+      - name: Validate requirements
+        working-directory: weft-design
+        run: nix develop ../weft-verifier --command just requirements

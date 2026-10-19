@@ -22,7 +22,20 @@ direction, not frozen. Each item can be revisited with a short rationale.
 - **Values** (limits, requirements, defaults, dates, estimates): `facts.toml` in this repository, checked by `tools/factcheck`.
 - **Requirements**: StrictDoc (`.sdoc`) in each repository, traced to code and tests with relation markers on functions. A coverage gate runs in each repository's tests, and ReqIF is exported for assessors.
 - **Pilot:** `weft-verifier/requirements/verifier.sdoc`, with 28 requirements, a draft IEC 62443-4-2 / CRA mapping, and the gate in `tests/requirements.rs`.
-- **Next:** system-level requirements (adoption contract, T1–T6) in this repository, as parents of the component requirements.
+- **System requirements:** `requirements/system.sdoc` in this repository, SYS-001 to SYS-043:
+  - adoption contract;
+  - decisions and conflicts;
+  - offline and topology;
+  - pub/sub transport contract T1–T6;
+  - platform.
+
+  Component requirements name their parents in `SATISFIES`.
+- **Cross-repository check:** `just check` (factcheck) verifies across all sibling repositories:
+  - requirement ids are unique;
+  - `SATISFIES` and `FACTS` references resolve;
+  - every Active system requirement verified by Test is satisfied by a component requirement.
+
+  Draft system requirements (executor, identity, pub/sub, topology) mark what is designed but not built yet.
 - Requirements refer to principles D1–D9 and to fact ids. Values stay in `facts.toml`.
 
 ## Naming

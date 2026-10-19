@@ -15,4 +15,8 @@ lint:
     cargo fmt --manifest-path tools/factcheck/Cargo.toml --check
     cargo clippy --locked --manifest-path tools/factcheck/Cargo.toml -- -D warnings
 
-ci: lint check
+# Validates requirements/*.sdoc and renders HTML and ReqIF to target/requirements.
+requirements:
+    strictdoc export . --formats=html,reqif-sdoc --output-dir target/requirements
+
+ci: lint check requirements
