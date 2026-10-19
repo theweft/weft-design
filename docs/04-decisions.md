@@ -17,6 +17,14 @@ direction, not frozen. Each item can be revisited with a short rationale.
 | D9 | **Minimal trusted code**: security decisions live in the **verifier** (`weft-verifier`), one small, pure, `no_std`, unsafe-free Rust crate (verify, evaluate policy, resolve state) shared by Linux and MCUs; privilege-separated agent (sandboxed transport, unprivileged decider, tiny privileged executor); one encoding/signature/artifact format in the trusted path; no scripting in the trusted path; code and dependency budgets in CI. See [07-minimal-tcb.md](07-minimal-tcb.md) | <!--f:principle.d9-->Decided<!--/f--> |
 | D6 | **Crypto agility and post-quantum readiness**: algorithm IDs in all signed data, multiple keys per role, hybrid key exchange where available, PQ/hybrid signatures for long-lived roots first | <!--f:principle.d6-->Decided<!--/f--> |
 
+## Requirements and facts
+
+- **Values** (limits, requirements, defaults, dates, estimates): `facts.toml` in this repository, checked by `tools/factcheck`.
+- **Requirements**: StrictDoc (`.sdoc`) in each repository, traced to code and tests with relation markers on functions. A coverage gate runs in each repository's tests, and ReqIF is exported for assessors.
+- **Pilot:** `weft-verifier/requirements/verifier.sdoc`, with 28 requirements, a draft IEC 62443-4-2 / CRA mapping, and the gate in `tests/requirements.rs`.
+- **Next:** system-level requirements (adoption contract, T1–T6) in this repository, as parents of the component requirements.
+- Requirements refer to principles D1–D9 and to fact ids. Values stay in `facts.toml`.
+
 ## Naming
 
 - All crates and repositories are `weft-*`.

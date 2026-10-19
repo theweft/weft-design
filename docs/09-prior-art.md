@@ -53,6 +53,11 @@ design, not its code), **Integrate** (supported through an adapter or plugin), *
 | ISA-95 / Unified Namespace | Integrate | Location paths as projections, not primary names |
 | JSON Merge Patch (RFC 7396) | Adopted | Config merge semantics |
 | REUSE, SPDX | Adopted | Licence compliance per file and repository |
+| StrictDoc | Adopted (requirements as code) | Apache-2.0; text requirements with source traceability (Rust parser), HTML and ReqIF export; coverage gate is our own test |
+| Sphinx-needs | Rejected | Flexible, but needs the Sphinx/reStructuredText stack; our docs are Markdown |
+| OpenFastTrace | Rejected | Simple tag syntax, but Java and GPL-3.0 |
+| Doorstop | Rejected | LGPL-3.0, older; StrictDoc grew out of it |
+| ReqIF | Adopted (export format) | Exchange format that customers' and assessors' requirements tools import |
 
 ## Building blocks
 

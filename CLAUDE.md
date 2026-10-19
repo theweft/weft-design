@@ -5,3 +5,4 @@
 - When you add a new key value to a doc, add a fact and wrap the value in a marker.
 - External facts (prices, deadlines, survey numbers, regulations) need `source` and `checked`; re-check them when `just check` warns.
 - Keep docs/09-prior-art.md updated with every similar project discussed.
+- Requirements live as StrictDoc files in each repository (e.g. weft-verifier/requirements/). When behaviour changes, update the requirement and the `@relation(...)` markers on implementing functions and tests; `cargo test` gates coverage.
