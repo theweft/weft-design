@@ -114,6 +114,20 @@ The executor is a stub that records instructions. Process separation, Zenoh, MQT
 
 **Sync summary**, the first version: a hash of the sorted digest list, followed by the full list only when the hashes differ. The simulation shows whether something smarter is needed (docs/15 §8).
 
+### Status and findings (2026-10-20)
+
+Built in [weft-agent](https://github.com/theweft/weft-agent): `weft-transport` (contract and turmoil adapter), `weft-sync`, `weft-decider` and the node loop. The simulation passes 400 seeds. On its first runs it found two design flaws:
+
+1. **Unverified documents spread.**
+   - **Before:** every node stored and forwarded any well-formed document, including ones signed by unknown keys, so anyone could flood the fleet.
+   - **Now:** arriving documents are *pending* until the decider verifies them; only verified documents are advertised, served and forwarded (AGT-003).
+   - Shareable: accepted, superseded, ignored, and rejected for rollback, revocation, expiry or equivocation.
+   - Quarantined for good: malformed, bad signature, wrong tenant.
+   - Pending, local only: unknown signer, unauthorized.
+2. **"Revoked" without a signature check.**
+   - **Before:** weft-verifier reported `Revoked` for any document that *claimed* a revoked key id, and for delegations to revoked keys it reported `Unauthorized`.
+   - **Now:** `Revoked` means "validly signed by a key that is now revoked". The verifier remembers revoked keys it can verify (revoked anchors, subjects of validly signed delegations); a forged claim is `BadSignature`, an unverifiable one `UnknownSigner` (VER-012).
+
 ## 6. Open points
 
 - G10: the IPC between processes and to plugins.
@@ -121,3 +135,6 @@ The executor is a stub that records instructions. Process separation, Zenoh, MQT
 - How the executor packages its backends (§4).
 - Health check definition per profile, and how long to wait before confirming.
 - Secrets delivery to apps (G4).
+- Pure relays without a decider share everything they receive; real relays should run at least the verifier's signature checks.
+- Delegations that are expired or no longer authorized stay pending on nodes that see them only later; whether they should travel is open.
+- Inventory messages carry at most `max_batch` digests; large stores need ranged or Merkle summaries (docs/15 §8).

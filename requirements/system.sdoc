@@ -352,7 +352,7 @@ FACTS: pubsub.payload_min, pubsub.payload_preferred
 
 [REQUIREMENT]
 UID: SYS-032
-STATUS: Draft
+STATUS: Active
 VERIFICATION: Test
 TITLE: T3: best effort is enough
 STATEMENT: >>>
