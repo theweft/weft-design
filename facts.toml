@@ -544,3 +544,69 @@ id = "lab.tier_b_cost"
 value = "1,000–1,800"
 kind = "assumption"
 note = "Additional lab for credible benchmarks, euro, rough estimate (2026-10)"
+
+# --- Supported targets (docs/12 §5, docs/18 §2.1) ---------------------------------------
+
+[[fact]]
+id = "target.linux.x86_64"
+value = "x86_64-unknown-linux-gnu"
+kind = "decision"
+status = "decided"
+note = "Supported target: x86-64 Linux"
+code = [{ repo = "weft-verifier", file = "rust-toolchain.toml", pattern = '"{value}",' }]
+
+[[fact]]
+id = "target.linux.aarch64"
+value = "aarch64-unknown-linux-gnu"
+kind = "decision"
+status = "decided"
+note = "Supported target: arm64 Linux"
+code = [{ repo = "weft-verifier", file = "rust-toolchain.toml", pattern = '"{value}",' }]
+
+[[fact]]
+id = "target.linux.riscv64"
+value = "riscv64gc-unknown-linux-gnu"
+kind = "decision"
+status = "decided"
+note = "Supported target: riscv64 Linux"
+code = [{ repo = "weft-verifier", file = "rust-toolchain.toml", pattern = '"{value}",' }]
+
+[[fact]]
+id = "target.mcu.thumbv6m"
+value = "thumbv6m-none-eabi"
+kind = "decision"
+status = "decided"
+note = "Supported target: Cortex-M0/M0+"
+code = [{ repo = "weft-verifier", file = "rust-toolchain.toml", pattern = '"{value}",' }]
+
+[[fact]]
+id = "target.mcu.thumbv7em"
+value = "thumbv7em-none-eabihf"
+kind = "decision"
+status = "decided"
+note = "Supported target: Cortex-M4F/M7"
+code = [{ repo = "weft-verifier", file = "rust-toolchain.toml", pattern = '"{value}",' }]
+
+[[fact]]
+id = "target.mcu.thumbv8m"
+value = "thumbv8m.main-none-eabihf"
+kind = "decision"
+status = "decided"
+note = "Supported target: Cortex-M33"
+code = [{ repo = "weft-verifier", file = "rust-toolchain.toml", pattern = '"{value}",' }]
+
+[[fact]]
+id = "target.mcu.riscv32imc"
+value = "riscv32imc-unknown-none-elf"
+kind = "decision"
+status = "decided"
+note = "Supported target: RISC-V without atomics (ESP32-C3)"
+code = [{ repo = "weft-verifier", file = "rust-toolchain.toml", pattern = '"{value}",' }]
+
+[[fact]]
+id = "target.mcu.riscv32imac"
+value = "riscv32imac-unknown-none-elf"
+kind = "decision"
+status = "decided"
+note = "Supported target: RISC-V with atomics (ESP32-C6)"
+code = [{ repo = "weft-verifier", file = "rust-toolchain.toml", pattern = '"{value}",' }]

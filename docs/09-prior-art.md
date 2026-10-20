@@ -155,19 +155,19 @@ models and `weft-boardchecker`. See the hardware test row in [04-decisions.md](0
 
 ## Dev environment and end-to-end tests
 
-Brainstorm (2026-10-20), nothing decided yet. Fault-heavy end-to-end tests (partitions, power loss, clock jumps) need a harness; dev-loop tools only start services.
+Decided 2026-10-20 where marked Adopted (see docs/04, Dev environment and tests). Fault-heavy end-to-end tests (partitions, power loss, clock jumps) need a harness; dev-loop tools only start services.
 
 | Project | Decision | Reason |
 |---|---|---|
-| Tilt | Evaluate (dev loop) | Apache-2.0, maintained; watch/rebuild/restart many services with a UI, multi-repo Tiltfiles. Starts services but can't inject faults or assert on behaviour; `tilt ci` only checks health |
-| devenv + process-compose (+ services-flake) | Evaluate (dev loop) | Apache-2.0 / MIT; Nix-native processes and services, no Docker needed, `devenv test`; fits the existing Nix setup |
-| Docker Compose (watch) | Evaluate (dev loop) | Simplest service orchestration; needs Docker |
+| Tilt | Adopted (planned, dev loop) | Apache-2.0, maintained; watch/rebuild/restart many services with a UI on Linux, macOS and Windows; multi-repo Tiltfiles. Compose backend first, Kubernetes profile later. Starts services but cannot inject faults or assert behaviour, so tests live elsewhere |
+| devenv + process-compose (+ services-flake) | Rejected (as main dev loop) | Apache-2.0 / MIT and Nix-native, but Nix runs on Windows only via WSL2; Nix stays optional |
+| Docker Compose | Adopted (planned, Tilt backend) | Simplest orchestration of the dev services; same OCI images as a later Helm chart |
 | Skaffold, Garden, DevSpace | Rejected | Kubernetes-centred dev loops; weft's backend does not need Kubernetes |
 | NixOS VM tests (nixosTest) | Evaluate (system e2e) | Several VMs on virtual networks, scripted link cuts, `crash()` for real power loss, reboots; runs in CI with KVM. Python scripts, NixOS guests |
 | Containerlab | Evaluate (topology e2e) | BSD-3; topologies of containers/VMs from YAML with netem impairments; good for T1–T7 |
 | CORE (Common Open Research Emulator) | Rejected (for now) | BSD-2 network emulator; Containerlab is more active |
-| Shadow | Evaluate (later, large-scale pub/sub) | Permissive (BSD-style); runs real binaries in a discrete-event network simulation with simulated time; deterministic |
-| turmoil | Evaluate (deterministic simulation) | MIT, tokio; hosts, links, partitions and time in one process with seeds; for agent and document sync logic |
+| Shadow | Evaluate (later, system scale) | BSD-style; runs unmodified binaries (zenohd, mosquitto, agent) on a simulated network with simulated time, deterministic; Linux only, some syscalls unsupported. For real-protocol tests with hundreds of nodes |
+| turmoil | Adopted (planned, deterministic simulation) | MIT, tokio; simulated hosts, TCP/UDP, partitions and time in one process, seeded; runs in `cargo test` on all platforms. Only for weft's own code behind the Transport and clock abstractions; cannot run zenohd or other binaries |
 | madsim | Rejected (for now) | Apache-2.0 deterministic simulator; less active than turmoil |
 | LazyFS | Evaluate (crash consistency) | FUSE filesystem that loses unsynced writes on command; tests the persistence protocol (docs/11). Licence to verify |
 | dm-log-writes / dm-flakey | Evaluate (crash consistency) | Kernel device-mapper targets for replaying writes and simulating failing disks |
@@ -177,6 +177,13 @@ Brainstorm (2026-10-20), nothing decided yet. Fault-heavy end-to-end tests (part
 | labgrid | Evaluate (real hardware lab) | LGPL-2.1 (to verify), Python/pytest; controls power, serial and SD muxing of real boards (docs/17) |
 | LAVA | Rejected | AGPL-3.0 board farm; heavier than labgrid for one developer |
 | Renode | See above | Already rejected for board simulation; could be revisited for networks of MCUs (M1/M2 fleets) |
+| kind, k3d, minikube | Evaluate (later, Kubernetes profile) | Apache-2.0 / MIT / Apache-2.0 local clusters; k3d runs k3s, the distribution edge sites use |
+| Rancher Desktop | Adopted (recommended runtime) | Apache-2.0; containers plus optional k3s on Linux, macOS and Windows |
+| Podman Desktop | Adopted (recommended runtime) | Apache-2.0; daemonless containers on all three platforms |
+| Docker Desktop | Integrate | Works, but needs a paid subscription in larger companies |
+| Lima, WSL2 | Adopted (tier 2 on macOS/Windows) | Linux VMs for the Linux-only tests |
+| Chaos Mesh, LitmusChaos | Evaluate (later, with the Kubernetes profile) | Kubernetes-native partitions, delay, clock skew (TimeChaos), IO faults |
+| KubeVirt | Rejected | VMs as Kubernetes pods; too heavy for simulated devices |
 
 ## Project infrastructure
 

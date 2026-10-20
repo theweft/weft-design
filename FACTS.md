@@ -127,6 +127,19 @@ Key values, decisions and assumptions of weft. The source of truth is [facts.tom
 |---|---|---|---|---|
 | `survey.esp32_share` | 38% | external | draft | Share of developers using ESP32 (JetBrains State of Embedded 2025) ([source](https://lp.jetbrains.com/the-state-of-embedded-2025), checked 2026-10-17) |
 
+## target
+
+| Id | Value | Kind | Status | Note |
+|---|---|---|---|---|
+| `target.linux.x86_64` | x86_64-unknown-linux-gnu | decision | decided | Supported target: x86-64 Linux |
+| `target.linux.aarch64` | aarch64-unknown-linux-gnu | decision | decided | Supported target: arm64 Linux |
+| `target.linux.riscv64` | riscv64gc-unknown-linux-gnu | decision | decided | Supported target: riscv64 Linux |
+| `target.mcu.thumbv6m` | thumbv6m-none-eabi | decision | decided | Supported target: Cortex-M0/M0+ |
+| `target.mcu.thumbv7em` | thumbv7em-none-eabihf | decision | decided | Supported target: Cortex-M4F/M7 |
+| `target.mcu.thumbv8m` | thumbv8m.main-none-eabihf | decision | decided | Supported target: Cortex-M33 |
+| `target.mcu.riscv32imc` | riscv32imc-unknown-none-elf | decision | decided | Supported target: RISC-V without atomics (ESP32-C3) |
+| `target.mcu.riscv32imac` | riscv32imac-unknown-none-elf | decision | decided | Supported target: RISC-V with atomics (ESP32-C6) |
+
 ## toolchain
 
 | Id | Value | Kind | Status | Note |

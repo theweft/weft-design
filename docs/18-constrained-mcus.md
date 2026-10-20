@@ -37,6 +37,19 @@ Rules:
 - The class is part of the device description, and the inventory shows "verified by proxy X" for M2/M3 (docs/13 rule 8).
 - For M3 the proxy is fully trusted. Security there comes from the local bus being isolated (conduits). That must be documented for IEC 62443.
 
+### 2.1 Architectures (2026-10-20)
+
+| Family | Typical chips | Rust target | Role in weft |
+|---|---|---|---|
+| Cortex-M0/M0+ | RP2040, STM32G0/C0/L0, SAMD21, nRF51 | `thumbv6m-none-eabi` (in CI) | M2 (`weft-directive`); M1 where RAM allows (RP2040: 264 KB) |
+| Cortex-M4F/M7 | STM32F4/H7, nRF52, i.MX RT | `thumbv7em-none-eabihf` (in CI) | M1/M2 |
+| Cortex-M33 (and M55 subset) | STM32U5/H5, nRF54, i.MX 93's M33 | `thumbv8m.main-none-eabihf` (in CI) | M1, TrustZone-M |
+| RISC-V without atomics | ESP32-C3, many low-cost parts | `riscv32imc-unknown-none-elf` (in CI) | M1/M2 |
+| RISC-V with atomics | ESP32-C6/H2, GD32VF103 | `riscv32imac-unknown-none-elf` (in CI) | M1/M2 |
+| Xtensa | ESP32, ESP32-S3 | Espressif fork only | Best effort later, not CI-blocking |
+| Cortex-R | TI Hercules, R5/R52 safety MCUs | `armv7r`/`armv8r` targets exist | Later, on demand |
+| AVR, PIC, 8051, MSP430, Renesas RX/RL78, TI C2000, AURIX | Arduino-class and fixed-function controllers, motor control, automotive | None, or no usable upstream Rust | M3/M0: flashed and read by a proxy (Modbus, CAN, UART). An ATmega328 has 2 KB RAM and 32 KB flash; a signature check would take seconds and most of the flash |
+
 ## 3. Crypto on small MCUs
 
 ### 3.1 Verification only, if possible

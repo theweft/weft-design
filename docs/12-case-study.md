@@ -241,11 +241,16 @@ New requirements and priority changes. All **[J]**, to be confirmed and then mov
 2. **Component ordering.** Charging and energy need "update A before B" and "only activate A and B together". This is an executor-side plan from signed dependencies in the deployment document. The verifier only checks that they were signed. Today this is a gap.
 3. **Domain-protocol coexistence.** OCPP, IEEE 2030.5 and DNP3 already carry their own firmware or config commands. weft should provide adapters that turn such commands into signed weft documents (or refuse them), rather than ignore them.
 4. **Modbus first.** The first adapter demo should be Modbus RTU/TCP to *weft pub/sub* (the weft envelope and topic namespace), not to one transport. The same adapter then runs over Zenoh, MQTT or NATS by configuration. It covers the most industries. OPC UA comes second. See §6 for how gateways do this today.
-5. **Targets** (decided 2026-10-18):
+5. **Targets** (decided 2026-10-18, extended 2026-10-20):
    - x86-64, arm64 and riscv64 for Linux;
-   - Cortex-M4F/M7 (`thumbv7em`), Cortex-M33 (`thumbv8m.main`) and RISC-V MCUs (`riscv32imac`, e.g. ESP32-C3/C6) for bare metal.
+   - for bare metal:
+     - Cortex-M0/M0+ (`thumbv6m`);
+     - Cortex-M4F/M7 (`thumbv7em`);
+     - Cortex-M33 (`thumbv8m.main`);
+     - RISC-V without atomics (`riscv32imc`, e.g. ESP32-C3);
+     - RISC-V with atomics (`riscv32imac`, e.g. ESP32-C6).
 
-   weft-verifier CI builds all six. Xtensa ESP32s (ESP32, S3) need Espressif's forked toolchain and are out of scope for now.
+   weft-verifier CI builds all eight. Xtensa ESP32s (ESP32, S3) need Espressif's forked toolchain and are best effort later. 8/16-bit and proprietary architectures (AVR, PIC, 8051, MSP430, Renesas RX/RL78, TI C2000, AURIX) run no weft code; they are M3/M0 devices behind a proxy (docs/18 §2.1).
 6. **Hardware reference set for CI and demos:**
    - i.MX93 or i.MX8M Plus;
    - Raspberry Pi CM5 (cheap, widely available);

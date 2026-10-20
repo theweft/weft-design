@@ -57,6 +57,28 @@ direction, not frozen. Each item can be revisited with a short rationale.
 Logo (2×2 weave), colours (indigo and amber), wordmark (Inter) and lockups: decided, with rejected
 alternatives and rationale, in [19-brand.md](19-brand.md).
 
+## Dev environment and tests
+
+Decided 2026-10-20:
+
+- **Platforms in two tiers.**
+  - **Tier 1, native on Linux, macOS and Windows:** rustup (reads `rust-toolchain.toml`), `just`, `cargo test` including deterministic simulations, the CLI, and the agent's logic. CI runs tier 1 on all three operating systems.
+  - **Tier 2, Linux only:** VM, network and filesystem fault tests. On macOS they run in a Linux VM (Lima, OrbStack, UTM); on Windows in WSL2.
+  - **Nix is optional.** It is a convenience and the CI environment, not a requirement.
+  - **Justfile rule:** no bash constructs in recipes, so that tier 1 works on Windows. Use parameterized dependencies instead of shell loops.
+- **Dev loop: Tilt** with Docker Compose or local processes as the backend.
+  - Container runtime: Podman Desktop or Rancher Desktop recommended; Docker Desktop needs a paid subscription in larger companies.
+  - Kubernetes is not required. A second Tilt profile (`--backend=k8s`, k3d or Rancher Desktop's k3s) comes once there is a multi-replica cloud backend or adopters ask for Helm charts.
+  - Every service is an OCI image with health checks, configured through files and environment variables, so Compose and Kubernetes can use the same images.
+- **Test layers:**
+  1. unit and integration tests per repository;
+  2. **deterministic simulation (turmoil)** of weft's own async code: agent, document sync, store and forward. Seeded, all platforms, many runs per CI job;
+  3. crash consistency with LazyFS (persistence protocol, docs/11);
+  4. system end-to-end tests with NixOS VM tests (power loss, reboots, USB flow), and Containerlab for topologies T1–T7;
+  5. weft-sim for drivers and hardware access;
+  6. later: Shadow (real binaries such as zenohd at scale, simulated network and time) and labgrid (real hardware lab).
+- **Repository:** a new `weft-lab` repository will hold the Tiltfile and the end-to-end scenarios across repositories. It is created once there is a second running component (agent or CLI).
+
 ## Board simulation (weft-sim)
 
 Decided 2026-10-18, prototype working (one chip, x86-64 guest):
