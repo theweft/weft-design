@@ -153,6 +153,31 @@ models and `weft-boardchecker`. See the hardware test row in [04-decisions.md](0
 | embedded-hal 1.0 | Adopted (weft-parts) | Standard Rust I2C trait; the simulated bus implements it, so Rust MCU drivers run against the chip models on the host |
 | ads1x1x, mcp4728, eeprom24x (crates) | Adopted (test oracles in weft-parts) | Independent drivers for the modelled chips; the models must satisfy them, not only weft's own reading of the datasheets |
 
+## Dev environment and end-to-end tests
+
+Brainstorm (2026-10-20), nothing decided yet. Fault-heavy end-to-end tests (partitions, power loss, clock jumps) need a harness; dev-loop tools only start services.
+
+| Project | Decision | Reason |
+|---|---|---|
+| Tilt | Evaluate (dev loop) | Apache-2.0, maintained; watch/rebuild/restart many services with a UI, multi-repo Tiltfiles. Starts services but can't inject faults or assert on behaviour; `tilt ci` only checks health |
+| devenv + process-compose (+ services-flake) | Evaluate (dev loop) | Apache-2.0 / MIT; Nix-native processes and services, no Docker needed, `devenv test`; fits the existing Nix setup |
+| Docker Compose (watch) | Evaluate (dev loop) | Simplest service orchestration; needs Docker |
+| Skaffold, Garden, DevSpace | Rejected | Kubernetes-centred dev loops; weft's backend does not need Kubernetes |
+| NixOS VM tests (nixosTest) | Evaluate (system e2e) | Several VMs on virtual networks, scripted link cuts, `crash()` for real power loss, reboots; runs in CI with KVM. Python scripts, NixOS guests |
+| Containerlab | Evaluate (topology e2e) | BSD-3; topologies of containers/VMs from YAML with netem impairments; good for T1–T7 |
+| CORE (Common Open Research Emulator) | Rejected (for now) | BSD-2 network emulator; Containerlab is more active |
+| Shadow | Evaluate (later, large-scale pub/sub) | Permissive (BSD-style); runs real binaries in a discrete-event network simulation with simulated time; deterministic |
+| turmoil | Evaluate (deterministic simulation) | MIT, tokio; hosts, links, partitions and time in one process with seeds; for agent and document sync logic |
+| madsim | Rejected (for now) | Apache-2.0 deterministic simulator; less active than turmoil |
+| LazyFS | Evaluate (crash consistency) | FUSE filesystem that loses unsynced writes on command; tests the persistence protocol (docs/11). Licence to verify |
+| dm-log-writes / dm-flakey | Evaluate (crash consistency) | Kernel device-mapper targets for replaying writes and simulating failing disks |
+| Toxiproxy, Pumba | Evaluate (fault injection) | MIT / Apache-2.0; TCP faults and container netem/kill/pause |
+| testcontainers-rs | Evaluate (integration tests) | Apache-2.0; brokers, registries and databases from Rust tests |
+| Jepsen | Ideas | EPL-1.0, Clojure; the reference for partition and clock-skew testing of distributed systems; we adopt its fault model |
+| labgrid | Evaluate (real hardware lab) | LGPL-2.1 (to verify), Python/pytest; controls power, serial and SD muxing of real boards (docs/17) |
+| LAVA | Rejected | AGPL-3.0 board farm; heavier than labgrid for one developer |
+| Renode | See above | Already rejected for board simulation; could be revisited for networks of MCUs (M1/M2 fleets) |
+
 ## Project infrastructure
 
 Direction (2026-10-18): the project's own infrastructure (DNS, mail authentication, website
