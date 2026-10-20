@@ -91,6 +91,7 @@ System requirements are in [requirements/system.sdoc](requirements/system.sdoc) 
 - [docs/17-test-lab-and-funding.md](docs/17-test-lab-and-funding.md): hardware for tests and benchmarks with rough costs, and funding options.
 - [docs/18-constrained-mcus.md](docs/18-constrained-mcus.md): how small MCUs take part: classes M0–M3, crypto (P-256, LMS), OTA via proxy and bootloader.
 - [docs/19-brand.md](docs/19-brand.md): logo, colours and type: what was decided, what was rejected and why.
+- [docs/20-agent.md](docs/20-agent.md): weft-agent: three processes, crates, authentication, OTA flow, first simulation milestone.
 
 ## How weft is made
 
