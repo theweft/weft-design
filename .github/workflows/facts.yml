@@ -25,6 +25,11 @@ jobs:
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
+          repository: theweft/weft-cli
+          path: weft-cli
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
           repository: theweft/weft-agent
           path: weft-agent
           persist-credentials: false

@@ -189,8 +189,26 @@ Margo and FLECS (workload layer only; FLECS is open-core, implements Margo); Via
 
 ## Next steps
 
-1. Prototype: Mosquitto client on device A ↔ native Zenoh app on device B (peer-to-peer) ↔ existing
-   Mosquitto broker in "cloud" via the Zenoh MQTT plugin.
-2. Deep evaluation: thin-edge.io, SWUpdate, Flight Control, Mender, Eclipse Kanto/Ankaios, Zenoh security model, hawkBit, Margo PR spec.
-3. Draft the desired-state document format and trust model (first mandatory contract).
-4. Set up project hygiene for certifiability from day one: SECURITY.md + disclosure policy, OpenSSF Scorecard and Best Practices badge, SBOM/provenance in CI; evaluate hosting under a foundation (Eclipse ORC working group for CRA).
+Updated 2026-10-22. **L1 (trust) first**: signed documents, the verifier and an executor, usable with an adopter's own messaging and OTA. weft's own communication is L3 and comes after.
+
+Done:
+
+- desired-state document format and trust model (`weft-verifier` 0.0.3);
+- document sync and decider, tested in a deterministic simulation (`weft-agent` 0.0.1, docs/20);
+- **operator tool `weft-cli`** 0.0.1: keys, delegations, config, deployments, revocations, inspect, and a dry run that fails on conflicts;
+- project hygiene: SECURITY.md, private vulnerability reporting, requirements as code.
+
+L1, in order:
+
+1. **Atomic file state store** in the decider (docs/11: temp file, fsync, rename, fsync the directory); SYS-006 becomes Active. Power-loss tests with turmoil's simulated filesystem.
+2. **Inbox and outbox directories:** documents arrive as files (USB stick, or dropped by the adopter's own transport); reported state and conflicts are written as files.
+3. **Executor, first backends:** atomic config-file write with an optional reload hook; `Install` through a hook command that hands digest and path to the adopter's own OTA tool.
+4. **Process separation** of decider and executor (IPC, gap G10) with sandboxing.
+5. **End-to-end test** as a NixOS VM test: signed config on a "USB stick" applied offline, conflicts reported, power cut during apply.
+
+After L1:
+
+- L2: SWUpdate, bootc and Podman backends; activation gates.
+- L3: Zenoh and MQTT transport adapters (the Mosquitto ↔ Zenoh ↔ broker prototype); Shadow for scale tests.
+- Deep evaluations: thin-edge.io, SWUpdate, Flight Control, Mender, Eclipse Kanto/Ankaios, hawkBit, Margo.
+- Hygiene: OpenSSF Scorecard and Best Practices badge, SBOM and provenance in CI, actions pinned to commit SHAs; foundation hosting (Eclipse ORC working group for CRA).
