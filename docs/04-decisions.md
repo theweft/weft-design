@@ -203,7 +203,7 @@ L1, in order:
 1. ~~**Atomic file state store**~~ done 2026-10-22: `weft_decider::FileStore` (temp file, fsync, rename, fsync the directory; checksummed), SYS-006 Active. Power cuts at every point of a save on turmoil's simulated filesystem: no acknowledged state lost in 300 runs; without fsync, 300 of 300 lost one.
 2. ~~**Inbox and outbox directories**~~ done 2026-10-22: the `weft-agent` binary reads documents from an inbox (read-only, e.g. a USB stick), stores them before deciding (`<state>/documents/`), and writes `outbox/report.json` after every round. SYS-008 and SYS-020 Active.
 3. ~~**Executor, first backends**~~ done 2026-10-22: config as `<config-dir>/<component>.json` (atomic, path-safe) plus `--on-config`; `Install` through `--on-install` with the digest in an environment variable; executed results persisted (at least once). End-to-end test: USB stick, restart without the stick, tie, forged document, failing hook.
-4. **Process separation** of decider and executor (IPC, gap G10) with sandboxing.
+4. ~~**Process separation**~~ done 2026-10-22: `weft-agent decider` (unprivileged, no network, read-only system via systemd) and `weft-agent executor` (privileged) over a Unix socket with typed, bounded CBOR requests; the executor re-checks hashes and paths and runs only its own hooks. SYS-003 Active.
 5. **End-to-end test** as a NixOS VM test: signed config on a "USB stick" applied offline, conflicts reported, power cut during apply.
 
 After L1:

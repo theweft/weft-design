@@ -99,7 +99,7 @@ STANDARDS: IEC 62443-4-2 CR 2.1
 
 [REQUIREMENT]
 UID: SYS-003
-STATUS: Draft
+STATUS: Active
 VERIFICATION: Test
 TITLE: Separate, minimal executor
 STATEMENT: >>>

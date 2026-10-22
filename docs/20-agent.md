@@ -21,7 +21,8 @@ The network-facing code may prove who it is, but it never decides anything:
 - The decider has no network and no privileges. Its only input is bytes, and its only output is typed instructions.
 - The executor parses no untrusted formats and accepts a fixed, small command set.
 - Sandboxing uses what the OS already has: separate users, systemd hardening options, seccomp, Landlock, read-only file systems.
-- The IPC between the processes is gap G10. Candidate: CBOR messages over Unix sockets, with peer credentials checked.
+- **Decider ↔ executor IPC (decided 2026-10-22):** length-prefixed frames of deterministic CBOR (at most 1 MiB) over a Unix socket. Two requests only: `[0, component, hash, config]` and `[1, component, artifact]`; responses `[0]` or `[1, error]`. Access through the socket's permissions (`/run/weft` root:weft 0750, socket 0660). Peer credentials (SO_PEERCRED) are not checked yet: std's API is unstable and it would need a dependency; the directory permissions are the boundary for now.
+- The plugin interface (adapters, OTA backends as separate processes) is still open (G10).
 
 ## 2. Repository layout (Cargo workspace)
 
@@ -133,7 +134,7 @@ Built in [weft-agent](https://github.com/theweft/weft-agent): `weft-transport` (
 The `weft-agent` binary runs without weft networking:
 
 - inbox directory → document store (written before deciding) → decider (state saved before acting, `FileStore`) → executor (config files, install hook) → `report.json`;
-- the transport, decider and executor still run in one process; separating them (§1) is the next L1 step.
+- decider and executor run as separate processes (`weft-agent decider` / `executor`) or together (`weft-agent run`); systemd units in weft-agent `dist/systemd/`.
 
 ## 6. Open points
 

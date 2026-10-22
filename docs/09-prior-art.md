@@ -161,6 +161,9 @@ Decided 2026-10-20 where marked Adopted (see docs/04, Dev environment and tests)
 |---|---|---|
 | Tilt | Adopted (planned, dev loop) | Apache-2.0, maintained; watch/rebuild/restart many services with a UI on Linux, macOS and Windows; multi-repo Tiltfiles. Compose backend first, Kubernetes profile later. Starts services but cannot inject faults or assert behaviour, so tests live elsewhere |
 | devenv + process-compose (+ services-flake) | Rejected (as main dev loop) | Apache-2.0 / MIT and Nix-native, but Nix runs on Windows only via WSL2; Nix stays optional |
+| systemd service sandboxing | Adopted (weft-agent decider) | NoNewPrivileges, PrivateNetwork, ProtectSystem=strict, RestrictAddressFamilies, SystemCallFilter, empty CapabilityBoundingSet: what the OS already has (docs/07 §2) |
+| Landlock (landlock crate) | Evaluate (later) | In-process filesystem sandbox for the decider, independent of systemd; MIT/Apache-2.0 |
+| SO_PEERCRED (rustix) | Evaluate (later) | Check the decider's uid on the executor socket; std's `peer_cred` is unstable, rustix would be a new dependency |
 | Docker Compose | Adopted (planned, Tilt backend) | Simplest orchestration of the dev services; same OCI images as a later Helm chart |
 | Skaffold, Garden, DevSpace | Rejected | Kubernetes-centred dev loops; weft's backend does not need Kubernetes |
 | NixOS VM tests (nixosTest) | Evaluate (system e2e) | Several VMs on virtual networks, scripted link cuts, `crash()` for real power loss, reboots; runs in CI with KVM. Python scripts, NixOS guests |
