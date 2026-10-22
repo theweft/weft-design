@@ -167,9 +167,9 @@ Decided 2026-10-20 where marked Adopted (see docs/04, Dev environment and tests)
 | Containerlab | Evaluate (topology e2e) | BSD-3; topologies of containers/VMs from YAML with netem impairments; good for T1–T7 |
 | CORE (Common Open Research Emulator) | Rejected (for now) | BSD-2 network emulator; Containerlab is more active |
 | Shadow | Evaluate (later, system scale) | BSD-style; runs unmodified binaries (zenohd, mosquitto, agent) on a simulated network with simulated time, deterministic; Linux only, some syscalls unsupported. For real-protocol tests with hundreds of nodes |
-| turmoil | Adopted (planned, deterministic simulation) | MIT, tokio; simulated hosts, TCP/UDP, partitions and time in one process, seeded; runs in `cargo test` on all platforms. Only for weft's own code behind the Transport and clock abstractions; cannot run zenohd or other binaries |
+| turmoil | Adopted (weft-agent simulations) | MIT, tokio; simulated hosts, TCP/UDP, partitions and time in one process, seeded; runs in `cargo test` on all platforms. Only for weft's own code behind the Transport and clock abstractions; cannot run zenohd or other binaries. Its simulated filesystem (`unstable-fs`) also tests power loss |
 | madsim | Rejected (for now) | Apache-2.0 deterministic simulator; less active than turmoil |
-| LazyFS | Evaluate (crash consistency) | FUSE filesystem that loses unsynced writes on command; tests the persistence protocol (docs/11). Licence to verify |
+| LazyFS | Evaluate (later, real filesystems) | FUSE filesystem that loses unsynced writes on command. For now turmoil's simulated filesystem (`unstable-fs`) tests the persistence protocol deterministically, including power cuts in the middle of a save; LazyFS would add real filesystem behaviour. Licence to verify |
 | dm-log-writes / dm-flakey | Evaluate (crash consistency) | Kernel device-mapper targets for replaying writes and simulating failing disks |
 | Toxiproxy, Pumba | Evaluate (fault injection) | MIT / Apache-2.0; TCP faults and container netem/kill/pause |
 | testcontainers-rs | Evaluate (integration tests) | Apache-2.0; brokers, registries and databases from Rust tests |

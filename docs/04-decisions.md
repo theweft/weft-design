@@ -200,7 +200,7 @@ Done:
 
 L1, in order:
 
-1. **Atomic file state store** in the decider (docs/11: temp file, fsync, rename, fsync the directory); SYS-006 becomes Active. Power-loss tests with turmoil's simulated filesystem.
+1. ~~**Atomic file state store**~~ done 2026-10-22: `weft_decider::FileStore` (temp file, fsync, rename, fsync the directory; checksummed), SYS-006 Active. Power cuts at every point of a save on turmoil's simulated filesystem: no acknowledged state lost in 300 runs; without fsync, 300 of 300 lost one.
 2. **Inbox and outbox directories:** documents arrive as files (USB stick, or dropped by the adopter's own transport); reported state and conflicts are written as files.
 3. **Executor, first backends:** atomic config-file write with an optional reload hook; `Install` through a hook command that hands digest and path to the adopter's own OTA tool.
 4. **Process separation** of decider and executor (IPC, gap G10) with sandboxing.

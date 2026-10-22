@@ -135,7 +135,7 @@ STANDARDS: IEC 62443-4-2 CR 3.4; CRA Annex I Part I 2(c)
 
 [REQUIREMENT]
 UID: SYS-006
-STATUS: Draft
+STATUS: Active
 VERIFICATION: Test
 TITLE: Persist before acting
 STATEMENT: >>>
