@@ -135,6 +135,8 @@ The `weft-agent` binary runs without weft networking:
 
 - inbox directory → document store (written before deciding) → decider (state saved before acting, `FileStore`) → executor (config files, install hook) → `report.json`;
 - decider and executor run as separate processes (`weft-agent decider` / `executor`) or together (`weft-agent run`); systemd units in weft-agent `dist/systemd/`.
+- tested end to end in a NixOS VM with the shipped units, USB sticks and a real power cut (weft-agent `tests/vm/l1.nix`).
+- **Hook contract:** hooks run with `/bin/sh -c`, get document values only as environment variables, run at least once, and must exit successfully only once their effect is durable.
 
 ## 6. Open points
 
