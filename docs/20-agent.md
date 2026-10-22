@@ -128,6 +128,13 @@ Built in [weft-agent](https://github.com/theweft/weft-agent): `weft-transport` (
    - **Before:** weft-verifier reported `Revoked` for any document that *claimed* a revoked key id, and for delegations to revoked keys it reported `Unauthorized`.
    - **Now:** `Revoked` means "validly signed by a key that is now revoked". The verifier remembers revoked keys it can verify (revoked anchors, subjects of validly signed delegations); a forged claim is `BadSignature`, an unverifiable one `UnknownSigner` (VER-012).
 
+### L1 agent (2026-10-22)
+
+The `weft-agent` binary runs without weft networking:
+
+- inbox directory → document store (written before deciding) → decider (state saved before acting, `FileStore`) → executor (config files, install hook) → `report.json`;
+- the transport, decider and executor still run in one process; separating them (§1) is the next L1 step.
+
 ## 6. Open points
 
 - G10: the IPC between processes and to plugins.

@@ -159,7 +159,7 @@ STANDARDS: IEC 62443-4-2 CR 2.11
 
 [REQUIREMENT]
 UID: SYS-008
-STATUS: Draft
+STATUS: Active
 VERIFICATION: Test
 TITLE: Reported state in weft terms
 STATEMENT: >>>
@@ -290,7 +290,7 @@ TITLE: Offline and topology
 
 [REQUIREMENT]
 UID: SYS-020
-STATUS: Draft
+STATUS: Active
 VERIFICATION: Demonstration
 TITLE: Works without cloud
 STATEMENT: >>>
