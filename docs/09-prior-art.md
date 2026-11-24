@@ -147,8 +147,13 @@ models and `weft-boardchecker`. See the hardware test row in [04-decisions.md](0
 | umockdev | Rejected | Records and replays sysfs and i2c-dev/spidev ioctls; redundant once real drivers run against simulated chips |
 | KiCad + ngspice | Adopted (planned, analog front ends) | SPICE simulation of ADC inputs and DAC outputs inside the existing design tool; digital buses are out of scope |
 | SimulIDE, Proteus VSM | Rejected | Schematic plus firmware co-simulation, but limited MCU support (Proteus is commercial); no Linux host |
-| atopile | Rejected (for now) | Hardware as code with typed I2C/SPI interfaces; would replace schematic capture to get checks weft-boardchecker provides |
-| SKiDL | Rejected (for now) | Python-defined netlists; same trade-off as atopile |
+| tscircuit | Evaluate (AI-first schematic as code) | MIT, TypeScript/React, active (checked 2026-11-24); exports KiCad projects and netlists, has an ngspice (WebAssembly) simulation, visual diffs in pull requests and a Claude Code skill. Its own autorouter is beta (clearance violations reported), so layout stays in KiCad. Candidate for designing boards with an AI agent, verified by weft's checks |
+| atopile | Watch | Hardware as code (`.ato`), MIT core with constraint-based part selection and KiCad layout reuse. Checked 2026-11-24: the CLI is announced as ending with 0.15.8 in favour of a hosted app, newer modules (autolayout, agent gateway) ship in the wheel but not in the public repo, telemetry on by default, Python 3.14 only. Too uncertain to build on now |
+| SKiDL | Evaluate (fallback for schematic as code) | MIT, Python; writes KiCad netlists and nothing else, so it is small and stable; no layout, schematic drawing experimental |
+| Quilter, DeepPCB | Evaluate (later, layout of larger boards) | Commercial cloud layout on KiCad files using reinforcement learning against physics or design rules, not LLMs; useful once boards outgrow manual or Freerouting layout |
+| Flux.ai | Rejected | Commercial browser EDA with an AI copilot; designs live in its cloud, not in git |
+| Freerouting | Evaluate (routing simple boards) | GPL-3.0 Java autorouter, run on KiCad's DSN export as an external tool (not linked into weft) |
+| KiCad MCP servers, KiCad IPC API | Evaluate (agent-driven placement) | Let an agent read and edit a KiCad board; KiCad 10 still has no schematic API, so schematics come from code instead |
 | KiBot | Adopted (planned, board CI) | Runs KiCad ERC/DRC and the IPC-2581 export in CI, then weft-boardchecker |
 | dt-schema (dtbs_check) | Adopted (planned, overlay CI) | Validates overlays against kernel bindings; complements weft-boardchecker, which checks them against the PCB |
 | IPC-2581 (rev B/C) | Adopted (weft-boardchecker input) | Open IPC XML standard with netlist, BOM and component placement in one file; exported by KiCad 8+, Altium, Cadence Allegro/OrCAD and Siemens Xpedition. Part numbers only appear if the export maps them |
