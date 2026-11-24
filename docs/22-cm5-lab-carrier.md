@@ -160,8 +160,12 @@ the 4.0 mm stacking connector (Amphenol 10164227-1004A1RLF: 2.5 mm clearance und
 instead of none with the 1.5 mm part), and pogo pins short enough for that gap. The supervisor
 uses TP35/TP36 as the boot console and, when enabled, as SWD (both on the same two lines, which
 the RP2350 can switch between; Raspberry Pi's Debug Probe firmware already does CMSIS-DAP and UART
-on this chip family), RUN (hold in reset without a power cut) and nRESET_OUT (see every reset); the
-rest go to a header for probing. The datasheet warns that component positions may change slightly
+on this chip family), RUN (hold in reset without a power cut) and nRESET_OUT (see every reset).
+
+**Every named test point** (including TP48 to TP52) gets a pogo pin and a labelled pin on a
+"module test points" header, so it can be probed or wired by hand. The test points the datasheet
+calls "reserved" get pogo footprints that are **not fitted by default**: their nets are
+undocumented, and a contact could load an unknown signal; fit them one at a time to explore. The datasheet warns that component positions may change slightly
 between module revisions, so the pogo pins need tolerance and the footprint is checked against the
 module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the base plate.
 
