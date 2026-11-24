@@ -21,11 +21,16 @@ candidates until checked against datasheets and stock. Nothing is laid out yet.
 | Size | **Larger than the IO Board** where the headers, supervisor and base need it | Probing room matters more than fitting the IO Board case |
 | Base | **A stable base plate** under the board (§4) | It sits on a table and stays put; no loose cables |
 | Signals on the module itself | **Reached too**: the test points on the CM5's underside (debug UART/SWD, the PMIC's I2C bus, internal supply rails, status outputs) through pogo pins, using the 4.0 mm stacking connector; the U.FL antenna through a pigtail to the base (§3.4) | The boot console, SoC debug, the PMIC bus and the internal rails exist only there |
+| HDMI capture | **A USB capture stick on an internal hub port**, fed through a 1:2 HDMI switch (2026-11-24, maintainer) | A capture chip is a hard high-speed layout for little gain |
+| USB device emulation into the CM5 | **A second RP2350** on one of the CM5's USB ports: keyboard, mass storage (2026-11-24, maintainer) | The supervisor's one USB controller faces the PC |
+| Fabrication | **The cheapest maker that does 4-layer impedance control and assembly**, today JLCPCB; parts from its assembly library where possible (2026-11-24, maintainer) | Price decides; the design stays maker-neutral (KiCad, KiBot outputs) |
 | Licence | **CERN-OHL-P-2.0** for the hardware design files, **MIT** for firmware and scripts | CERN-OHL-P is the permissive licence written for hardware; weft code stays MIT |
 
 The IO Board's design files may be used, modified and distributed (Raspberry Pi's licensing page,
-docs/21 §6); its bundled 3D models stay out. Its stackup is kept: 4 layers, 0.09 mm prepreg
-between the outer and inner layers, which its impedance-controlled pairs rely on.
+docs/21 §6); its bundled 3D models stay out. Its stackup is 4 layers with 0.09 mm prepreg between
+the outer and inner layers, which its impedance-controlled pairs rely on. The carrier uses the
+maker's nearest standard 4-layer stackup and recomputes the pair widths for it (90 Ω USB, 100 Ω
+HDMI, MIPI, PCIe and Ethernet).
 
 ## 2. Requirements
 
@@ -90,8 +95,11 @@ Decided (2026-11-24, maintainer): **the carrier negotiates 5 V itself**, so it c
 off its supply completely without losing the PD contract. A **PD sink controller with dead-battery
 support** (its CC termination stays when unpowered), powered from VBUS before the switch, holds the
 contract; the CM5's CC pins stay unconnected and the CM5 is told the supply's capacity in software
-(`PSU_MAX_CURRENT` in the bootloader configuration). To verify on hardware: that the CM5 boots
-with CC unconnected and accepts the setting.
+(`PSU_MAX_CURRENT=5000` in the bootloader configuration). This is documented: the CM5 datasheet
+says CC1/CC2 are used only to negotiate 5 V/5 A; the CM5 IO Board datasheet names
+`PSU_MAX_CURRENT=5000` for supplies that do not negotiate; Raspberry Pi's USB PD white paper says
+the setting skips PD negotiation and enables the full USB current. On the CM5, unlike the Pi 5,
+USB boot is not restricted without 5 A (Raspberry Pi engineer on the forum, thread 385218).
 
 The supervisor is powered from the "lab" USB-C (always present when an agent is connected) and,
 OR-ed, from the power input before the switch, so it keeps running across CM5 power cuts.
@@ -136,8 +144,8 @@ Firmware in Rust, with an agent interface over USB (a small command protocol, th
 driver) and USB serial ports for the consoles.
 
 The supervisor cannot be a second USB device towards the CM5 (its one USB controller faces the
-PC). Keyboard or mass-storage emulation into the CM5 would need a second small MCU on one of the
-CM5's USB ports; left as an option.
+PC). Keyboard and mass-storage emulation into the CM5 come from a second RP2350 on one of the
+CM5's USB ports, controlled by the supervisor over UART (decided, §1).
 
 ### 3.4 Signals on the module itself
 
@@ -243,7 +251,7 @@ module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the
 | USB hub | 4-port USB 2.0 hub (Microchip USB2514B class) | high speed for rpiboot and capture |
 | USB mux | TS3USB221 class | CM5 OTG to hub or host port |
 | SD mux and reader | TS3A27518E class SD switch; GL823K or USB2244 class card reader | as in USB-SD-Mux designs |
-| HDMI capture | MS2130-class USB capture chip, or a USB capture stick on an internal port | HDMI0 through a passive splitter is not possible; a 1:2 HDMI switch or redriver feeds monitor or capture |
+| HDMI capture | USB capture stick (MS2130 class) on an internal hub port (decided) | HDMI0 through a passive splitter is not possible; a 1:2 HDMI switch or redriver feeds monitor or capture |
 | PD sink | a controller with dead-battery Rd and 5 V/5 A request | see 3.1 |
 | 5 V switch | eFuse in the TPS25947 class: 5 A+, adjustable limit, current monitor, power good | plus a discharge MOSFET |
 | Load switches | TPS22918 class for USB VBUS, M.2 3.3 V, VBAT | supervisor-controlled with the CM5's own enables OR-ed in |
@@ -284,10 +292,8 @@ module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the
 
 ## 6. Open questions
 
-- Verify on hardware that the CM5 boots with CC unconnected and takes `PSU_MAX_CURRENT` (3.1).
 - GPIO translator type (3.6): per-pin direction or auto-direction.
-- HDMI capture: an on-board capture chip or a USB capture stick on an internal hub port.
-- Keyboard and mass-storage emulation into the CM5 (a second MCU, 3.3).
 - How the test point positions vary between CM5 revisions, and the test point pad size (not in the
   datasheet), checked against real modules (3.4).
-- Whether TP48 to TP52 (named as JTAG pins) do anything on production modules.
+- Whether TP48 to TP52 (named as JTAG pins) do anything on production modules: a bring-up test on
+  the first carrier, whose pogo pins reach them.
