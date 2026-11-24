@@ -24,6 +24,8 @@ candidates until checked against datasheets and stock. Nothing is laid out yet.
 | HDMI capture | **A USB capture stick on an internal hub port**, fed through a 1:2 HDMI switch (2026-11-24, maintainer) | A capture chip is a hard high-speed layout for little gain |
 | USB device emulation into the CM5 | **A second RP2350** on one of the CM5's USB ports: keyboard, mass storage (2026-11-24, maintainer) | The supervisor's one USB controller faces the PC |
 | Fabrication | **The cheapest maker that does 4-layer impedance control and assembly**, today JLCPCB; parts from its assembly library where possible (2026-11-24, maintainer) | Price decides; the design stays maker-neutral (KiCad, KiBot outputs) |
+| GPIO path to the supervisor | **Passive FET translators (LSF0108/NVT2008 class) with an enable**, plus switchable supervisor-side pull-ups; both 3.3 V and 1.8 V GPIO banks (2026-11-24, maintainer) | One part isolates the CM5 when it is off (R5), passes 3.3 V straight through and translates 1.8 V; no direction pins, unlike per-pin translators, and full drive, unlike auto-direction ones |
+| Virtual prototyping | **The supervisor emulates peripherals on the GPIOs with weft-parts models** (§3.7) (2026-11-24, maintainer) | The same model serves weft-sim, the carrier and the comparison with the real chip |
 | Licence | **CERN-OHL-P-2.0** for the hardware design files, **MIT** for firmware and scripts | CERN-OHL-P is the permissive licence written for hardware; weft code stays MIT |
 
 The IO Board's design files may be used, modified and distributed (Raspberry Pi's licensing page,
@@ -64,6 +66,9 @@ HDMI, MIPI, PCIe and Ethernet).
   weft-boardchecker and the board simulation run in CI (docs/09, docs/21).
 - **R10 Stable on a table** (§4): base plate, all cables entering at one edge, probing from the
   top and front.
+- **R11 Virtual prototyping.** The supervisor emulates I2C, SPI, UART, PWM and GPIO peripherals on
+  any of the 28 GPIOs, from the same weft-parts chip models the simulation uses, configured by the
+  agent over USB (§3.7).
 
 ## 3. Architecture
 
@@ -109,8 +114,10 @@ OR-ed, from the power input before the switch, so it keeps running across CM5 po
 - Control outputs are **open-drain only** (pull low or release): PMIC_EN, nRPIBOOT, EEPROM_nWP and
   WL/BT_nDisable have pull-ups inside the CM5; PWR_BUT is pulled up to 5 V inside (10 kΩ), so its
   driver must stand 5 V.
-- The GPIO translators and every other signal path into the CM5 **are powered on the CM5 side from
-  GPIO_VREF (or the CM5 rail of that signal) and isolate both sides when either supply is off.**
+- The GPIO translators and every other signal path into the CM5 **are referenced on the CM5 side to
+  GPIO_VREF (or the CM5 rail of that signal) and isolate both sides when either supply is off.** For
+  the LSF-class GPIO translators: the enable is driven by the supervisor and pulled off when
+  GPIO_VREF is absent, and the switchable pull-ups sit on the supervisor side only.
 - Pull-ups on the carrier go to CM5 rails, not to the supervisor's rail.
 - The board simulation checks this rule on the schematic: no driven-high net into a CM5 pin while
   the CM5's 5 V net is off (a finding, docs/21).
@@ -126,7 +133,7 @@ interfaces around the data instead.
 | Power | cut and restore the CM5's 5 V (real power cut), set the current limit, see faults; switch USB 3 VBUS per port, the M.2 3.3 V and the RTC battery; measure all of them | eFuse, discharge switch, load switches, power monitors |
 | Boot and control | PMIC_EN, PWR_BUT, nRPIBOOT, EEPROM_nWP, WL_nDisable, BT_nDisable, in timed sequences | open-drain drivers |
 | GPIO_VREF | choose 3.3 V or 1.8 V signalling, only while the CM5 is off, never floating | supply selector (power mux) |
-| All 28 GPIOs | drive, read and capture each one; emulate peripherals (UART, I2C, SPI targets, a HAT ID EEPROM); logic analyser; fault injection (stuck-at, glitches) | per-pin translators with isolation, on RP2350B PIO pins |
+| All 28 GPIOs | drive, read and capture each one; emulate peripherals (UART, I2C, SPI targets, a HAT ID EEPROM); logic analyser; fault injection (stuck-at, glitches) | LSF-class translators with enable, on RP2350B PIO pins; peripheral emulation in §3.7 |
 | Consoles | CM5 UART0 and any other GPIO UART as USB serial ports | through the GPIO path |
 | Status | LED_nACT, LED_nPWR, VBUS_EN, PCIE_PWR_EN, PCIE_nWAKE, Ethernet LEDs, SYNC_OUT, FAN_PWM; emulate FAN_TACHO | IO expander and translators |
 | USB 2.0 OTG | connect the CM5's OTG port to the PC (rpiboot flashing, gadget mode) or to a host port | USB mux behind the hub |
@@ -256,13 +263,41 @@ module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the
 | 5 V switch | eFuse in the TPS25947 class: 5 A+, adjustable limit, current monitor, power good | plus a discharge MOSFET |
 | Load switches | TPS22918 class for USB VBUS, M.2 3.3 V, VBAT | supervisor-controlled with the CM5's own enables OR-ed in |
 | Power monitors | INA228 on 5 V in; INA3221 or INA228s on 3.3 V, 1.8 V, USB, M.2 | shunts sized for 5 A and 600 mA |
-| GPIO translators | per-pin direction (SN74LXC1T45 class) or auto-direction with isolation (NTS0104/TXS0108E class, which tolerate the CM5's 1.8 kΩ pull-ups on GPIO2/3) | to decide in the schematic: drive strength against simplicity |
+| GPIO translators | TI LSF0108 / NXP NVT2008 class (passive FET, bidirectional, enable), 4 × 8 channels; supervisor-side pull-ups (about 2.2 kΩ) switched by one TPS22918-class load switch, on only in 1.8 V mode | at 3.3 V a plain pass-through; at 1.8 V, edges driven by the CM5 rise through the pull-ups (about 5 to 10 MHz) |
 | I2C translators | PCA9306/TCA9517 class; 5 V on HDMI DDC | |
 | GPIO_VREF select | TPS2116 class supply selector | switches only while the CM5 is off |
 | Ethernet disconnect | TS3L501E class GbE LAN switch | check insertion loss at 1 Gbit/s |
 | IO expanders | TCA6424 class | slow control and status |
 | Module test points | Mill-Max 0906-1-15-20-75-14-11-0 (through-hole spring pin: working height 3.10 to 4.50 mm, 3.80 recommended; 4.496 mm free, 1.397 mm stroke; 1.07 mm gold plunger; 10 g initial, 60 g mid-stroke; active, about 0.75 USD, tens of thousands in stock, checked 2026-11-24) with the 4.0 mm stacking connector 10164227-1004A1RLF | the 4.0 mm gap compresses it about 0.5 mm; check against a real CM5 that no underside part sits over a pin |
 | Reused from the IO Board | DF40 connectors, HDMI, USB 3 switch (AP22653), M.2 buck (AP3441), RJ45 MagJack, ESD (TPD4EUSB30), RTC crystal | as designed by Raspberry Pi |
+
+### 3.7 Virtual prototyping (R11)
+
+The supervisor stands in for a peripheral that is not there: the CM5 runs its normal Linux driver
+and device tree overlay against a model on its real pins. The models are weft-parts' chip models
+(ADS1115, 24C32, MCP4728 and later ones), built `no_std` with `alloc` for the RP2350, so one model
+serves three stages:
+
+1. weft-sim: the driver in QEMU against the model, no hardware;
+2. the carrier: the real CM5 against the same model on the supervisor, a real electrical bus;
+3. the real chip on the 40-pin header, to compare against.
+
+| Interface | Done by | Limit |
+|---|---|---|
+| GPIO (buttons, interrupts, resets) | PIO | about 10 ns resolution |
+| UART (GPS, modems, consoles) | PIO or UART | none in practice |
+| I2C target, any number of addresses | PIO, clock stretching | 100/400 kHz; 1 MHz for simple register maps |
+| SPI target | PIO + DMA, precomputed replies | register-style chips, about 1 to 10 MHz; no reply within the same byte at speed |
+| PWM in and out | PIO | measure the CM5's PWM, generate tach or encoder signals |
+| I2S, 1-Wire, WS2812 | PIO | |
+| Analog | inside a model only | the CM5 has no analog inputs; an emulated ADC reports what the agent sets |
+
+What is too fast to emulate (SPI flash and displays at speed, cameras, PCIe devices) is attached
+for real: every bus and the camera connectors are exposed (R1).
+
+The agent describes what sits on which pins (chip, address, pins, input values) in one testbench
+description that weft-sim reads too. Hardware: none beyond §3.3; the 28 GPIOs already end on PIO
+pins. Firmware: a model runtime on the RP2350 and the configuration protocol.
 
 ## 4. Base and mechanics (R10)
 
@@ -292,7 +327,6 @@ module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the
 
 ## 6. Open questions
 
-- GPIO translator type (3.6): per-pin direction or auto-direction.
 - How the test point positions vary between CM5 revisions, and the test point pad size (not in the
   datasheet), checked against real modules (3.4).
 - Whether TP48 to TP52 (named as JTAG pins) do anything on production modules: a bring-up test on
