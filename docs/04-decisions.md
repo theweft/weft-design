@@ -147,6 +147,18 @@ Rust hub that wires the endpoints from the board netlist and keeps them causally
 be emulated; `tryboot`/`autoboot.txt` would be emulated in the machine model. Slow and Linux-first,
 so it complements weft-sim rather than replacing it. Candidates in [09-prior-art.md](09-prior-art.md).
 
+### Pins and nets
+
+Proposed 2026-11-24, not decided: [21-pins-and-nets.md](21-pins-and-nets.md). Nets carry one of
+four signal kinds (digital with drive strength, analog, periodic, power); interfaces (I2C, SPI,
+UART, CAN, ...) carry transactions on top and drop to edges only through transactors. Nets come
+from the same exports as weft-boardchecker (IPC-2581, IPC-D-356A plus BOM) plus the KiCad netlist
+for schematic-level data (pin names and types, values), read into one shared board model; test
+stimuli and faults live in a separate testbench file. No industry standard covers board-level
+behavioural simulation or multi-board systems. Decided within it: analog is resistor networks
+only (DC operating point per driver change, capacitors ignored); isolated first-order RC stages
+are a possible later extension, everything else stays in ngspice.
+
 ## AI-built, human-decided
 
 weft is developed heavily with an AI coding assistant (Claude Code): it drafts most docs, code,

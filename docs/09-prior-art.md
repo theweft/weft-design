@@ -153,6 +153,15 @@ models and `weft-boardchecker`. See the hardware test row in [04-decisions.md](0
 | dt-schema (dtbs_check) | Adopted (planned, overlay CI) | Validates overlays against kernel bindings; complements weft-boardchecker, which checks them against the PCB |
 | IPC-2581 (rev B/C) | Adopted (weft-boardchecker input) | Open IPC XML standard with netlist, BOM and component placement in one file; exported by KiCad 8+, Altium, Cadence Allegro/OrCAD and Siemens Xpedition. Part numbers only appear if the export maps them |
 | IPC-D-356A | Adopted (fallback input) | Bare-board test netlist that nearly every PCB tool exports; nets and pads only, combined with a CSV BOM |
+| KiCad netlist (`kicad-cli sch export netlist`) | Adopted (planned, schematic-level simulation input) | KiCad's own S-expression/XML netlist: every symbol field, pin names and pin electrical types, hierarchical net names; simulation before layout. KiCad only, so IPC-2581 stays the tool-neutral input. See [21-pins-and-nets.md](21-pins-and-nets.md) |
+| KiCad `Sim.*` symbol fields | Ideas (adopted pattern) | KiCad's convention for attaching ngspice models to symbols; weft would use an optional `Weft.Model` field the same way, normally unneeded because models come from the part number |
+| SPICE netlist export | Adopted (planned, analog subcircuits to ngspice) | Passives with values and device models; not a source for the digital board model |
+| IBIS (ANSI/EIA-656) | Evaluate (pin electrical data for weft-parts) | Vendor I/O buffer models: VIH/VIL, drive strength, thresholds; could fill weft-parts pin domains instead of typing them from datasheets |
+| VHDL-AMS (IEEE 1076.1), Verilog-AMS | Rejected | Standard mixed-signal behavioural model languages; heavy toolchains and no Linux-driver or emulator integration; weft-parts models stay in Rust |
+| WireViz | Rejected | Documents cables and harnesses from YAML, but GPL-3.0 and no electrical semantics; weft would use a small system file that mates connectors instead |
+| Raspberry Pi CM5 IO Board design files | Adopted (planned, reference carrier for a CM5 twin) | Official KiCad project (rev 2, KiCad 8/9) on the Raspberry Pi product information portal; exports checked with kicad-cli 10.0.8 (docs/21 §6). Raspberry Pi's licensing page grants use, modification and distribution of hosted design files for any purpose; bundled 3D models stay under their makers' terms |
+| USB/IP | Evaluate (USB in a CM5 twin) | Network transport for USB at transfer level; QEMU and Renode can attach devices over it, so no USB signals at pin level |
+| QEMU and Renode CAN models | Evaluate (CAN in a CM5 twin) | Both emulate CAN controllers on a virtual bus; weft would add arbitration timing and transceivers at net level |
 | ODB++ | Rejected | Widely supported, but the spec is controlled by Siemens; IPC-2581 covers the same data openly |
 | EDIF | Rejected | Old schematic interchange standard; inconsistent dialects across tools |
 | Gerber X2/X3 attributes | Rejected (as checker input) | Carries net and component attributes, but rebuilding connectivity from copper is the wrong layer for this check |
