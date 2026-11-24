@@ -92,6 +92,7 @@ System requirements are in [requirements/system.sdoc](requirements/system.sdoc) 
 - [docs/18-constrained-mcus.md](docs/18-constrained-mcus.md): how small MCUs take part: classes M0–M3, crypto (P-256, LMS), OTA via proxy and bootloader.
 - [docs/19-brand.md](docs/19-brand.md): logo, colours and type: what was decided, what was rejected and why.
 - [docs/20-agent.md](docs/20-agent.md): weft-agent: three processes, crates, authentication, OTA flow, first simulation milestone.
+- [docs/22-cm5-lab-carrier.md](docs/22-cm5-lab-carrier.md): CM5 carrier exposing every signal, with a supervisor so an agent can power, flash and watch the module (draft).
 - [docs/21-pins-and-nets.md](docs/21-pins-and-nets.md): simulated pins and nets: signal kinds, every pin type, control pins, power, and which netlist formats feed it (draft).
 
 ## How weft is made

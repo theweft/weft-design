@@ -57,3 +57,12 @@ service, without copyleft obligations beyond simple source offers.
   Do not paste third-party code or text into prompts unless its licence allows inclusion here.
 - **Blue Oak Model License 1.0.0** counts as green (permissive, OSI approved, with patent grant; used by minicbor).
 - **cargo-deny uses an allow list**: every licence not listed (GPL, LGPL, AGPL, SSPL, BUSL, custom) fails CI. The trusted core (`weft-verifier`) additionally excludes weak copyleft.
+
+## Hardware design files
+
+Decided 2026-11-24: weft's own hardware designs (first: weft-cm5-carrier, docs/22) use
+**CERN-OHL-P-2.0** for schematics, layouts and mechanical drawings, and MIT for firmware and
+scripts in the same repository. CERN-OHL-P is permissive like MIT but written for hardware: it
+covers making and selling boards from the design, not only copying files. Reused Raspberry Pi
+design files keep Raspberry Pi's grant (use, copy, modify, distribute for any purpose); their
+bundled third-party 3D models are not redistributed.

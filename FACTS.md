@@ -53,6 +53,10 @@ Key values, decisions and assumptions of weft. The source of truth is [facts.tom
 | Id | Value | Kind | Status | Note |
 |---|---|---|---|---|
 | `ext.ads1115_rate_tolerance` | ±10 % | external | draft | ADS111x data rate variation, all data rates (electrical characteristics) ([source](https://www.ti.com/lit/ds/symlink/ads1115.pdf), checked 2026-11-24) |
+| `ext.cm5_rpiboot_window` | 2 ms | external | draft | CM5: nRPI_BOOT must be low within this time after the 5 V rail rises, for USB boot (datasheet §3.1) ([source](https://datasheets.raspberrypi.com/cm5/cm5-datasheet.pdf), checked 2026-11-24) |
+| `ext.cm5_vin_min` | 4.75 V | external | draft | CM5: the 5 V rail must rise monotonically to at least this and stay above it (datasheet §3.1) ([source](https://datasheets.raspberrypi.com/cm5/cm5-datasheet.pdf), checked 2026-11-24) |
+| `ext.cm5_rail_out_ma` | 600 mA | external | draft | CM5: maximum load on each of the 3.3 V and 1.8 V outputs (datasheet §3, pins 84 to 90) ([source](https://datasheets.raspberrypi.com/cm5/cm5-datasheet.pdf), checked 2026-11-24) |
+| `ext.cm5_gpio_total_ma` | 50 mA | external | draft | CM5: maximum total current on all 28 GPIO pins (datasheet, GPIO bank) ([source](https://datasheets.raspberrypi.com/cm5/cm5-datasheet.pdf), checked 2026-11-24) |
 
 ## funding
 
