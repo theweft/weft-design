@@ -20,7 +20,7 @@ candidates until checked against datasheets and stock. Nothing is laid out yet.
 | Power input | **USB-C PD, 5 V 5 A, negotiated by the carrier** (§3.1) | One cable, like the IO Board and the Pi 5 supply; the carrier keeps the contract while the CM5 is cut off |
 | Size | **Larger than the IO Board** where the headers, supervisor and base need it | Probing room matters more than fitting the IO Board case |
 | Base | **A stable base plate** under the board (§4) | It sits on a table and stays put; no loose cables |
-| Signals on the module itself | **Reached too**: the test points on the CM5's underside (debug UART/SWD, RUN, nRESET_OUT and more) through pogo pins, using the 4.0 mm stacking connector; the U.FL antenna through a pigtail to the base (§3.4) | The boot console, SoC debug and a hard reset exist only there |
+| Signals on the module itself | **Reached too**: the test points on the CM5's underside (debug UART/SWD, the PMIC's I2C bus, internal supply rails, status outputs) through pogo pins, using the 4.0 mm stacking connector; the U.FL antenna through a pigtail to the base (§3.4) | The boot console, SoC debug, the PMIC bus and the internal rails exist only there |
 | Licence | **CERN-OHL-P-2.0** for the hardware design files, **MIT** for firmware and scripts | CERN-OHL-P is the permissive licence written for hardware; weft code stays MIT |
 
 The IO Board's design files may be used, modified and distributed (Raspberry Pi's licensing page,
@@ -128,7 +128,7 @@ interfaces around the data instead.
 | PCIe/M.2 | power, reset, wake, current | load switch, IO expander |
 | Ethernet | disconnect and reconnect the link (network partition tests), see link LEDs | GbE-rated analog switch on the MDI pairs |
 | Buttons and fan | press PWR_BUT, read the fan PWM, fake a fan tachometer | as above |
-| Module test points (§3.4) | boot console (debug UART), SoC debug over SWD (same two lines, after `enable_jtag_gpio=1`), hard reset (RUN), see resets (nRESET_OUT) | pogo pins under the module, translators; CMSIS-DAP probe firmware on the RP2350 |
+| Module test points (§3.4) | boot console (debug UART), SoC debug over SWD (same two lines, after `enable_jtag_gpio=1`); listen to the PMIC's I2C bus and interrupt; measure the internal supply rails; read RUN and nRESET_OUT | pogo pins under the module, translators, a multi-channel ADC; CMSIS-DAP probe firmware on the RP2350 |
 
 Supervisor: RP2350B (48 GPIO) at 3.3 V I/O, QSPI flash, crystal, its own SWD header. The 28 CM5
 GPIOs take 28 of its PIO-capable pins; slow control and status go through I2C IO expanders.
@@ -148,29 +148,60 @@ Besides its two 100-pin connectors, the CM5 has (datasheet §2.8, §4.1.2, Appen
   default, and the ARM debug port as **SWD** (SWDIO, SWCLK) on the same lines when
   `enable_jtag_gpio=1` is set in config.txt (on the Pi 5 this option no longer uses GPIO22 to 27).
   Its two signals are also test points TP35 and TP36;
-- **test points on the underside**, at datasheet coordinates relative to the module: RUN (TP2),
-  nRESET_OUT (TP21), nRPIBOOT, PWR_BUT, 5v_Sense, the USB 2.0 data lines, the Ethernet pairs,
-  GPIO_VREF, the LEDs, power and ground, and five pins named SOC_TRST_N, SOC_TDI, SOC_TDO, SOC_TMS
-  and SOC_TCK (TP48 to TP52). Raspberry Pi documents no use for these; the documented debug path is
-  SWD on the debug connector, so they only go to a header for experiments;
+- **test points on the underside**, at datasheet coordinates relative to the module: nRESET_OUT
+  (TP21, the BCM2712's reset output), RUN (TP2), nRPIBOOT, PWR_BUT, 5v_Sense, the USB 2.0 data
+  lines, the Ethernet pairs, GPIO_VREF, the LEDs, power and ground, five pins named SOC_TRST_N,
+  SOC_TDI, SOC_TDO, SOC_TMS and SOC_TCK (TP48 to TP52), and about 20 marked "reserved". Raspberry Pi
+  documents no use for TP48 to TP52; the documented debug path is SWD on the debug connector;
 - a **U.FL connector** for an external Wi-Fi/Bluetooth antenna (selected at boot in config.txt).
+
+The reverse-engineered CM5 ([schlae/cm5-reveng](https://github.com/schlae/cm5-reveng), CC BY-SA
+4.0: used for measurements only, no files copied) puts every test point at the datasheet
+coordinates as a 1.0 mm round pad (a stock footprint, so the size is likely but not measured; the
+datasheet figure draws labels, not pads) and names the reserved ones and RUN:
+
+- **RUN (TP2) is probably a PMIC status output** ("possibly power good"), not a reset input: the
+  supervisor only reads it. Forcing the CM5 off without cutting 5 V goes through PMIC_EN or a long
+  PWR_BUT press.
+- **The PMIC's bus**: the CM5's PMIC is a Renesas DA9091 (regulators, the real-time clock, the
+  hot-swap that limits inrush into the module's >350 µF on 5 V). The BCM2712 talks to it over a
+  private I2C bus, PMIC_SCL and PMIC_SDA (TP40, TP41), with PMIC_INT (TP4): it sets the regulator
+  voltages (including the core voltage, which follows the CPU clock), reads status and faults,
+  uses the RTC and orders power-down. TP22 (PMIC_SIG) is an unknown PMIC signal, possibly for its
+  one-time programming. The supervisor **listens only** (high-impedance inputs, never driving):
+  every voltage change and power decision of the SoC becomes visible, while a stray write could set
+  a rail to a voltage that damages the SoC.
+- **Internal supply rails**: VDD_BCM_CORE (TP28, nominally 0.8 V), VDD_0V8_BCM (TP29),
+  VDD_0V8_LDO (TP15), LPDDR4 VDDQ 0.6 V (TP30) and VDD2 1.1 V (TP31), VDD_3V3_2 (TP17) and
+  VDD_1V8_2 (TP18, NOR flash and eMMC), RP1 1.1 V (TP27, TP45) and 2.5 V (TP44), VREF_3V3 (TP9, RP1
+  ADC reference), VREG (TP10), VDD_3V7_WIFI (TP32) and the Ethernet PHY's 1.0 V (TP64). The
+  supervisor measures them through series resistors with a multi-channel ADC (voltage only),
+  so it sees every rail during boot, throttling and brown-out.
+- EN_LOAD_SWITCH (TP39) enables VDD_3V3_2 and VDD_1V8_2; RP1_TP (TP57) is an unknown RP1 signal.
 
 The carrier reaches the test points with **spring-loaded pogo pins** under the module. This needs
 the 4.0 mm stacking connector (Amphenol 10164227-1004A1RLF: 2.5 mm clearance under the CM5,
 instead of none with the 1.5 mm part), and pogo pins short enough for that gap. The supervisor
 uses TP35/TP36 as the boot console and, when enabled, as SWD (both on the same two lines, which
 the RP2350 can switch between; Raspberry Pi's Debug Probe firmware already does CMSIS-DAP and UART
-on this chip family), RUN (hold in reset without a power cut) and nRESET_OUT (see every reset).
+on this chip family), RUN (PMIC status) and nRESET_OUT (see every reset).
 
-**Pogo pins are fitted where the connectors do not carry the signal**: the debug UART (TP35,
-TP36), RUN (TP2), nRESET_OUT (TP21), the five SOC_T* pins (TP48 to TP52), 5v_Sense (TP63) and a
-few grounds, about 12 pins; each also goes to a labelled pin on a "module test points" header.
-**Every other test point gets an unfitted pogo footprint** that can be fitted later: the named
-ones that duplicate connector pins (5 V, 3.3 V, 1.8 V, PWR_BUT, nRPIBOOT, LEDs, GPIO_VREF) are on
-the headers already, a pin on the USB 2.0 and Ethernet test points would hang a stub on those
-high-speed pairs, and the "reserved" ones carry undocumented nets. Fitting all 37 named test
-points would also push the module up with about 1.5 kg (45 g each at 0.5 mm compression) and
-bend its 1.24 mm PCB between the screws; 12 pins are about 0.5 kg. The datasheet warns that component positions may change slightly
+Which pogo pins are fitted, in tiers (each fitted pin also goes to a labelled pin on a "module
+test points" header):
+
+1. **Fitted by default, signals the connectors do not carry:** debug UART (TP35, TP36), RUN
+   (TP2), nRESET_OUT (TP21), the five SOC_T* pins (TP48 to TP52), 5v_Sense (TP63), the PMIC bus
+   (TP40, TP41, TP4) and a few grounds: about 15 pins.
+2. **Internal rails** (14 test points, above): footprints on every board, fitted on an exploration
+   build once the module's deflection under the pins is checked.
+3. **Not fitted:** the named test points that duplicate connector pins (5 V, 3.3 V, 1.8 V,
+   PWR_BUT, nRPIBOOT, LEDs, GPIO_VREF; on the headers already) and the USB 2.0 and Ethernet test
+   points (a pin would hang a stub on those high-speed pairs); footprints only.
+
+Force: about 45 g per pin at 0.5 mm compression (estimated from 10 g initial and 60 g at
+mid-stroke), so tier 1 pushes the module up with about 0.7 kg and tiers 1 and 2 with about 1.3 kg,
+held by the four M2.5 screws and the connectors; how far the 1.24 mm module bends between them is
+to be measured, not assumed. The datasheet warns that component positions may change slightly
 between module revisions, so the pogo pins need tolerance and the footprint is checked against the
 module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the base plate.
 
