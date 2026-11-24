@@ -3,7 +3,8 @@
 How weft models the physical pins of chips and the nets between them, so that boards (a HAT, a
 CM5 carrier, an MCU next to a Linux SoC) can be simulated from the same design files the PCB is
 made from. Builds on the time-aware models ([04-decisions.md](04-decisions.md), "Time in the
-models"). Status: proposal, nothing implemented yet.
+models"). Status: proposal; the first step (digital nets for I2C chips' control pins) is
+implemented, see §10.
 
 ## 1. Principle: nets carry signals, interfaces carry transactions
 
@@ -187,7 +188,8 @@ Decided 2026-11-24: **resistor networks only (DC).**
 
 ## 9. Order
 
-1. Digital nets, control pins, straps and reset (ALERT, LDAC, WP, CM5 control pins).
+1. Digital nets, control pins, straps and reset (ALERT, LDAC, WP, CM5 control pins). Done for the
+   modelled I2C chips (§10); reset, power-up strap sampling and the CM5 control pins remain.
 2. Power rails with brown-out (chip-level power-loss tests).
 3. Analog waveforms.
 4. UART and SPI interfaces.
@@ -197,6 +199,29 @@ Decided 2026-11-24: **resistor networks only (DC).**
 8. Debug ports (JTAG, SWD).
 
 The board-model crate and the KiCad netlist importer come first, since every step needs nets.
+
+## 10. Implemented (2026-11-24)
+
+In weft-parts (requirements PRT-011, PRT-012), used by weft-boardchecker:
+
+- **The board model lives in weft-parts** (`weft_parts::board`): weft-boardchecker and the
+  simulation both depend on weft-parts already, so no new crate is needed until the model needs
+  its own release cadence. weft-boardchecker re-exports it; its IPC-2581, IPC-D-356A and BOM
+  importers stay there, with their XML dependency. The strap address rule moved with the model,
+  so the checker and the simulation derive addresses identically.
+- **KiCad netlist importer** (`board::kicad`), no new dependency. Checked against the official CM5
+  IO Board export (`just kicad-real`, not committed: Raspberry Pi's licence page cannot be fetched
+  for a REUSE licence file). The S-expression netlist omits symbols marked `exclude_from_board`
+  (78 of the board's 83 symbols; the five M.2 screws), which KiCad's XML netlist keeps.
+- **Digital nets** (`sim::net`): drive (released, low, high), pull (none, up, down, both),
+  resolution by wired logic, contention and floating as states.
+- **Board simulation** (`sim::BoardSim`): models placed by part number, buses by SDA/SCL nets,
+  addresses from straps, pulls from resistors to rails (rails from the chips' gnd/vdd nets), model
+  pins on nets (ADS1115 ALERT/RDY, MCP4728 LDAC and RDY/BSY, 24C32 WP), timed edges, findings for
+  floating inputs, contention and shorts against a rail. Nets settle after transfers, at model
+  events and on external drives; an edge inside a transfer is recorded at its end.
+- Not yet: reset and power-up strap sampling, the testbench file, SPI chips, multi-board systems,
+  Linux GPIOs (weft-sim, via gpio-sim) and IPC-2581 boards in the simulation.
 
 ## Open questions
 

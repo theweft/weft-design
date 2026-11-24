@@ -159,6 +159,11 @@ behavioural simulation or multi-board systems. Decided within it: analog is resi
 only (DC operating point per driver change, capacitors ignored); isolated first-order RC stages
 are a possible later extension, everything else stays in ngspice.
 
+Implemented 2026-11-24 (docs/21 §10): the board model moved into weft-parts (`weft_parts::board`,
+re-exported by weft-boardchecker, together with the strap address rule), a KiCad netlist
+importer, digital nets with wired logic, and a board simulation that places the I2C chip models
+from a netlist and puts their control pins (ALERT/RDY, LDAC, RDY/BSY, WP) on nets.
+
 ## AI-built, human-decided
 
 weft is developed heavily with an AI coding assistant (Claude Code): it drafts most docs, code,
