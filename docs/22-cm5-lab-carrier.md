@@ -162,10 +162,15 @@ uses TP35/TP36 as the boot console and, when enabled, as SWD (both on the same t
 the RP2350 can switch between; Raspberry Pi's Debug Probe firmware already does CMSIS-DAP and UART
 on this chip family), RUN (hold in reset without a power cut) and nRESET_OUT (see every reset).
 
-**Every named test point** (including TP48 to TP52) gets a pogo pin and a labelled pin on a
-"module test points" header, so it can be probed or wired by hand. The test points the datasheet
-calls "reserved" get pogo footprints that are **not fitted by default**: their nets are
-undocumented, and a contact could load an unknown signal; fit them one at a time to explore. The datasheet warns that component positions may change slightly
+**Pogo pins are fitted where the connectors do not carry the signal**: the debug UART (TP35,
+TP36), RUN (TP2), nRESET_OUT (TP21), the five SOC_T* pins (TP48 to TP52), 5v_Sense (TP63) and a
+few grounds, about 12 pins; each also goes to a labelled pin on a "module test points" header.
+**Every other test point gets an unfitted pogo footprint** that can be fitted later: the named
+ones that duplicate connector pins (5 V, 3.3 V, 1.8 V, PWR_BUT, nRPIBOOT, LEDs, GPIO_VREF) are on
+the headers already, a pin on the USB 2.0 and Ethernet test points would hang a stub on those
+high-speed pairs, and the "reserved" ones carry undocumented nets. Fitting all 37 named test
+points would also push the module up with about 1.5 kg (45 g each at 0.5 mm compression) and
+bend its 1.24 mm PCB between the screws; 12 pins are about 0.5 kg. The datasheet warns that component positions may change slightly
 between module revisions, so the pogo pins need tolerance and the footprint is checked against the
 module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the base plate.
 
@@ -203,7 +208,7 @@ module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the
 | GPIO_VREF select | TPS2116 class supply selector | switches only while the CM5 is off |
 | Ethernet disconnect | TS3L501E class GbE LAN switch | check insertion loss at 1 Gbit/s |
 | IO expanders | TCA6424 class | slow control and status |
-| Module test points | low-profile pogo pins (compressed height under 2.5 mm), 4.0 mm stacking connector 10164227-1004A1RLF | check height and pad size against a real CM5 |
+| Module test points | Mill-Max 0906-1-15-20-75-14-11-0 (through-hole spring pin: working height 3.10 to 4.50 mm, 3.80 recommended; 4.496 mm free, 1.397 mm stroke; 1.07 mm gold plunger; 10 g initial, 60 g mid-stroke; active, about 0.75 USD, tens of thousands in stock, checked 2026-11-24) with the 4.0 mm stacking connector 10164227-1004A1RLF | the 4.0 mm gap compresses it about 0.5 mm; check against a real CM5 that no underside part sits over a pin |
 | Reused from the IO Board | DF40 connectors, HDMI, USB 3 switch (AP22653), M.2 buck (AP3441), RJ45 MagJack, ESD (TPD4EUSB30), RTC crystal | as designed by Raspberry Pi |
 
 ## 4. Base and mechanics (R10)
@@ -238,6 +243,6 @@ module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the
 - GPIO translator type (3.6): per-pin direction or auto-direction.
 - HDMI capture: an on-board capture chip or a USB capture stick on an internal hub port.
 - Keyboard and mass-storage emulation into the CM5 (a second MCU, 3.3).
-- Pogo pins: a part short enough for 2.5 mm clearance, and how the test point positions vary
-  between CM5 revisions (3.4).
+- How the test point positions vary between CM5 revisions, and the test point pad size (not in the
+  datasheet), checked against real modules (3.4).
 - Whether TP48 to TP52 (named as JTAG pins) do anything on production modules.
