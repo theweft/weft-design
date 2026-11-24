@@ -179,6 +179,20 @@ datasheet figure draws labels, not pads) and names the reserved ones and RUN:
   so it sees every rail during boot, throttling and brown-out.
 - EN_LOAD_SWITCH (TP39) enables VDD_3V3_2 and VDD_1V8_2; RP1_TP (TP57) is an unknown RP1 signal.
 
+What is public about the module's chips, and what the carrier adds (checked 2026-11-24):
+
+- Public: the RP1 peripherals datasheet (draft), the CM5 and CM5 IO Board datasheets, the Linux
+  device trees (the CM5's notes that the firmware, not Linux, owns the PMIC and its interrupt),
+  and `vcgencmd pmic_read_adc`, through which the DA9091 reports voltage and current of 12 internal
+  rails and the 5 V input from Linux.
+- Not public: a Pi 5 or CM5 schematic (Raspberry Pi publishes reduced schematics only for older
+  boards), a BCM2712 peripherals datasheet, a DA9091 datasheet or register map.
+- **Rail cross-check:** the carrier measures the internal rails from outside (tier 2 pogo pins)
+  while the PMIC reports them from inside; comparing the two calibrates both.
+- **PMIC register map:** recording the PMIC bus while the CM5 runs `vcgencmd pmic_read_adc`,
+  changes CPU clock or shuts down shows which registers do what. cm5-reveng lists this map as
+  future work; the carrier makes it a scripted experiment whose result can be published.
+
 The carrier reaches the test points with **spring-loaded pogo pins** under the module. This needs
 the 4.0 mm stacking connector (Amphenol 10164227-1004A1RLF: 2.5 mm clearance under the CM5,
 instead of none with the 1.5 mm part), and pogo pins short enough for that gap. The supervisor
