@@ -20,7 +20,7 @@ candidates until checked against datasheets and stock. Nothing is laid out yet.
 | Power input | **USB-C PD, 5 V 5 A, negotiated by the carrier** (§3.1) | One cable, like the IO Board and the Pi 5 supply; the carrier keeps the contract while the CM5 is cut off |
 | Size | **Larger than the IO Board** where the headers, supervisor and base need it | Probing room matters more than fitting the IO Board case |
 | Base | **A stable base plate** under the board (§4) | It sits on a table and stays put; no loose cables |
-| Signals on the module itself | **Reached too**: the test points on the CM5's underside (debug UART, SoC JTAG, RUN, nRESET_OUT and more) through pogo pins, using the 4.0 mm stacking connector; the U.FL antenna through a pigtail to the base (§3.4) | The boot console, JTAG and a hard reset exist only there |
+| Signals on the module itself | **Reached too**: the test points on the CM5's underside (debug UART/SWD, RUN, nRESET_OUT and more) through pogo pins, using the 4.0 mm stacking connector; the U.FL antenna through a pigtail to the base (§3.4) | The boot console, SoC debug and a hard reset exist only there |
 | Licence | **CERN-OHL-P-2.0** for the hardware design files, **MIT** for firmware and scripts | CERN-OHL-P is the permissive licence written for hardware; weft code stays MIT |
 
 The IO Board's design files may be used, modified and distributed (Raspberry Pi's licensing page,
@@ -128,7 +128,7 @@ interfaces around the data instead.
 | PCIe/M.2 | power, reset, wake, current | load switch, IO expander |
 | Ethernet | disconnect and reconnect the link (network partition tests), see link LEDs | GbE-rated analog switch on the MDI pairs |
 | Buttons and fan | press PWR_BUT, read the fan PWM, fake a fan tachometer | as above |
-| Module test points (§3.4) | boot console (debug UART), SoC JTAG, hard reset (RUN), see resets (nRESET_OUT) | pogo pins under the module, translators |
+| Module test points (§3.4) | boot console (debug UART), SoC debug over SWD (same two lines, after `enable_jtag_gpio=1`), hard reset (RUN), see resets (nRESET_OUT) | pogo pins under the module, translators; CMSIS-DAP probe firmware on the RP2350 |
 
 Supervisor: RP2350B (48 GPIO) at 3.3 V I/O, QSPI flash, crystal, its own SWD header. The 28 CM5
 GPIOs take 28 of its PIO-capable pins; slow control and status go through I2C IO expanders.
@@ -143,21 +143,27 @@ CM5's USB ports; left as an option.
 
 Besides its two 100-pin connectors, the CM5 has (datasheet §2.8, §4.1.2, Appendix A):
 
-- an optional 3-pin, 1 mm JST-SH **debug UART** connector (BM03B-SRSS-TB, often not fitted), the
-  BCM2712's boot console as on the Pi 5; its TX and RX are also test points TP35 and TP36;
-- **test points on the underside**, at datasheet coordinates relative to the module: SoC JTAG
-  (SOC_TRST_N, TDI, TDO, TMS, TCK on TP48 to TP52), RUN (TP2), nRESET_OUT (TP21), nRPIBOOT, PWR_BUT,
-  5v_Sense, the USB 2.0 data lines, the Ethernet pairs, GPIO_VREF, the LEDs, power and ground;
+- an optional 3-pin, 1 mm JST-SH **debug connector** (BM03B-SRSS-TB, often not fitted) that
+  "provides the same functionality as Raspberry Pi 5": the BCM2712's debug UART (boot console) by
+  default, and the ARM debug port as **SWD** (SWDIO, SWCLK) on the same lines when
+  `enable_jtag_gpio=1` is set in config.txt (on the Pi 5 this option no longer uses GPIO22 to 27).
+  Its two signals are also test points TP35 and TP36;
+- **test points on the underside**, at datasheet coordinates relative to the module: RUN (TP2),
+  nRESET_OUT (TP21), nRPIBOOT, PWR_BUT, 5v_Sense, the USB 2.0 data lines, the Ethernet pairs,
+  GPIO_VREF, the LEDs, power and ground, and five pins named SOC_TRST_N, SOC_TDI, SOC_TDO, SOC_TMS
+  and SOC_TCK (TP48 to TP52). Raspberry Pi documents no use for these; the documented debug path is
+  SWD on the debug connector, so they only go to a header for experiments;
 - a **U.FL connector** for an external Wi-Fi/Bluetooth antenna (selected at boot in config.txt).
 
 The carrier reaches the test points with **spring-loaded pogo pins** under the module. This needs
 the 4.0 mm stacking connector (Amphenol 10164227-1004A1RLF: 2.5 mm clearance under the CM5,
 instead of none with the 1.5 mm part), and pogo pins short enough for that gap. The supervisor
-uses the debug UART (boot console), JTAG (debugging the SoC; probe firmware on the RP2350, to
-choose), RUN (hold in reset without a power cut) and nRESET_OUT (see every reset); the rest go to
-a header for probing. The datasheet warns that component positions may change slightly between
-module revisions, so the pogo pins need tolerance and the footprint is checked against the module
-on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the base plate.
+uses TP35/TP36 as the boot console and, when enabled, as SWD (both on the same two lines, which
+the RP2350 can switch between; Raspberry Pi's Debug Probe firmware already does CMSIS-DAP and UART
+on this chip family), RUN (hold in reset without a power cut) and nRESET_OUT (see every reset); the
+rest go to a header for probing. The datasheet warns that component positions may change slightly
+between module revisions, so the pogo pins need tolerance and the footprint is checked against the
+module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the base plate.
 
 ### 3.5 Pin allocation
 
@@ -230,5 +236,4 @@ on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the base p
 - Keyboard and mass-storage emulation into the CM5 (a second MCU, 3.3).
 - Pogo pins: a part short enough for 2.5 mm clearance, and how the test point positions vary
   between CM5 revisions (3.4).
-- JTAG probe firmware for the RP2350 against the BCM2712 (CMSIS-DAP with JTAG, or another
-  probe), and whether the SoC's JTAG is enabled on production modules.
+- Whether TP48 to TP52 (named as JTAG pins) do anything on production modules.
