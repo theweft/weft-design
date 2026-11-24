@@ -547,13 +547,13 @@ note = "Share of developers using ESP32 (JetBrains State of Embedded 2025)"
 
 [[fact]]
 id = "funding.nlnet_restack_deadline"
-value = 2026-11-03
-text = "3 Nov 2026"
+value = 2027-01-03
+text = "3 Jan 2027"
 kind = "external"
 source = "https://www.nlnet.nl/restack/"
-checked = 2026-10-18
+checked = 2026-11-24
 max_age_days = 30
-note = "NLnet Restack call deadline, 12:00 CET"
+note = "NLnet Restack call deadline, 12:00 CET (second call, opened 3 Nov 2026)"
 
 [[fact]]
 id = "ext.ads1115_rate_tolerance"

@@ -58,7 +58,7 @@ Key values, decisions and assumptions of weft. The source of truth is [facts.tom
 
 | Id | Value | Kind | Status | Note |
 |---|---|---|---|---|
-| `funding.nlnet_restack_deadline` | 3 Nov 2026 | external | draft | NLnet Restack call deadline, 12:00 CET ([source](https://www.nlnet.nl/restack/), checked 2026-10-18) |
+| `funding.nlnet_restack_deadline` | 3 Jan 2027 | external | draft | NLnet Restack call deadline, 12:00 CET (second call, opened 3 Nov 2026) ([source](https://www.nlnet.nl/restack/), checked 2026-11-24) |
 
 ## lab
 
