@@ -302,6 +302,30 @@ status = "decided"
 note = "COSE algorithm id for ECDSA P-256 (feature p256)"
 code = [{ repo = "weft-verifier", file = "src/crypto.rs", pattern = "{value} => Some(Algorithm::EcdsaP256)" }]
 
+# --- Board simulation (docs/04) ---------------------------------------------------------
+
+[[fact]]
+id = "sim.i2c_default_speed"
+value = "100_000"
+text = "100 kHz"
+kind = "decision"
+status = "decided"
+note = "Default SCL speed of a simulated I2C bus (standard mode, as on the Pi's i2c_arm)"
+code = [
+  { repo = "weft-parts", file = "src/sim/mod.rs", pattern = "pub const DEFAULT_SPEED_HZ: u64 = {value};" },
+]
+
+[[fact]]
+id = "sim.at24_write_cycle_ms"
+value = 5
+text = "5 ms"
+kind = "decision"
+status = "decided"
+note = "Default EEPROM write cycle t_WR in the at24 model: the 24LC32A datasheet maximum"
+code = [
+  { repo = "weft-parts", file = "src/sim/at24.rs", pattern = "const DEFAULT_WRITE_CYCLE: Duration = Duration::from_millis({value});" },
+]
+
 # --- Default scope profile (docs/05 §2.3) -----------------------------------------------
 
 [[fact]]
@@ -530,6 +554,15 @@ source = "https://www.nlnet.nl/restack/"
 checked = 2026-10-18
 max_age_days = 30
 note = "NLnet Restack call deadline, 12:00 CET"
+
+[[fact]]
+id = "ext.ads1115_rate_tolerance"
+value = 10
+text = "±10 %"
+kind = "external"
+note = "ADS111x data rate variation, all data rates (electrical characteristics)"
+source = "https://www.ti.com/lit/ds/symlink/ads1115.pdf"
+checked = 2026-11-24
 
 # --- Estimates (docs/17) ----------------------------------------------------------------
 

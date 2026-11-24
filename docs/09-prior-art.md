@@ -128,7 +128,20 @@ models and `weft-boardchecker`. See the hardware test row in [04-decisions.md](0
 | Rust for Linux | Rejected (for now, weft-sim module) | No I2C adapter or SPI controller abstractions yet, and many board kernels (Raspberry Pi OS) are built without Rust; revisit when both change |
 | Buildroot | Evaluate (weft-sim guest image) | Standard embedded tool for a kernel plus busybox initramfs per architecture; alternative to building the minimal guest with Nix |
 | Linux i2c-stub, i2c-slave-eeprom, netdevsim | Rejected | i2c-stub is SMBus only (cannot take the MCP4728's raw writes); the register models cover these cases |
-| Renode (Antmicro) | Rejected | Strong whole-board simulator, but a second emulator next to QEMU; no BCM2711 model that boots Linux; native_sim covers the co-MCU |
+| Renode (Antmicro) | Rejected for weft-sim; Evaluate (later, MCU firmware in a CM5 twin) | MIT. Strong whole-board simulator, but a second emulator next to QEMU and no BCM2711/BCM2712 model that boots Linux, so not for weft-sim. native_sim covers the co-MCU only when a host build is enough; running the exact MCU firmware binary needs an instruction-set emulator, and Renode has the widest peripheral coverage plus built-in multi-machine time sync. Peripheral models are C#, so weft-parts models would be reached over a socket |
+| renode-stm32u5 (60north) | Evaluate (with Renode) | Community STM32U575 platform, peripheral models and tests for Renode 1.17 (Nucleo-U575ZI-Q, which is in the lab plan); upstreaming started (renode#1041, 2026-10) |
+| renode-rp2040 | Evaluate (with Renode) | Community RP2040 for Renode, including PIO; several instances connect through GPIO. RP2350 support not known |
+| QEMU RP2040 machine (RFC v3, 2026-09) | Watch | Pico/RP2040 machine posted to qemu-arm, not merged |
+| QEMU TCG with `-icount` | Evaluate (later, CM5 twin) | Guest time from executed instructions (fixed time per instruction), fully virtual and deterministic with single-threaded TCG; skips idle time. Not cycle-accurate. Rules out KVM/HVF, so not for weft-sim |
+| hatter6822/rpi5_machine | Evaluate (later, CM5 twin) | Out-of-tree QEMU `raspi5b` machine (BCM2712: 4× A76, GIC-400, UART10, PSCI, full memory map) on QEMU 11.1.1, written for upstream submission; a stock Raspberry Pi OS kernel boots to the root mount. No RP1, eMMC or firmware emulation yet. Licence to verify (QEMU code is GPL-2.0, acceptable for a test tool, not for the core) |
+| jordanhubbard/uConsole (RP1 model) | Ideas | QEMU fork with Pi 5 boot; PR #14 (2026-11) models RP1 as a PCI endpoint with 61 MSI-X vectors. Reference for an RP1 model |
+| jlaportebot/pi5-emulator | Rejected | Pi 5 QEMU patches with custom MMIO devices for one bare-metal hobby OS; not a generic machine |
+| schlae/cm5-reveng | Ideas (reference) | Reverse-engineered CM5 schematic (KiCad), including BCM2712 to RP1 PCIe nets; not an emulator |
+| QEMU vfio-user client | Evaluate (later, CM5 twin) | In QEMU since 10.1: a PCI device implemented in a separate process over a UNIX socket (libvfio-user). Would allow RP1 in Rust, but then Ethernet and USB must be written too; preferred: RP1 in QEMU, only low-speed controllers forwarded |
+| Remote Port (AMD/Xilinx; upstream series v2, 2026-09) | Evaluate (later, hub time sync) | Socket protocol between QEMU and external simulators: memory transactions, interrupts and quantum-based time sync. Carries no UART/I2C/SPI, so a hub adds those |
+| SystemC TLM-2.0, libsystemctlm-soc | Rejected (for now); pattern adopted | Apache-2.0 standard for loosely and approximately timed models, bridged to QEMU through Remote Port. C++ and a large framework next to Rust models; weft adopts the loosely timed pattern instead (time-aware models, the caller owns time) |
+| NeXosim (formerly Asynchronix) | Evaluate (later, hub scheduler) | Rust discrete-event simulator: models connected by ports, deterministic, as fast as possible or locked to real time. Possible host for the hub's scheduler; licence and maintenance to verify |
+| gem5 | Rejected | Cycle-level simulator for architecture research; Linux boots take hours and there is no BCM2712 or RP1 model |
 | Wokwi (+ custom chips API) | Rejected | MCU-only simulation that overlaps native_sim; CI runner needs a paid token |
 | roadtest (Axis, RFC 2022) | Ideas (adopted pattern) | Kernel driver tests under UML with Python device models; not merged upstream, but the pattern behind weft's register models; weft-sim applies the same idea under QEMU with Rust models |
 | umockdev | Rejected | Records and replays sysfs and i2c-dev/spidev ioctls; redundant once real drivers run against simulated chips |
@@ -181,7 +194,7 @@ Decided 2026-10-20 where marked Adopted (see docs/04, Dev environment and tests)
 | Jepsen | Ideas | EPL-1.0, Clojure; the reference for partition and clock-skew testing of distributed systems; we adopt its fault model |
 | labgrid | Evaluate (real hardware lab) | LGPL-2.1 (to verify), Python/pytest; controls power, serial and SD muxing of real boards (docs/17) |
 | LAVA | Rejected | AGPL-3.0 board farm; heavier than labgrid for one developer |
-| Renode | See above | Already rejected for board simulation; could be revisited for networks of MCUs (M1/M2 fleets) |
+| Renode | See above | Rejected for weft-sim, evaluated for MCU firmware in a CM5 twin; could also serve networks of MCUs (M1/M2 fleets) |
 | kind, k3d, minikube | Evaluate (later, Kubernetes profile) | Apache-2.0 / MIT / Apache-2.0 local clusters; k3d runs k3s, the distribution edge sites use |
 | Rancher Desktop | Adopted (recommended runtime) | Apache-2.0; containers plus optional k3s on Linux, macOS and Windows |
 | Podman Desktop | Adopted (recommended runtime) | Apache-2.0; daemonless containers on all three platforms |

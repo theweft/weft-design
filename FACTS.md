@@ -48,6 +48,12 @@ Key values, decisions and assumptions of weft. The source of truth is [facts.tom
 | `directive.size` | 150–250 bytes | assumption | draft | Expected size of a weft-directive |
 | `directive.code_budget` | 10 KB | requirement | draft | Code budget of weft-directive without the crypto library (upper bound) |
 
+## ext
+
+| Id | Value | Kind | Status | Note |
+|---|---|---|---|---|
+| `ext.ads1115_rate_tolerance` | ±10 % | external | draft | ADS111x data rate variation, all data rates (electrical characteristics) ([source](https://www.ti.com/lit/ds/symlink/ads1115.pdf), checked 2026-11-24) |
+
 ## funding
 
 | Id | Value | Kind | Status | Note |
@@ -120,6 +126,13 @@ Key values, decisions and assumptions of weft. The source of truth is [facts.tom
 | Id | Value | Kind | Status | Note |
 |---|---|---|---|---|
 | `security.ack_working_days` | 3 | decision | decided | Working days until a vulnerability report is acknowledged |
+
+## sim
+
+| Id | Value | Kind | Status | Note |
+|---|---|---|---|---|
+| `sim.i2c_default_speed` | 100 kHz | decision | decided | Default SCL speed of a simulated I2C bus (standard mode, as on the Pi's i2c_arm) |
+| `sim.at24_write_cycle_ms` | 5 ms | decision | decided | Default EEPROM write cycle t_WR in the at24 model: the 24LC32A datasheet maximum |
 
 ## survey
 

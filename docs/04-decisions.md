@@ -106,6 +106,47 @@ Decided 2026-10-18, prototype working (one chip, x86-64 guest):
 - **Name:** weft-sim, not "weft-twin": in fleet platforms "device twin" means the cloud-side
   mirror of device state (AWS shadows, Azure twins), which weft also has.
 
+### Time in the models
+
+Decided 2026-11-24, implemented in weft-parts (unreleased after 0.0.2) and weft-sim:
+
+- **weft-sim stays untimed at the system level.** It checks register behaviour (do drivers and
+  overlays bind and talk to the chips), and under KVM, HVF or WHPX guest time follows real time,
+  so virtual time cannot be controlled there. Making weft-sim loosely timed would need TCG with
+  `-icount`, which breaks the "the guest's CPU follows the host's" rule above.
+- **The models are time-aware.** A model never reads a clock; the bus calls `advance(now)` before
+  every bus event and the model finishes what is due (an ADS1115 conversion after 1/DR, a 24C32
+  write cycle with the address NACKed until `t_WR` ends,
+  <!--f:sim.at24_write_cycle_ms-->5 ms<!--/f--> by default). `next_event()` says when a model
+  changes state on its own, for a scheduler or for ALERT/RDY lines later.
+- **Time is `SimTime`, integer nanoseconds (`u64`)**, not `Instant`, so a virtual clock can drive
+  it. The caller picks the clock: `VirtualClock` (moves only with bus traffic and driver delays,
+  implements embedded-hal `DelayNs`; deterministic; host tests) or `HostClock` (the monotonic
+  clock; weft-sim inside the guest). Not wall time (it jumps) and not a cycle counter: under a
+  hypervisor the guest's counters tick in real time, the PMU cycle counter is not deterministic
+  and not portable, and drivers time out on the kernel's clock, so models must use that same clock.
+- **Bus transfers take their bit time** at the SCL speed
+  (<!--f:sim.i2c_default_speed-->100 kHz<!--/f--> default): start and address 10 periods, each
+  byte 9, stop 1. No setup/hold times, no clock stretching (no modelled chip
+  stretches). A driver polling a busy bit therefore sees the chip finish after the right time.
+- **Each model owns its clock domain** (`ClockDomain`: nominal frequency plus a deviation in ppm)
+  and converts its own cycles to `SimTime`. Edges are computed from a fixed origin, never by
+  adding rounded periods, so long runs do not drift. Models use the datasheet maximum by default;
+  a test can set a deviation within the datasheet tolerance (ADS1115:
+  <!--f:ext.ads1115_rate_tolerance-->±10 %<!--/f-->).
+- **Consequence:** the same models fit a later loosely timed tier unchanged. The interface is the
+  TLM-2.0 loosely timed shape (timestamped transactions, time decided by the caller), so only the
+  clock source changes.
+
+Direction, not decided: a **CM5 twin** tier for running the exact CM5 software and MCU firmware.
+QEMU on TCG with `-icount` (single-threaded, deterministic) on an out-of-tree BCM2712 machine,
+RP1 modelled in QEMU with its low-speed controllers forwarded out, MCUs in Renode, and a small
+Rust hub that wires the endpoints from the board netlist and keeps them causally consistent
+(conservative synchronisation with lookahead from bus speeds: about 22 µs per I2C byte at
+400 kHz, 87 µs per UART byte at 115200 baud). The VideoCore firmware and EEPROM bootloader cannot
+be emulated; `tryboot`/`autoboot.txt` would be emulated in the machine model. Slow and Linux-first,
+so it complements weft-sim rather than replacing it. Candidates in [09-prior-art.md](09-prior-art.md).
+
 ## AI-built, human-decided
 
 weft is developed heavily with an AI coding assistant (Claude Code): it drafts most docs, code,
@@ -161,7 +202,7 @@ The concrete adoption contract (what a system must accept to use weft) and adopt
 | Ingestion | Kafka protocol, Bento, ClickHouse/QuestDB | |
 | Observability | OpenTelemetry, Fluent Bit, VictoriaMetrics, Perses | |
 | Twin / read model | Optional central read model (Ditto-like) built from signed documents | Not the source of truth |
-| Hardware test | **`weft-parts`** holds one data file per chip (pinouts, address straps, device tree facts) plus behavioural I2C/SPI models; **`weft-boardchecker`** checks the PCB (IPC-2581, fallback IPC-D-356A + BOM) against the compiled overlay, run by KiBot; **`weft-sim`** runs the real Linux drivers in a small QEMU guest against the models (see Board simulation below); **embedded-hal** runs Rust MCU drivers against them on the host; swtpm, Zephyr native_sim, KiCad + ngspice | Existing tools where they do the job; weft writes only chip data, models, the board checker and weft-sim's bus bridge. Pi firmware, boot chain, switch fabric and analogue behaviour need real hardware. See [09-prior-art.md](09-prior-art.md) |
+| Hardware test | **`weft-parts`** holds one data file per chip (pinouts, address straps, device tree facts) plus time-aware behavioural I2C/SPI models (see Time in the models below); **`weft-boardchecker`** checks the PCB (IPC-2581, fallback IPC-D-356A + BOM) against the compiled overlay, run by KiBot; **`weft-sim`** runs the real Linux drivers in a small QEMU guest against the models (see Board simulation below); **embedded-hal** runs Rust MCU drivers against them on the host; swtpm, Zephyr native_sim, KiCad + ngspice | Existing tools where they do the job; weft writes only chip data, models, the board checker and weft-sim's bus bridge. Pi firmware, boot chain, switch fabric and analogue behaviour need real hardware. See [09-prior-art.md](09-prior-art.md) |
 
 ## Industry standards: hub and spoke
 
