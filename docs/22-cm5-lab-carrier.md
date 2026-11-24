@@ -20,6 +20,7 @@ candidates until checked against datasheets and stock. Nothing is laid out yet.
 | Power input | **USB-C PD, 5 V 5 A, negotiated by the carrier** (§3.1) | One cable, like the IO Board and the Pi 5 supply; the carrier keeps the contract while the CM5 is cut off |
 | Size | **Larger than the IO Board** where the headers, supervisor and base need it | Probing room matters more than fitting the IO Board case |
 | Base | **A stable base plate** under the board (§4) | It sits on a table and stays put; no loose cables |
+| Signals on the module itself | **Reached too**: the test points on the CM5's underside (debug UART, SoC JTAG, RUN, nRESET_OUT and more) through pogo pins, using the 4.0 mm stacking connector; the U.FL antenna through a pigtail to the base (§3.4) | The boot console, JTAG and a hard reset exist only there |
 | Licence | **CERN-OHL-P-2.0** for the hardware design files, **MIT** for firmware and scripts | CERN-OHL-P is the permissive licence written for hardware; weft code stays MIT |
 
 The IO Board's design files may be used, modified and distributed (Raspberry Pi's licensing page,
@@ -30,7 +31,8 @@ between the outer and inner layers, which its impedance-controlled pairs rely on
 
 - **R1 Every signal reachable by hand.** Every one of the CM5's 200 connector pins ends at a header
   pin, a test point or a native connector, labelled with its CM5 name. Ground pins: test points
-  and ground pins spread through the headers.
+  and ground pins spread through the headers. The module's own test points that the connectors
+  do not carry (§3.4) end at a header too.
 - **R2 Every low-speed signal reachable by the supervisor:** all 28 GPIOs individually (drive,
   read, capture), every control and status pin, the SD/eMMC bus (switchable between CM5 and PC),
   and the control side of every high-speed interface (§3.3).
@@ -126,6 +128,7 @@ interfaces around the data instead.
 | PCIe/M.2 | power, reset, wake, current | load switch, IO expander |
 | Ethernet | disconnect and reconnect the link (network partition tests), see link LEDs | GbE-rated analog switch on the MDI pairs |
 | Buttons and fan | press PWR_BUT, read the fan PWM, fake a fan tachometer | as above |
+| Module test points (§3.4) | boot console (debug UART), SoC JTAG, hard reset (RUN), see resets (nRESET_OUT) | pogo pins under the module, translators |
 
 Supervisor: RP2350B (48 GPIO) at 3.3 V I/O, QSPI flash, crystal, its own SWD header. The 28 CM5
 GPIOs take 28 of its PIO-capable pins; slow control and status go through I2C IO expanders.
@@ -136,7 +139,27 @@ The supervisor cannot be a second USB device towards the CM5 (its one USB contro
 PC). Keyboard or mass-storage emulation into the CM5 would need a second small MCU on one of the
 CM5's USB ports; left as an option.
 
-### 3.4 Pin allocation
+### 3.4 Signals on the module itself
+
+Besides its two 100-pin connectors, the CM5 has (datasheet §2.8, §4.1.2, Appendix A):
+
+- an optional 3-pin, 1 mm JST-SH **debug UART** connector (BM03B-SRSS-TB, often not fitted), the
+  BCM2712's boot console as on the Pi 5; its TX and RX are also test points TP35 and TP36;
+- **test points on the underside**, at datasheet coordinates relative to the module: SoC JTAG
+  (SOC_TRST_N, TDI, TDO, TMS, TCK on TP48 to TP52), RUN (TP2), nRESET_OUT (TP21), nRPIBOOT, PWR_BUT,
+  5v_Sense, the USB 2.0 data lines, the Ethernet pairs, GPIO_VREF, the LEDs, power and ground;
+- a **U.FL connector** for an external Wi-Fi/Bluetooth antenna (selected at boot in config.txt).
+
+The carrier reaches the test points with **spring-loaded pogo pins** under the module. This needs
+the 4.0 mm stacking connector (Amphenol 10164227-1004A1RLF: 2.5 mm clearance under the CM5,
+instead of none with the 1.5 mm part), and pogo pins short enough for that gap. The supervisor
+uses the debug UART (boot console), JTAG (debugging the SoC; probe firmware on the RP2350, to
+choose), RUN (hold in reset without a power cut) and nRESET_OUT (see every reset); the rest go to
+a header for probing. The datasheet warns that component positions may change slightly between
+module revisions, so the pogo pins need tolerance and the footprint is checked against the module
+on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the base plate.
+
+### 3.5 Pin allocation
 
 | CM5 group (pins) | Goes to |
 |---|---|
@@ -152,7 +175,7 @@ CM5's USB ports; left as an option.
 | MIPI0/1 (20 + CAM_GPIO) | 2× 22-pin FPC; CAM_GPIO and SDA0/SCL0 to the supervisor and a header |
 | Ethernet (8 pairs + LEDs) | RJ45 MagJack through the disconnect switch |
 
-### 3.5 Part candidates (to check)
+### 3.6 Part candidates (to check)
 
 | Block | Candidate | Note |
 |---|---|---|
@@ -170,6 +193,7 @@ CM5's USB ports; left as an option.
 | GPIO_VREF select | TPS2116 class supply selector | switches only while the CM5 is off |
 | Ethernet disconnect | TS3L501E class GbE LAN switch | check insertion loss at 1 Gbit/s |
 | IO expanders | TCA6424 class | slow control and status |
+| Module test points | low-profile pogo pins (compressed height under 2.5 mm), 4.0 mm stacking connector 10164227-1004A1RLF | check height and pad size against a real CM5 |
 | Reused from the IO Board | DF40 connectors, HDMI, USB 3 switch (AP22653), M.2 buck (AP3441), RJ45 MagJack, ESD (TPD4EUSB30), RTC crystal | as designed by Raspberry Pi |
 
 ## 4. Base and mechanics (R10)
@@ -201,7 +225,10 @@ CM5's USB ports; left as an option.
 ## 6. Open questions
 
 - Verify on hardware that the CM5 boots with CC unconnected and takes `PSU_MAX_CURRENT` (3.1).
-- GPIO translator type (3.5): per-pin direction or auto-direction.
+- GPIO translator type (3.6): per-pin direction or auto-direction.
 - HDMI capture: an on-board capture chip or a USB capture stick on an internal hub port.
 - Keyboard and mass-storage emulation into the CM5 (a second MCU, 3.3).
-- Whether BCM2712 JTAG is reachable on CM5 GPIOs.
+- Pogo pins: a part short enough for 2.5 mm clearance, and how the test point positions vary
+  between CM5 revisions (3.4).
+- JTAG probe firmware for the RP2350 against the BCM2712 (CMSIS-DAP with JTAG, or another
+  probe), and whether the SoC's JTAG is enabled on production modules.
