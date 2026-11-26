@@ -15,14 +15,15 @@ candidates until checked against datasheets and stock. Nothing is laid out yet.
 | Question | Decision | Why |
 |---|---|---|
 | High-speed lanes (2× HDMI, 2× USB 3, 2× 4-lane MIPI, PCIe, GbE: about 70 of 200 pins) | **Native connectors**, impedance-controlled, with test points; everything else to headers | On a 2.54 mm header the pairs would not work at speed |
-| Control | **An on-board supervisor that handles everything a microcontroller can** (§3.3), reached over one USB-C from the PC | A supervisor that reaches only some signals leaves the agent depending on a person for the rest |
+| Control | **An on-board supervisor that handles everything a microcontroller can** (§3.3), reached over one USB-C from the lab host | A supervisor that reaches only some signals leaves the agent depending on a person for the rest |
+| Lab host | **A small Linux computer next to the carrier** (a Raspberry Pi 4 or Zero 2 W, a mini PC) on the lab USB-C, reached by the agent over the network; it runs rpiboot, esptool, picotool, video capture and labgrid (§3.8) (2026-11-26, maintainer) | The supervisor and the ESP32 are USB full speed only and have no storage: flashing a CM5 from them would take hours. The carrier works with any host, a laptop included |
 | Starting point | **Official CM5 IO Board (KiCad) plus code**: reuse its connector footprints and high-speed sections; design the new blocks as code and merge them into one KiCad project | Proven layout where it is risky, AI-first where AI is strong |
 | Power input | **USB-C PD, 5 V 5 A, negotiated by the carrier** (§3.1) | One cable, like the IO Board and the Pi 5 supply; the carrier keeps the contract while the CM5 is cut off |
 | Size | **Larger than the IO Board** where the headers, supervisor and base need it | Probing room matters more than fitting the IO Board case |
 | Base | **A stable base plate** under the board (§4) | It sits on a table and stays put; no loose cables |
 | Signals on the module itself | **Reached too**: the test points on the CM5's underside (debug UART/SWD, the PMIC's I2C bus, internal supply rails, status outputs) through pogo pins, using the 4.0 mm stacking connector; the U.FL antenna through a pigtail to the base (§3.4) | The boot console, SoC debug, the PMIC bus and the internal rails exist only there |
-| HDMI capture | **A USB capture stick on an internal hub port**, fed through a 1:2 HDMI switch (2026-11-24, maintainer) | A capture chip is a hard high-speed layout for little gain |
-| USB device emulation into the CM5 | **A second RP2350** on one of the CM5's USB ports: keyboard, mass storage (2026-11-24, maintainer) | The supervisor's one USB controller faces the PC |
+| HDMI capture | **A USB capture stick on a hub port** (USB-A), cabled from HDMI0 (2026-11-24, maintainer); revision 0.1 has no HDMI switch in between | A capture chip is a hard high-speed layout for little gain |
+| USB device emulation into the CM5, second microcontroller | **An ESP32-S3** on the CM5's USB 2.0 port (through the USB mux): keyboard, mass storage, serial, any class; also the Wi-Fi/BLE partner of the CM5 (2026-11-25, maintainer, replacing a second RP2350) | A different microcontroller family to work with; the supervisor's one USB controller faces the lab host |
 | Fabrication | **The cheapest maker that does 4-layer impedance control and assembly**, today JLCPCB; parts from its assembly library where possible (2026-11-24, maintainer) | Price decides; the design stays maker-neutral (KiCad, KiBot outputs) |
 | GPIO path to the supervisor | **Passive FET translators (LSF0108/NVT2008 class) with an enable**, plus switchable supervisor-side pull-ups; both 3.3 V and 1.8 V GPIO banks (2026-11-24, maintainer) | One part isolates the CM5 when it is off (R5), passes 3.3 V straight through and translates 1.8 V; no direction pins, unlike per-pin translators, and full drive, unlike auto-direction ones |
 | Virtual prototyping | **The supervisor emulates peripherals on the GPIOs with weft-parts models** (§3.7) (2026-11-24, maintainer) | The same model serves weft-sim, the carrier and the comparison with the real chip |
@@ -41,15 +42,15 @@ HDMI, MIPI, PCIe and Ethernet).
   and ground pins spread through the headers. The module's own test points that the connectors
   do not carry (§3.4) end at a header too.
 - **R2 Every low-speed signal reachable by the supervisor:** all 28 GPIOs individually (drive,
-  read, capture), every control and status pin, the SD/eMMC bus (switchable between CM5 and PC),
+  read, capture), every control and status pin, the SD/eMMC bus (switchable between CM5 and lab host; later revision),
   and the control side of every high-speed interface (§3.3).
 - **R3 Power under control.** The supervisor switches the CM5's 5 V on and off (a real power cut
   with fast discharge, for power-loss tests), switches the USB 3 port power, the M.2 supply and the
   RTC battery, and measures voltage and current on the 5 V input, the CM5's 3.3 V and 1.8 V
   outputs, the USB ports and the M.2 supply.
-- **R4 One cable for the agent.** One USB-C from the PC carries the supervisor (control, consoles,
-  measurement), the CM5's USB 2.0 OTG port (rpiboot flashing, gadget mode), the SD card reader and
-  the HDMI capture.
+- **R4 One cable for the agent.** One USB-C from the lab host carries the supervisor (control,
+  consoles, measurement), the CM5's USB 2.0 OTG port (rpiboot flashing, gadget mode) and the HDMI
+  capture. The SD card reader with an SD mux is left for a later revision.
 - **R5 Never back-power the CM5.** "No pins should be powered before the 5 V rail is active"
   (CM5 datasheet §3.1): nothing on the carrier drives a CM5 pin high while the CM5 is off.
 - **R6 The datasheet's power-up rules hold under supervisor control:** EEPROM_nWP low before
@@ -73,10 +74,13 @@ HDMI, MIPI, PCIe and Ethernet).
 ## 3. Architecture
 
 ```
- PC ── USB-C "lab" ──► USB 2.0 hub (4 ports) ─┬─► supervisor (RP2350B)
-                                              ├─► USB mux ──► CM5 USB 2.0 OTG (rpiboot, gadget)
-                                              ├─► SD card reader ◄─ SD mux ─► CM5 SD bus
-                                              └─► HDMI capture (HDMI0, behind a splitter or mux)
+ agent ── network ──► lab host (Linux) ── USB-C "lab" ──► USB 2.0 hub (4 ports)
+                          │                                ├─► supervisor (RP2350B) ──UART──► ESP32-S3
+                          └── Debug Probe ── SWD ──►        │     (and its SWD, for recovery)
+                              supervisor                   ├─► USB mux ─┬─► CM5 USB 2.0 OTG (rpiboot, gadget)
+                                                           │            └── ESP32-S3 USB (CM5 as host)
+                                                           ├─► USB-A: HDMI capture stick ◄── cable ── HDMI0
+                                                           └─► USB-A: spare
 
  PSU ── USB-C "power" ──► PD sink ──► eFuse (supervisor EN, limit) ──► CM5 5 V ──► discharge
 
@@ -136,9 +140,9 @@ interfaces around the data instead.
 | All 28 GPIOs | drive, read and capture each one; emulate peripherals (UART, I2C, SPI targets, a HAT ID EEPROM); logic analyser; fault injection (stuck-at, glitches) | LSF-class translators with enable, on RP2350B PIO pins; peripheral emulation in §3.7 |
 | Consoles | CM5 UART0 and any other GPIO UART as USB serial ports | through the GPIO path |
 | Status | LED_nACT, LED_nPWR, VBUS_EN, PCIE_PWR_EN, PCIE_nWAKE, Ethernet LEDs, SYNC_OUT, FAN_PWM; emulate FAN_TACHO | IO expander and translators |
-| USB 2.0 OTG | connect the CM5's OTG port to the PC (rpiboot flashing, gadget mode) or to a host port | USB mux behind the hub |
-| SD/eMMC bus | give the SD card to the CM5 or to the PC (reflash a CM5 Lite without touching it) | SD mux plus USB card reader behind the hub |
-| HDMI | emulate a monitor (EDID over DDC, hot plug), CEC; see the picture | supervisor I2C on DDC (level-shifted to 5 V); USB HDMI capture behind the hub |
+| USB 2.0 OTG | connect the CM5's OTG port to the lab host (rpiboot flashing, gadget mode) or to the ESP32-S3 (CM5 as host); set USB_OTG_ID to match (§3.8) | USB mux behind the hub, open-drain driver on USB_OTG_ID |
+| SD/eMMC bus | not in revision 0.1 (an SD mux and card reader would reflash a CM5 Lite's card); eMMC is flashed with rpiboot | – |
+| HDMI | emulate a monitor (EDID over DDC, hot plug), CEC; see the picture | supervisor I2C on DDC (level-shifted to 5 V); USB HDMI capture stick on a hub port |
 | MIPI | camera control I2C (SDA0/SCL0) and CAM_GPIO: emulate a sensor's registers | translators; no image lanes |
 | PCIe/M.2 | power, reset, wake, current | load switch, IO expander |
 | Ethernet | disconnect and reconnect the link (network partition tests), see link LEDs | GbE-rated analog switch on the MDI pairs |
@@ -151,8 +155,8 @@ Firmware in Rust, with an agent interface over USB (a small command protocol, th
 driver) and USB serial ports for the consoles.
 
 The supervisor cannot be a second USB device towards the CM5 (its one USB controller faces the
-PC). Keyboard and mass-storage emulation into the CM5 come from a second RP2350 on one of the
-CM5's USB ports, controlled by the supervisor over UART (decided, §1).
+lab host). Keyboard and mass-storage emulation into the CM5 come from the ESP32-S3 on the CM5's USB
+2.0 port, controlled by the supervisor over UART and two expander pins (EN, IO0) (decided, §1).
 
 ### 3.4 Signals on the module itself
 
@@ -241,7 +245,7 @@ module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the
 | GND (51) | ground plane, test points, ground pins in every header |
 | 5 V in, 3.3 V and 1.8 V out, VBAT (11) | power path above; test points; monitors |
 | GPIO0-27 incl. ID_SC/ID_SD (28) | the 40-pin HAT header and 2× 20-pin breakout headers in Raspberry Pi order; every line also to the supervisor through translators |
-| SD/eMMC (13), SD_PWR_ON, SD_VDD_OVERRIDE | microSD slot through the SD mux; header with test points |
+| SD/eMMC (13), SD_PWR_ON, SD_VDD_OVERRIDE | microSD slot (revision 0.1: direct, no SD mux); header with test points |
 | control (PMIC_EN, PWR_BUT, nRPIBOOT, EEPROM_nWP, WL/BT_nDisable, CC) | supervisor drivers; header with test points |
 | status (LED_nACT, LED_nPWR, VBUS_EN, PCIE_PWR_EN, PCIE_nWAKE, FAN_PWM/TACHO, Ethernet LEDs, SYNC_OUT) | LEDs, fan connector, supervisor; header |
 | HDMI0/1 (24 incl. DDC, CEC, hot plug) | 2× HDMI; DDC, CEC and hot plug to the supervisor and a header; HDMI0 also to the capture |
@@ -257,8 +261,8 @@ module on hand. The U.FL antenna goes through a pigtail to a bulkhead SMA on the
 | Supervisor | RP2350B + W25Q16JV + 12 MHz crystal | weft's lab MCU family (docs/17) |
 | USB hub | 4-port USB 2.0 hub (Microchip USB2514B class) | high speed for rpiboot and capture |
 | USB mux | TS3USB221 class | CM5 OTG to hub or host port |
-| SD mux and reader | TS3A27518E class SD switch; GL823K or USB2244 class card reader | as in USB-SD-Mux designs |
-| HDMI capture | USB capture stick (MS2130 class) on an internal hub port (decided) | HDMI0 through a passive splitter is not possible; a 1:2 HDMI switch or redriver feeds monitor or capture |
+| SD mux and reader (later revision) | TS3A27518E class SD switch; GL823K or USB2244 class card reader | as in USB-SD-Mux designs |
+| HDMI capture | USB capture stick (MS2130 class) on a hub USB-A port, cabled from HDMI0 (decided) | HDMI0 through a passive splitter is not possible; revision 0.1 has no switch, the cable goes to monitor or capture |
 | PD sink | a controller with dead-battery Rd and 5 V/5 A request | see 3.1 |
 | 5 V switch | eFuse in the TPS25947 class: 5 A+, adjustable limit, current monitor, power good | plus a discharge MOSFET |
 | Load switches | TPS22918 class for USB VBUS, M.2 3.3 V, VBAT | supervisor-controlled with the CM5's own enables OR-ed in |
@@ -299,6 +303,52 @@ The agent describes what sits on which pins (chip, address, pins, input values) 
 description that weft-sim reads too. Hardware: none beyond §3.3; the 28 GPIOs already end on PIO
 pins. Firmware: a model runtime on the RP2350 and the configuration protocol.
 
+### 3.8 Lab host, flashing and recovery
+
+The agent never touches the carrier directly. It reaches a **lab host** over the network: any
+Linux computer with a USB 2.0 host port next to the carrier (a Raspberry Pi 4 or Zero 2 W, a mini
+PC; in labgrid's terms the exporter). Its USB goes into the lab USB-C; a Raspberry Pi Debug Probe
+on another of its ports stays plugged into the supervisor's SWD connector (J201, the Raspberry Pi
+3-pin JST-SH debug connector: SWCLK, GND, SWDIO). The PolarFire Discovery Kit cannot be the lab
+host: it has no USB host port, and it is a device under test itself.
+
+```
+ agent ─ssh─► lab host ─┬─ USB ──► hub ─┬─ supervisor ──► CM5 (power, pins), ESP32 (UART, EN, IO0)
+                        │               ├─ USB mux ──► CM5 USB 2.0 (rpiboot, gadget)
+                        │               └─ capture stick (HDMI0)
+                        └─ USB ──► Debug Probe ── SWD ──► supervisor
+```
+
+The supervisor and the hub run from the lab USB (VBUS_LAB, or the power input through diodes), so
+the lab host reaches them while the CM5 is off or cut.
+
+**USB roles.** Two separate trees: the lab host is host of the hub (supervisor, CM5 USB 2.0 in
+position A, capture stick, spare port); the CM5 is host of its two USB 3 ports and, in position B
+of the mux, of the ESP32-S3. USB_OTG_ID is the CM5's OTG role input: "internally pulled up; when
+grounded, CM5 becomes a USB host but the correct OS driver must also be used" (CM5 datasheet,
+pin 101), and it matters only with `dtoverlay=dwc2,dr_mode=otg`. The supervisor sets it with the
+mux: position A (hub), released (device); position B (ESP32), low (host). With a fixed `dr_mode`
+in config.txt the pin is ignored.
+
+**Flashing, per chip:**
+
+| Chip | Normal path | When that fails |
+|---|---|---|
+| Supervisor (RP2350B) | blank flash: the boot ROM's USB bootloader appears by itself, `picotool load`; later `picotool reboot -f -u`, then `picotool load`; A/B partitions with the boot ROM's try-before-you-buy | SWD from the Debug Probe (probe-rs, OpenOCD), independent of the firmware |
+| ESP32-S3 | `esptool` on the lab host through the supervisor's USB serial port; the supervisor bridges UART0 and turns DTR/RTS into IO0 low and an EN pulse | from the CM5 over the ESP32's native USB (mux position B); the ROM download mode cannot be overwritten |
+| CM5 eMMC | supervisor: mux to A, USB_OTG_ID released, nRPIBOOT low, power cycle through the eFuse; lab host: `rpiboot -d mass-storage-gadget64`, `bmaptool copy`; supervisor: release nRPIBOOT, power cycle | always works: rpiboot does not depend on the eMMC contents |
+| CM5 bootloader EEPROM | as above with `rpiboot -d recovery5`; the supervisor releases EEPROM_nWP | same |
+
+**Recovery chain:** lab host → Debug Probe → supervisor → ESP32 and CM5. Nothing the agent writes
+to a chip can lock it out, as long as the Debug Probe stays attached. The last resort for a hung
+hub or supervisor is a power cycle of the whole carrier: the lab host cuts the lab USB, and a
+switched outlet cuts the USB-C power supply (the supervisor runs from either input).
+
+**Supervisor firmware requirements from this:** a USB serial bridge to the ESP32 with DTR/RTS
+mapped to EN and IO0; an "rpiboot" sequence (mux, USB_OTG_ID, nRPIBOOT, power cycle, release)
+within the 2 ms window of R6; reboot into the USB bootloader on command; interlocks in firmware as
+well as hardware (no translator enable while the CM5 is off, GPIO_VREF changes only while off).
+
 ## 4. Base and mechanics (R10)
 
 - The board sits on four or more standoffs on a **base plate** larger than the board: aluminium
@@ -326,6 +376,9 @@ pins. Firmware: a model runtime on the RP2350 and the configuration protocol.
    step a scripted test an agent can repeat.
 
 ## 6. Open questions
+
+- Whether runtime role switching through USB_OTG_ID works on the CM5 (`dr_mode=otg`; the
+  datasheet calls OTG "not officially documented"): a bring-up test. Fallback: a fixed `dr_mode`.
 
 - How the test point positions vary between CM5 revisions, and the test point pad size (not in the
   datasheet), checked against real modules (3.4).
